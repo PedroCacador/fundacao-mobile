@@ -15,6 +15,7 @@ import QrCodeView from '../views/qrcode/QrCodeView';
 import WalletView from '../views/wallet/WalletView';
 import NotificationsView from '../views/notifications/NotificationsView';
 import HistoryView from '../views/history/HistoryView';
+import LocationsView from '../views/locations/LocationsView';
 
 const Stack = createNativeStackNavigator();
 const ProfileStack = createNativeStackNavigator();
@@ -127,6 +128,15 @@ export default function AppNavigator() {
           headerShown: true,
           ...darkHeaderOptions,
           title: 'Notificações',
+        }}
+      />
+      <Stack.Screen
+        name="Locations"
+        component={LocationsView}
+        options={{
+          headerShown: true,
+          ...darkHeaderOptions,
+          title: 'Locais de Utilização',
         }}
       />
     </Stack.Navigator>
