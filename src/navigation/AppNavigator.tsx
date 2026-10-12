@@ -4,7 +4,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import LoginView from '../views/auth/LoginView';
-import RegisterView from '../views/auth/RegisterView';
 import HomeView from '../views/home/HomeView';
 import ProfileView from '../views/profile/ProfileView';
 import EditProfileView from '../views/profile/EditProfileView';
@@ -119,7 +118,6 @@ export default function AppNavigator() {
       initialRouteName="Login"
     >
       <Stack.Screen name="Login" component={LoginView} />
-      <Stack.Screen name="Register" component={RegisterView} />
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen
         name="Notifications"

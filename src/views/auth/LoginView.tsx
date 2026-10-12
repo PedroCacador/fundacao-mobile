@@ -87,12 +87,6 @@ export default function LoginView({ navigation }: any) {
             <Text style={styles.enterButtonText}>Entrar  →</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={styles.registerLink}>
-              Não tem conta? <Text style={styles.registerLinkBold}>Cadastre-se</Text>
-            </Text>
-          </TouchableOpacity>
-
           <Text style={styles.footer}>Fundação Cristiano Varella</Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -231,15 +225,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     letterSpacing: 1,
-  },
-  registerLink: {
-    color: '#6B7B8D',
-    fontSize: 14,
-    marginBottom: 30,
-  },
-  registerLinkBold: {
-    color: '#1B2A4A',
-    fontWeight: 'bold',
   },
   footer: {
     color: '#3A5A8C',
