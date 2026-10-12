@@ -1,17 +1,11 @@
+import { useMemo } from 'react';
 import { User } from '../models/User';
+import { mapearUsuario } from '../models/mapearUsuario';
+import { useAuth } from '../context/AuthContext';
 
 export function useProfileViewModel() {
-  const user: User = {
-    name: 'Ana Carolina Silva',
-    role: 'Colaboradora da FCV',
-    matricula: '4587',
-    email: 'ana.carolina@email.com',
-    phone: '(31) 98765-4321',
-    cpf: '123.456.789-00',
-    cargo: 'Analista Administrativo',
-    setor: 'Administrativo',
-    emailCorporativo: 'ana.silva@fcv.org.br',
-  };
+  const { usuario, logout } = useAuth();
+  const user: User = useMemo(() => mapearUsuario(usuario!), [usuario]);
 
   const employeeFields = [
     { icon: 'account-outline', label: 'Nome completo', value: user.name },
@@ -41,5 +35,5 @@ export function useProfileViewModel() {
     { icon: 'information-outline', label: 'Sobre o app', value: 'Versão 1.0.0' },
   ];
 
-  return { user, employeeFields, accountFields, editProfileFields, settingsOptions };
+  return { user, employeeFields, accountFields, editProfileFields, settingsOptions, logout };
 }

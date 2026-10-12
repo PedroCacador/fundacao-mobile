@@ -1,7 +1,10 @@
 import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../context/AuthContext';
 
 import LoginView from '../views/auth/LoginView';
 import HomeView from '../views/home/HomeView';
@@ -39,6 +42,8 @@ function ProfileStackNavigator() {
 }
 
 function TabNavigator() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -55,8 +60,8 @@ function TabNavigator() {
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.08,
           shadowRadius: 8,
-          height: 60,
-          paddingBottom: 8,
+          height: 60 + insets.bottom,
+          paddingBottom: 8 + insets.bottom,
           paddingTop: 6,
         },
         tabBarLabelStyle: {
@@ -112,31 +117,43 @@ function TabNavigator() {
 }
 
 export default function AppNavigator() {
+  const { usuario, restaurando } = useAuth();
+
+  if (restaurando) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F5F7FA' }}>
+        <ActivityIndicator size="large" color="#1B2A4A" />
+      </View>
+    );
+  }
+
   return (
-    <Stack.Navigator
-      screenOptions={{ headerShown: false }}
-      initialRouteName="Login"
-    >
-      <Stack.Screen name="Login" component={LoginView} />
-      <Stack.Screen name="Main" component={TabNavigator} />
-      <Stack.Screen
-        name="Notifications"
-        component={NotificationsView}
-        options={{
-          headerShown: true,
-          ...darkHeaderOptions,
-          title: 'Notificações',
-        }}
-      />
-      <Stack.Screen
-        name="Locations"
-        component={LocationsView}
-        options={{
-          headerShown: true,
-          ...darkHeaderOptions,
-          title: 'Locais de Utilização',
-        }}
-      />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {usuario ? (
+        <>
+          <Stack.Screen name="Main" component={TabNavigator} />
+          <Stack.Screen
+            name="Notifications"
+            component={NotificationsView}
+            options={{
+              headerShown: true,
+              ...darkHeaderOptions,
+              title: 'Notificações',
+            }}
+          />
+          <Stack.Screen
+            name="Locations"
+            component={LocationsView}
+            options={{
+              headerShown: true,
+              ...darkHeaderOptions,
+              title: 'Locais de Utilização',
+            }}
+          />
+        </>
+      ) : (
+        <Stack.Screen name="Login" component={LoginView} />
+      )}
     </Stack.Navigator>
   );
 }

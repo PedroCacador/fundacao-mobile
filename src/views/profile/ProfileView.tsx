@@ -5,13 +5,26 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useProfileViewModel } from '../../viewmodels/useProfileViewModel';
 
 export default function ProfileView({ navigation }: any) {
-  const { user } = useProfileViewModel();
+  const { user, logout } = useProfileViewModel();
+
+  const confirmarSaida = () => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Deseja realmente sair da sua conta?')) logout();
+      return;
+    }
+    Alert.alert('Sair da conta', 'Deseja realmente sair da sua conta?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Sair', style: 'destructive', onPress: () => logout() },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -86,6 +99,15 @@ export default function ProfileView({ navigation }: any) {
             </View>
             <MaterialCommunityIcons name="chevron-right" size={24} color="#8E99A4" />
           </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={confirmarSaida}
+          activeOpacity={0.7}
+        >
+          <MaterialCommunityIcons name="logout" size={22} color="#B3261E" />
+          <Text style={styles.logoutText}>Sair da conta</Text>
         </TouchableOpacity>
 
       </ScrollView>
@@ -194,5 +216,22 @@ const styles = StyleSheet.create({
   cardSubtitle: {
     fontSize: 13,
     color: '#6B7B8D',
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 16,
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: '#F3C9C5',
+  },
+  logoutText: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#B3261E',
   },
 });

@@ -8,14 +8,23 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useAuthViewModel } from '../../viewmodels/useAuthViewModel';
 
-export default function LoginView({ navigation }: any) {
+export default function LoginView() {
+  const { login, carregando, erro, limparErro } = useAuthViewModel();
   const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
   const [senhaVisivel, setSenhaVisivel] = useState(false);
+
+  const entrar = () => {
+    if (!carregando) {
+      login(usuario, senha);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,11 +61,20 @@ export default function LoginView({ navigation }: any) {
               <MaterialCommunityIcons name="account-outline" size={22} color="#8E99A4" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Usuário"
+                placeholder="E-mail"
                 placeholderTextColor="#8E99A4"
                 value={usuario}
-                onChangeText={setUsuario}
+                onChangeText={(texto) => {
+                  setUsuario(texto);
+                  if (erro) limparErro();
+                }}
                 autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="email-address"
+                textContentType="emailAddress"
+                autoComplete="email"
+                returnKeyType="next"
+                editable={!carregando}
               />
             </View>
 
@@ -67,13 +85,30 @@ export default function LoginView({ navigation }: any) {
                 placeholder="Senha"
                 placeholderTextColor="#8E99A4"
                 value={senha}
-                onChangeText={setSenha}
+                onChangeText={(texto) => {
+                  setSenha(texto);
+                  if (erro) limparErro();
+                }}
                 secureTextEntry={!senhaVisivel}
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="password"
+                autoComplete="password"
+                returnKeyType="go"
+                onSubmitEditing={entrar}
+                editable={!carregando}
               />
               <TouchableOpacity onPress={() => setSenhaVisivel(!senhaVisivel)}>
                 <MaterialCommunityIcons name={senhaVisivel ? 'eye-outline' : 'eye-off-outline'} size={22} color="#8E99A4" />
               </TouchableOpacity>
             </View>
+
+            {erro ? (
+              <View style={styles.errorBox}>
+                <MaterialCommunityIcons name="alert-circle-outline" size={18} color="#B3261E" />
+                <Text style={styles.errorText}>{erro}</Text>
+              </View>
+            ) : null}
 
             <TouchableOpacity>
               <Text style={styles.forgotPassword}>Esqueceu sua senha?</Text>
@@ -81,10 +116,16 @@ export default function LoginView({ navigation }: any) {
           </View>
 
           <TouchableOpacity
-            style={styles.enterButton}
-            onPress={() => navigation.navigate('Main')}
+            style={[styles.enterButton, carregando && styles.enterButtonDisabled]}
+            onPress={entrar}
+            disabled={carregando}
+            activeOpacity={0.8}
           >
-            <Text style={styles.enterButtonText}>Entrar  →</Text>
+            {carregando ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.enterButtonText}>Entrar  →</Text>
+            )}
           </TouchableOpacity>
 
           <Text style={styles.footer}>Fundação Cristiano Varella</Text>
@@ -225,6 +266,25 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     letterSpacing: 1,
+  },
+  enterButtonDisabled: {
+    opacity: 0.7,
+  },
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FDECEA',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginTop: 4,
+  },
+  errorText: {
+    flex: 1,
+    marginLeft: 8,
+    color: '#B3261E',
+    fontSize: 13,
+    lineHeight: 18,
   },
   footer: {
     color: '#3A5A8C',

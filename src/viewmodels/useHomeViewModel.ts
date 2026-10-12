@@ -1,18 +1,12 @@
+import { useMemo } from 'react';
 import { User } from '../models/User';
 import { BenefitSummary } from '../models/Benefit';
+import { mapearUsuario } from '../models/mapearUsuario';
+import { useAuth } from '../context/AuthContext';
 
 export function useHomeViewModel() {
-  const user: User = {
-    name: 'Ana Carolina Silva',
-    role: 'Colaboradora da FCV',
-    matricula: '4587',
-    email: 'ana.carolina@email.com',
-    phone: '(31) 98765-4321',
-    cpf: '123.456.789-00',
-    cargo: 'Analista Administrativo',
-    setor: 'Administrativo',
-    emailCorporativo: 'ana.silva@fcv.org.br',
-  };
+  const { usuario } = useAuth();
+  const user: User = useMemo(() => mapearUsuario(usuario!), [usuario]);
 
   const benefitSummary: BenefitSummary = {
     totalBeneficios: 5,
