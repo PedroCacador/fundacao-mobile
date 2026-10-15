@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
+  ActivityIndicator,
+  RefreshControl,
   View,
   Text,
   StyleSheet,
@@ -10,12 +12,65 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 
+type IconeCategoria = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+
+function obterApresentacaoCategoria(categoria: string): {
+  icone: IconeCategoria;
+  fundo: string;
+  cor: string;
+} {
+  const normalizada = categoria
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR');
+
+  if (/academ|academia|musculacao|fitness/.test(normalizada)) {
+    return { icone: 'dumbbell', fundo: '#F3E8FF', cor: '#8046CC' };
+  }
+  if (/farmac|medicamento|drogaria/.test(normalizada)) {
+    return { icone: 'pill', fundo: '#E8F1FC', cor: '#3569A8' };
+  }
+  if (/aliment|restaurante|comida|refeicao/.test(normalizada)) {
+    return { icone: 'silverware-fork-knife', fundo: '#FDECEB', cor: '#D94F45' };
+  }
+  if (/saude|bem.?estar/.test(normalizada)) {
+    return { icone: 'heart-pulse', fundo: '#F3E8FF', cor: '#8046CC' };
+  }
+  if (/cultura|lazer|cinema|teatro/.test(normalizada)) {
+    return { icone: 'ticket-confirmation-outline', fundo: '#E8F5E9', cor: '#388E3C' };
+  }
+  if (/educa|curso|ensino/.test(normalizada)) {
+    return { icone: 'school-outline', fundo: '#E8F1FC', cor: '#3569A8' };
+  }
+  if (/transporte|mobilidade|viagem/.test(normalizada)) {
+    return { icone: 'bus', fundo: '#FFF3E0', cor: '#C77716' };
+  }
+  if (/tecnologia|eletron/.test(normalizada)) {
+    return { icone: 'laptop', fundo: '#E5F4F7', cor: '#287A8A' };
+  }
+  return { icone: 'tag-outline', fundo: '#E8EDF2', cor: '#52677F' };
+}
+
 export default function HomeView({ navigation }: any) {
-  const { user, benefitSummary } = useHomeViewModel();
+  const {
+    user,
+    beneficios,
+    conveniados,
+    beneficiosAtivos,
+    categorias,
+    carregando,
+    erro,
+    recarregar,
+  } = useHomeViewModel();
+  const conveniadosAtivos = conveniados.filter((item) => item.status === 'ATIVO').length;
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<string | null>(null);
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={carregando} onRefresh={recarregar} />}
+      >
 
         <View style={styles.topBar}>
           <View style={{ flex: 1 }} />
@@ -40,28 +95,34 @@ export default function HomeView({ navigation }: any) {
         </View>
 
         <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Resumo dos seus benefícios</Text>
+          <Text style={styles.summaryTitle}>Resumo dos benefícios</Text>
           <View style={styles.summaryRow}>
             <View style={styles.summaryItem}>
               <View style={styles.summaryIconCircle}>
                 <MaterialCommunityIcons name="gift-outline" size={22} color="#3A5A8C" />
               </View>
-              <Text style={styles.summaryValue}>{benefitSummary.totalBeneficios}</Text>
-              <Text style={styles.summaryLabel}>Benefícios{'\n'}disponíveis</Text>
+              <Text style={styles.summaryValue}>
+                {carregando && beneficios.length === 0 ? '—' : beneficios.length}
+              </Text>
+              <Text style={styles.summaryLabel}>Benefícios{'\n'}cadastrados</Text>
             </View>
             <View style={styles.summaryItem}>
               <View style={styles.summaryIconCircle}>
-                <MaterialCommunityIcons name="ticket-outline" size={22} color="#3A5A8C" />
+                <MaterialCommunityIcons name="check-circle-outline" size={22} color="#3A5A8C" />
               </View>
-              <Text style={styles.summaryValue}>{benefitSummary.utilizacoesRestantes}</Text>
-              <Text style={styles.summaryLabel}>Utilizações{'\n'}restantes</Text>
+              <Text style={styles.summaryValue}>
+                {carregando && beneficios.length === 0 ? '—' : beneficiosAtivos}
+              </Text>
+              <Text style={styles.summaryLabel}>Benefícios{'\n'}ativos</Text>
             </View>
             <View style={styles.summaryItem}>
               <View style={styles.summaryIconCircle}>
-                <MaterialCommunityIcons name="calendar-outline" size={22} color="#3A5A8C" />
+                <MaterialCommunityIcons name="store-outline" size={22} color="#3A5A8C" />
               </View>
-              <Text style={styles.summaryValue}>{benefitSummary.proximaRenovacao}</Text>
-              <Text style={styles.summaryLabel}>Próxima{'\n'}renovação</Text>
+              <Text style={styles.summaryValue}>
+                {carregando && conveniados.length === 0 ? '—' : conveniadosAtivos}
+              </Text>
+              <Text style={styles.summaryLabel}>Conveniados{'\n'}ativos</Text>
             </View>
           </View>
         </View>
@@ -125,55 +186,161 @@ export default function HomeView({ navigation }: any) {
         </ScrollView>
 
         <View style={styles.benefitsHeader}>
-          <Text style={styles.benefitsTitle}>Seus benefícios</Text>
-          <TouchableOpacity style={styles.benefitsSeeAllBtn}>
-            <Text style={styles.benefitsSeeAll}>Ver todos</Text>
-            <MaterialCommunityIcons name="chevron-right" size={16} color="#3A5A8C" />
-          </TouchableOpacity>
+          <Text style={styles.benefitsTitle}>Benefícios por categoria</Text>
         </View>
 
         <View style={styles.benefitsList}>
-          <TouchableOpacity style={styles.benefitListItem} activeOpacity={0.7}>
-            <View style={[styles.benefitListIconCircle, { backgroundColor: '#FDECEB' }]}>
-              <MaterialCommunityIcons name="silverware-fork-knife" size={24} color="#E85D55" />
-            </View>
-            <View style={styles.benefitListContent}>
-              <Text style={styles.benefitListTitle}>Alimentação</Text>
-              <Text style={styles.benefitListDesc}>Restaurantes e estabelecimentos conveniados</Text>
-              <View style={styles.benefitListBadge}>
-                <Text style={styles.benefitListBadgeText}>5 utilizações restantes</Text>
-              </View>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={20} color="#C0C8D1" />
-          </TouchableOpacity>
+          {carregando && beneficios.length === 0 ? (
+            <ActivityIndicator color="#3A5A8C" size="large" />
+          ) : erro && beneficios.length === 0 ? (
+            <Text style={styles.catalogMessage}>{erro}</Text>
+          ) : categorias.length === 0 ? (
+            <Text style={styles.catalogMessage}>
+              Nenhum benefício cadastrado na API.
+            </Text>
+          ) : (
+            <>
+              {erro ? <Text style={styles.catalogWarning}>{erro}</Text> : null}
+              {categorias.map((categoria) => {
+              const apresentacao = obterApresentacaoCategoria(categoria.nome);
+              const selecionada = categoriaSelecionada === categoria.nome;
+              const quantidadeItens =
+                categoria.conveniados.length + categoria.beneficiosSemConveniado.length;
 
-          <TouchableOpacity style={styles.benefitListItem} activeOpacity={0.7}>
-            <View style={[styles.benefitListIconCircle, { backgroundColor: '#F3E8FF' }]}>
-              <MaterialCommunityIcons name="heart-pulse" size={24} color="#9055E8" />
-            </View>
-            <View style={styles.benefitListContent}>
-              <Text style={styles.benefitListTitle}>Saúde e Bem-estar</Text>
-              <Text style={styles.benefitListDesc}>Academias, farmácias e serviços de saúde</Text>
-              <View style={styles.benefitListBadge}>
-                <Text style={styles.benefitListBadgeText}>3 utilizações restantes</Text>
-              </View>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={20} color="#C0C8D1" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.benefitListItem} activeOpacity={0.7}>
-            <View style={[styles.benefitListIconCircle, { backgroundColor: '#E8F5E9' }]}>
-              <MaterialCommunityIcons name="gift-outline" size={24} color="#4CAF50" />
-            </View>
-            <View style={styles.benefitListContent}>
-              <Text style={styles.benefitListTitle}>Cultura e Lazer</Text>
-              <Text style={styles.benefitListDesc}>Cinema, teatro, parques e muito mais</Text>
-              <View style={styles.benefitListBadge}>
-                <Text style={styles.benefitListBadgeText}>2 utilizações restantes</Text>
-              </View>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={20} color="#C0C8D1" />
-          </TouchableOpacity>
+              return (
+                <View key={categoria.nome}>
+                  <TouchableOpacity
+                    style={[
+                      styles.categoryCard,
+                      selecionada && styles.categoryCardSelected,
+                    ]}
+                    activeOpacity={0.82}
+                    onPress={() =>
+                      setCategoriaSelecionada(selecionada ? null : categoria.nome)
+                    }
+                  >
+                    <View
+                      style={[
+                        styles.categoryIcon,
+                        { backgroundColor: apresentacao.fundo },
+                      ]}
+                    >
+                      <MaterialCommunityIcons
+                        name={apresentacao.icone}
+                        size={25}
+                        color={apresentacao.cor}
+                      />
+                    </View>
+                    <View style={styles.benefitListContent}>
+                      <Text style={styles.categoryTitle}>{categoria.nome}</Text>
+                      <Text style={styles.categorySubtitle}>
+                        {categoria.nome === 'Sem conveniado vinculado'
+                          ? `${categoria.beneficiosSemConveniado.length} benefícios`
+                          : `${categoria.conveniados.length} ${
+                              categoria.conveniados.length === 1 ? 'conveniado' : 'conveniados'
+                            }`}
+                      </Text>
+                    </View>
+                    <View style={styles.categoryTrailing}>
+                      <View style={styles.categoryCount}>
+                        <Text style={styles.categoryCountText}>
+                          {quantidadeItens}
+                        </Text>
+                      </View>
+                      <MaterialCommunityIcons
+                        name={selecionada ? 'chevron-up' : 'chevron-down'}
+                        size={21}
+                        color="#728197"
+                      />
+                    </View>
+                  </TouchableOpacity>
+                  {selecionada
+                    ? categoria.conveniados.map(({ conveniado, beneficios: beneficiosDoConveniado }) => (
+                        <View key={conveniado.id} style={styles.categoryBenefit}>
+                          <View style={styles.vendorHeading}>
+                            <MaterialCommunityIcons
+                              name="store-outline"
+                              size={19}
+                              color={apresentacao.cor}
+                            />
+                            <Text style={styles.vendorTitle}>{conveniado.nome_fantasia}</Text>
+                            <View style={styles.statusPill}>
+                              <Text style={styles.statusPillText}>{conveniado.status}</Text>
+                            </View>
+                          </View>
+                          {beneficiosDoConveniado.map(({ beneficio, statusOferta }) => (
+                            <View key={beneficio.id} style={styles.vendorBenefit}>
+                              <View style={styles.benefitHeading}>
+                                <Text style={styles.benefitListTitle}>{beneficio.nome}</Text>
+                                <View style={styles.statusPill}>
+                                  <Text style={styles.statusPillText}>{beneficio.status}</Text>
+                                </View>
+                              </View>
+                              <Text style={styles.offerStatus}>Oferta: {statusOferta}</Text>
+                              {beneficio.descricao ? (
+                                <Text style={styles.benefitListDesc}>{beneficio.descricao}</Text>
+                              ) : null}
+                              <View style={styles.benefitMeta}>
+                                <View style={styles.benefitMetaItem}>
+                                  <MaterialCommunityIcons
+                                    name="tag-outline"
+                                    size={16}
+                                    color="#52677F"
+                                  />
+                                  <Text style={styles.benefitMetaText}>
+                                    {beneficio.tipo_beneficio} {beneficio.valor}
+                                  </Text>
+                                </View>
+                                <View style={styles.benefitMetaItem}>
+                                  <MaterialCommunityIcons
+                                    name="counter"
+                                    size={16}
+                                    color="#52677F"
+                                  />
+                                  <Text style={styles.benefitMetaText}>
+                                    Até {beneficio.quantidade_maxima_utilizacoes} utilizações
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      ))
+                    : null}
+                  {selecionada
+                    ? categoria.beneficiosSemConveniado.map((beneficio) => (
+                        <View key={beneficio.id} style={styles.categoryBenefit}>
+                          <View style={styles.benefitHeading}>
+                            <Text style={styles.benefitListTitle}>{beneficio.nome}</Text>
+                            <View style={styles.statusPill}>
+                              <Text style={styles.statusPillText}>{beneficio.status}</Text>
+                            </View>
+                          </View>
+                          {beneficio.descricao ? (
+                            <Text style={styles.benefitListDesc}>{beneficio.descricao}</Text>
+                          ) : null}
+                          <View style={styles.benefitMeta}>
+                            <View style={styles.benefitMetaItem}>
+                              <MaterialCommunityIcons name="tag-outline" size={16} color="#52677F" />
+                              <Text style={styles.benefitMetaText}>
+                                {beneficio.tipo_beneficio} {beneficio.valor}
+                              </Text>
+                            </View>
+                            <View style={styles.benefitMetaItem}>
+                              <MaterialCommunityIcons name="counter" size={16} color="#52677F" />
+                              <Text style={styles.benefitMetaText}>
+                                Até {beneficio.quantidade_maxima_utilizacoes} utilizações
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      ))
+                    : null}
+                </View>
+              );
+              })}
+            </>
+          )}
         </View>
 
       </ScrollView>
@@ -348,39 +515,63 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#1B2A4A',
   },
-  benefitsSeeAllBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  benefitsSeeAll: {
-    fontSize: 13,
-    color: '#3A5A8C',
-    fontWeight: '600',
-    marginRight: 2,
-  },
   benefitsList: {
     paddingHorizontal: 20,
   },
-  benefitListItem: {
+  categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 18,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E8EDF2',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.035,
+    shadowRadius: 5,
+    elevation: 1,
   },
-  benefitListIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+  categoryCardSelected: {
+    borderColor: '#C8D5E5',
+  },
+  categoryIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,
+    marginRight: 14,
+  },
+  categoryTitle: {
+    color: '#1B2A4A',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  categorySubtitle: {
+    color: '#748196',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  categoryTrailing: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  categoryCount: {
+    minWidth: 28,
+    height: 28,
+    paddingHorizontal: 7,
+    borderRadius: 14,
+    backgroundColor: '#F0F4F8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryCountText: {
+    color: '#3A5A8C',
+    fontSize: 12,
+    fontWeight: '700',
   },
   benefitListContent: {
     flex: 1,
@@ -397,16 +588,93 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     lineHeight: 16,
   },
-  benefitListBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#F0F4F8',
+  offerStatus: {
+    color: '#748196',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  categoryBenefit: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    marginLeft: 26,
+    marginRight: 4,
+    marginTop: -2,
+    marginBottom: 12,
+    padding: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: '#D8E2EF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.035,
+    shadowRadius: 5,
+    elevation: 1,
+  },
+  vendorHeading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderBottomColor: '#EDF0F4',
+    borderBottomWidth: 1,
+    paddingBottom: 10,
+  },
+  vendorTitle: {
+    color: '#1B2A4A',
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  vendorBenefit: {
+    paddingTop: 12,
+  },
+  benefitHeading: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  statusPill: {
+    backgroundColor: '#E8F5E9',
+    borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 12,
   },
-  benefitListBadgeText: {
+  statusPillText: {
+    color: '#388E3C',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  benefitMeta: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 10,
+  },
+  benefitMetaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#F5F7FA',
+    borderRadius: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+  },
+  benefitMetaText: {
+    color: '#52677F',
     fontSize: 11,
     fontWeight: '600',
-    color: '#3A5A8C',
+  },
+  catalogMessage: {
+    color: '#5D6875',
+    fontSize: 14,
+    paddingVertical: 20,
+    textAlign: 'center',
+  },
+  catalogWarning: {
+    color: '#8A5A00',
+    backgroundColor: '#FFF3D6',
+    borderRadius: 10,
+    fontSize: 13,
+    marginBottom: 12,
+    padding: 12,
   },
 });
