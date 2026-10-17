@@ -128,6 +128,24 @@ export default function LoginView() {
             )}
           </TouchableOpacity>
 
+          {/* Seção de Teste e Cadastro Rápido para Desenvolvimento */}
+          <View style={styles.devCard}>
+            <Text style={styles.devCardTitulo}>🛠️ Modo de Teste Rápido</Text>
+            <Text style={styles.devCardSub}>
+              Use a conta oficial do protótipo (Ana Carolina Silva) com 1 clique:
+            </Text>
+            <TouchableOpacity
+              style={styles.devBotaoPreencher}
+              onPress={() => {
+                setUsuario('ana.silva@fcv.org.br');
+                setSenha('123');
+              }}
+            >
+              <MaterialCommunityIcons name="account-arrow-right-outline" size={18} color="#1B2A4A" />
+              <Text style={styles.devBotaoTexto}>Preencher: ana.silva@fcv.org.br (123)</Text>
+            </TouchableOpacity>
+          </View>
+
           <Text style={styles.footer}>Fundação Cristiano Varella</Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -290,5 +308,45 @@ const styles = StyleSheet.create({
     color: '#3A5A8C',
     fontSize: 13,
     fontWeight: '500',
+    marginTop: 16,
+  },
+  devCard: {
+    marginTop: 16,
+    width: '85%',
+    backgroundColor: '#FFFFFF',
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderStyle: 'dashed',
+    alignItems: 'center',
+  },
+  devCardTitulo: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#1B2A4A',
+    marginBottom: 4,
+  },
+  devCardSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  devBotaoPreencher: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#EEF4FF',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#C7D9FE',
+  },
+  devBotaoTexto: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#1B2A4A',
   },
 });
