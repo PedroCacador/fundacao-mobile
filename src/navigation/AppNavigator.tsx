@@ -15,6 +15,7 @@ import AccountInfoView from '../views/profile/AccountInfoView';
 import SettingsView from '../views/profile/SettingsView';
 import QrCodeView from '../views/qrcode/QrCodeView';
 import WalletView from '../views/wallet/WalletView';
+import BenefitDetailsView from '../views/benefit/BenefitDetailsView';
 import NotificationsView from '../views/notifications/NotificationsView';
 import HistoryView from '../views/history/HistoryView';
 import LocationsView from '../views/locations/LocationsView';
@@ -132,6 +133,15 @@ export default function AppNavigator() {
       {usuario ? (
         <>
           <Stack.Screen name="Main" component={TabNavigator} />
+          <Stack.Screen
+            name="BenefitDetails"
+            component={BenefitDetailsView}
+            options={{
+              headerShown: true,
+              ...darkHeaderOptions,
+              title: 'Detalhes do Benefício',
+            }}
+          />
           <Stack.Screen
             name="Notifications"
             component={NotificationsView}
