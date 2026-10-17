@@ -3,6 +3,7 @@ import { UsuarioAutenticado } from '../models/Auth';
 import { ApiError } from '../services/api';
 import { authService } from '../services/authService';
 import { tokenStorage } from '../services/tokenStorage';
+import { mockDataService } from '../data/mockDataService';
 
 interface AuthContextData {
   usuario: UsuarioAutenticado | null;
@@ -26,6 +27,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function restaurarSessao() {
       try {
+        // 1. Verifica se há sessão mock ativa de desenvolvimento
+        const sessaoMock = await mockDataService.obterSessaoMock();
+        if (sessaoMock && ativo) {
+          setToken(sessaoMock.token);
+          setUsuario(sessaoMock.usuario);
+          return;
+        }
+
+        // 2. Caso contrário, verifica o token seguro da API
         const tokenSalvo = await tokenStorage.obter();
         if (!tokenSalvo) return;
 
@@ -55,22 +65,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, senha: string) => {
-    const resposta = await authService.login(email.trim(), senha);
+    try {
+      // Tenta login na API real primeiro
+      const resposta = await authService.login(email.trim(), senha);
 
-    if (resposta.usuario.escopo !== 'COLABORADOR') {
-      throw new ApiError(
-        'Este aplicativo é exclusivo para colaboradores da FCV. Utilize o portal web.',
-        403,
-      );
+      if (resposta.usuario.escopo !== 'COLABORADOR') {
+        throw new ApiError(
+          'Este aplicativo é exclusivo para colaboradores da FCV. Utilize o portal web.',
+          403,
+        );
+      }
+
+      await tokenStorage.salvar(resposta.token);
+      setToken(resposta.token);
+      setUsuario(resposta.usuario);
+    } catch (e) {
+      // Se a API estiver offline ou der erro de rede, tenta validar no mockDataService local
+      try {
+        const resultadoMock = await mockDataService.loginLocal(email, senha);
+        setToken(resultadoMock.token);
+        setUsuario(resultadoMock.usuario);
+      } catch {
+        // Se também falhar no mock local, propaga o erro original
+        throw e;
+      }
     }
-
-    await tokenStorage.salvar(resposta.token);
-    setToken(resposta.token);
-    setUsuario(resposta.usuario);
   }, []);
 
   const logout = useCallback(async () => {
     await tokenStorage.remover();
+    await mockDataService.limparSessaoMock();
     setToken(null);
     setUsuario(null);
   }, []);
