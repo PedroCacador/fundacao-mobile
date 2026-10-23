@@ -13,7 +13,6 @@ import EditProfileView from '../views/profile/EditProfileView';
 import EmployeeDataView from '../views/profile/EmployeeDataView';
 import AccountInfoView from '../views/profile/AccountInfoView';
 import SettingsView from '../views/profile/SettingsView';
-import SupportView from '../views/support/SupportView';
 import WalletView from '../views/wallet/WalletView';
 import BenefitDetailsView from '../views/benefit/BenefitDetailsView';
 import NotificationsView from '../views/notifications/NotificationsView';
@@ -38,7 +37,6 @@ function ProfileStackNavigator() {
       <ProfileStack.Screen name="EmployeeData" component={EmployeeDataView} options={{ title: 'Dados do Colaborador' }} />
       <ProfileStack.Screen name="AccountInfo" component={AccountInfoView} options={{ title: 'Informações da Conta' }} />
       <ProfileStack.Screen name="Settings" component={SettingsView} options={{ title: 'Configurações' }} />
-      <ProfileStack.Screen name="Support" component={SupportView} options={{ title: 'Suporte e FAQ' }} />
     </ProfileStack.Navigator>
   );
 }

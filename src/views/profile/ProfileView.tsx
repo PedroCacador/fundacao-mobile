@@ -102,23 +102,6 @@ export default function ProfileView({ navigation }: any) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Support')}
-          activeOpacity={0.7}
-        >
-          <View style={styles.cardHeader}>
-            <View style={styles.cardIconCircle}>
-              <MaterialCommunityIcons name="help-circle-outline" size={24} color="#1B2A4A" />
-            </View>
-            <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>Suporte e FAQ</Text>
-              <Text style={styles.cardSubtitle}>Dúvidas frequentes, WhatsApp e abertura de chamados.</Text>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#8E99A4" />
-          </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity
           style={styles.logoutButton}
           onPress={confirmarSaida}
           activeOpacity={0.7}
