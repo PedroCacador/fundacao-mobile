@@ -14,7 +14,6 @@ import EmployeeDataView from '../views/profile/EmployeeDataView';
 import AccountInfoView from '../views/profile/AccountInfoView';
 import SettingsView from '../views/profile/SettingsView';
 import SupportView from '../views/support/SupportView';
-import QrCodeView from '../views/qrcode/QrCodeView';
 import WalletView from '../views/wallet/WalletView';
 import BenefitDetailsView from '../views/benefit/BenefitDetailsView';
 import NotificationsView from '../views/notifications/NotificationsView';
@@ -88,14 +87,6 @@ function TabNavigator() {
         options={{
           title: 'Carteira',
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="wallet" size={size} color={color} />,
-        }}
-      />
-      <Tab.Screen
-        name="QrCode"
-        component={QrCodeView}
-        options={{
-          title: 'QR Code',
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="qrcode-scan" size={size} color={color} />,
         }}
       />
       <Tab.Screen

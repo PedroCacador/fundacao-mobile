@@ -147,19 +147,6 @@ export default function HomeView({ navigation }: any) {
 
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => navigation.navigate('QrCode')}
-            activeOpacity={0.8}
-          >
-            <View style={styles.actionCardTop}>
-              <MaterialCommunityIcons name="qrcode-scan" size={28} color="#1B2A4A" />
-              <MaterialCommunityIcons name="chevron-right" size={18} color="#C0C8D1" />
-            </View>
-            <Text style={styles.actionTitle}>QR Code</Text>
-            <Text style={styles.actionSubtitle}>Apresente no{'\n'}conveniado</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionCard}
             onPress={() => navigation.navigate('History')}
             activeOpacity={0.8}
           >
