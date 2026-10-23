@@ -3,7 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { cores, raio } from '../../theme';
 
-export type NomeIcone = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+import { NomeIcone } from '../../models/Icon';
+
+export type { NomeIcone };
 
 interface IconBoxProps {
   nome: NomeIcone;
