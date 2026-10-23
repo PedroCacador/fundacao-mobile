@@ -10,12 +10,22 @@ export default function SettingsView() {
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {settingsOptions.map((option, index) => (
         <View key={index} style={styles.fieldRow}>
-          <MaterialCommunityIcons name={option.icon as any} size={20} color="#3A5A8C" style={styles.fieldIcon} />
+          <MaterialCommunityIcons
+            name={option.icon as any}
+            size={20}
+            color="#3A5A8C"
+            style={styles.fieldIcon}
+          />
           <View style={styles.fieldContent}>
             <Text style={styles.fieldLabel}>{option.label}</Text>
           </View>
           <Text style={styles.fieldValue}>{option.value}</Text>
-          <MaterialCommunityIcons name="chevron-right" size={20} color="#C0C8D1" style={styles.chevron} />
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={20}
+            color="#C0C8D1"
+            style={styles.chevron}
+          />
         </View>
       ))}
     </ScrollView>

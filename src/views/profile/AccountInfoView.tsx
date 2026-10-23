@@ -8,7 +8,12 @@ export default function AccountInfoView() {
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.fieldRow}>
-      <MaterialCommunityIcons name={item.icon as any} size={20} color="#3A5A8C" style={styles.fieldIcon} />
+      <MaterialCommunityIcons
+        name={item.icon as any}
+        size={20}
+        color="#3A5A8C"
+        style={styles.fieldIcon}
+      />
       <View style={styles.fieldContent}>
         <Text style={styles.fieldLabel}>{item.label}</Text>
         <Text style={styles.fieldValue}>{item.value}</Text>

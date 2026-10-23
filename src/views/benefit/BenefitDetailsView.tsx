@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StatusBadge } from '../../components/common/StatusBadge';
@@ -60,11 +54,7 @@ export default function BenefitDetailsView({ route, navigation }: any) {
         {/* Banner do Benefício com Badge de Status */}
         <View style={styles.bannerCard}>
           <View style={[styles.iconeGrande, { backgroundColor: beneficio.fundoIcone }]}>
-            <MaterialCommunityIcons
-              name={beneficio.icone}
-              size={42}
-              color={beneficio.corIcone}
-            />
+            <MaterialCommunityIcons name={beneficio.icone} size={42} color={beneficio.corIcone} />
           </View>
           <View style={styles.bannerInfo}>
             <StatusBadge status={beneficio.status} />
@@ -152,7 +142,9 @@ export default function BenefitDetailsView({ route, navigation }: any) {
               size={16}
               color={abaAtiva === 'ESTABELECIMENTOS' ? '#FFFFFF' : '#64748B'}
             />
-            <Text style={[styles.abaTexto, abaAtiva === 'ESTABELECIMENTOS' && styles.abaTextoAtivo]}>
+            <Text
+              style={[styles.abaTexto, abaAtiva === 'ESTABELECIMENTOS' && styles.abaTextoAtivo]}
+            >
               Locais
             </Text>
           </TouchableOpacity>
@@ -172,7 +164,8 @@ export default function BenefitDetailsView({ route, navigation }: any) {
           <View style={styles.dicaCard}>
             <MaterialCommunityIcons name="information-outline" size={18} color="#2563EB" />
             <Text style={styles.dicaTexto}>
-              Apresente seu QR Code ou realize a validação no terminal do estabelecimento para efetuar a utilização.
+              Apresente seu QR Code ou realize a validação no terminal do estabelecimento para
+              efetuar a utilização.
             </Text>
           </View>
         </View>
@@ -201,7 +194,9 @@ export default function BenefitDetailsView({ route, navigation }: any) {
           </View>
           <View style={styles.regraItem}>
             <MaterialCommunityIcons name="check" size={18} color="#059669" />
-            <Text style={styles.regraTexto}>Em caso de perda ou uso indevido, entre em contato com o RH.</Text>
+            <Text style={styles.regraTexto}>
+              Em caso de perda ou uso indevido, entre em contato com o RH.
+            </Text>
           </View>
         </View>
 

@@ -71,7 +71,6 @@ export default function HomeView({ navigation }: any) {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={carregando} onRefresh={recarregar} />}
       >
-
         <View style={styles.topBar}>
           <View style={{ flex: 1 }} />
           <TouchableOpacity
@@ -139,7 +138,11 @@ export default function HomeView({ navigation }: any) {
           >
             <View style={styles.actionCardTop}>
               <MaterialCommunityIcons name="wallet-outline" size={28} color="#FFFFFF" />
-              <MaterialCommunityIcons name="chevron-right" size={18} color="rgba(255,255,255,0.7)" />
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={18}
+                color="rgba(255,255,255,0.7)"
+              />
             </View>
             <Text style={styles.actionTitleActive}>Minha Carteira</Text>
             <Text style={styles.actionSubtitleActive}>Veja seus benefícios</Text>
@@ -182,154 +185,147 @@ export default function HomeView({ navigation }: any) {
           ) : erro && beneficios.length === 0 ? (
             <Text style={styles.catalogMessage}>{erro}</Text>
           ) : categorias.length === 0 ? (
-            <Text style={styles.catalogMessage}>
-              Nenhum benefício cadastrado na API.
-            </Text>
+            <Text style={styles.catalogMessage}>Nenhum benefício cadastrado na API.</Text>
           ) : (
             <>
               {erro ? <Text style={styles.catalogWarning}>{erro}</Text> : null}
               {categorias.map((categoria) => {
-              const apresentacao = obterApresentacaoCategoria(categoria.nome);
-              const selecionada = categoriaSelecionada === categoria.nome;
-              const quantidadeItens =
-                categoria.conveniados.length + categoria.beneficiosSemConveniado.length;
+                const apresentacao = obterApresentacaoCategoria(categoria.nome);
+                const selecionada = categoriaSelecionada === categoria.nome;
+                const quantidadeItens =
+                  categoria.conveniados.length + categoria.beneficiosSemConveniado.length;
 
-              return (
-                <View key={categoria.nome}>
-                  <TouchableOpacity
-                    style={[
-                      styles.categoryCard,
-                      selecionada && styles.categoryCardSelected,
-                    ]}
-                    activeOpacity={0.82}
-                    onPress={() =>
-                      setCategoriaSelecionada(selecionada ? null : categoria.nome)
-                    }
-                  >
-                    <View
-                      style={[
-                        styles.categoryIcon,
-                        { backgroundColor: apresentacao.fundo },
-                      ]}
+                return (
+                  <View key={categoria.nome}>
+                    <TouchableOpacity
+                      style={[styles.categoryCard, selecionada && styles.categoryCardSelected]}
+                      activeOpacity={0.82}
+                      onPress={() => setCategoriaSelecionada(selecionada ? null : categoria.nome)}
                     >
-                      <MaterialCommunityIcons
-                        name={apresentacao.icone}
-                        size={25}
-                        color={apresentacao.cor}
-                      />
-                    </View>
-                    <View style={styles.benefitListContent}>
-                      <Text style={styles.categoryTitle}>{categoria.nome}</Text>
-                      <Text style={styles.categorySubtitle}>
-                        {categoria.nome === 'Sem conveniado vinculado'
-                          ? `${categoria.beneficiosSemConveniado.length} benefícios`
-                          : `${categoria.conveniados.length} ${
-                              categoria.conveniados.length === 1 ? 'conveniado' : 'conveniados'
-                            }`}
-                      </Text>
-                    </View>
-                    <View style={styles.categoryTrailing}>
-                      <View style={styles.categoryCount}>
-                        <Text style={styles.categoryCountText}>
-                          {quantidadeItens}
+                      <View style={[styles.categoryIcon, { backgroundColor: apresentacao.fundo }]}>
+                        <MaterialCommunityIcons
+                          name={apresentacao.icone}
+                          size={25}
+                          color={apresentacao.cor}
+                        />
+                      </View>
+                      <View style={styles.benefitListContent}>
+                        <Text style={styles.categoryTitle}>{categoria.nome}</Text>
+                        <Text style={styles.categorySubtitle}>
+                          {categoria.nome === 'Sem conveniado vinculado'
+                            ? `${categoria.beneficiosSemConveniado.length} benefícios`
+                            : `${categoria.conveniados.length} ${
+                                categoria.conveniados.length === 1 ? 'conveniado' : 'conveniados'
+                              }`}
                         </Text>
                       </View>
-                      <MaterialCommunityIcons
-                        name={selecionada ? 'chevron-up' : 'chevron-down'}
-                        size={21}
-                        color="#728197"
-                      />
-                    </View>
-                  </TouchableOpacity>
-                  {selecionada
-                    ? categoria.conveniados.map(({ conveniado, beneficios: beneficiosDoConveniado }) => (
-                        <View key={conveniado.id} style={styles.categoryBenefit}>
-                          <View style={styles.vendorHeading}>
-                            <MaterialCommunityIcons
-                              name="store-outline"
-                              size={19}
-                              color={apresentacao.cor}
-                            />
-                            <Text style={styles.vendorTitle}>{conveniado.nome_fantasia}</Text>
-                            <View style={styles.statusPill}>
-                              <Text style={styles.statusPillText}>{conveniado.status}</Text>
-                            </View>
-                          </View>
-                          {beneficiosDoConveniado.map(({ beneficio, statusOferta }) => (
-                            <View key={beneficio.id} style={styles.vendorBenefit}>
-                              <View style={styles.benefitHeading}>
-                                <Text style={styles.benefitListTitle}>{beneficio.nome}</Text>
+                      <View style={styles.categoryTrailing}>
+                        <View style={styles.categoryCount}>
+                          <Text style={styles.categoryCountText}>{quantidadeItens}</Text>
+                        </View>
+                        <MaterialCommunityIcons
+                          name={selecionada ? 'chevron-up' : 'chevron-down'}
+                          size={21}
+                          color="#728197"
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    {selecionada
+                      ? categoria.conveniados.map(
+                          ({ conveniado, beneficios: beneficiosDoConveniado }) => (
+                            <View key={conveniado.id} style={styles.categoryBenefit}>
+                              <View style={styles.vendorHeading}>
+                                <MaterialCommunityIcons
+                                  name="store-outline"
+                                  size={19}
+                                  color={apresentacao.cor}
+                                />
+                                <Text style={styles.vendorTitle}>{conveniado.nome_fantasia}</Text>
                                 <View style={styles.statusPill}>
-                                  <Text style={styles.statusPillText}>{beneficio.status}</Text>
+                                  <Text style={styles.statusPillText}>{conveniado.status}</Text>
                                 </View>
                               </View>
-                              <Text style={styles.offerStatus}>Oferta: {statusOferta}</Text>
-                              {beneficio.descricao ? (
-                                <Text style={styles.benefitListDesc}>{beneficio.descricao}</Text>
-                              ) : null}
-                              <View style={styles.benefitMeta}>
-                                <View style={styles.benefitMetaItem}>
-                                  <MaterialCommunityIcons
-                                    name="tag-outline"
-                                    size={16}
-                                    color="#52677F"
-                                  />
-                                  <Text style={styles.benefitMetaText}>
-                                    {beneficio.tipo_beneficio} {beneficio.valor}
-                                  </Text>
+                              {beneficiosDoConveniado.map(({ beneficio, statusOferta }) => (
+                                <View key={beneficio.id} style={styles.vendorBenefit}>
+                                  <View style={styles.benefitHeading}>
+                                    <Text style={styles.benefitListTitle}>{beneficio.nome}</Text>
+                                    <View style={styles.statusPill}>
+                                      <Text style={styles.statusPillText}>{beneficio.status}</Text>
+                                    </View>
+                                  </View>
+                                  <Text style={styles.offerStatus}>Oferta: {statusOferta}</Text>
+                                  {beneficio.descricao ? (
+                                    <Text style={styles.benefitListDesc}>
+                                      {beneficio.descricao}
+                                    </Text>
+                                  ) : null}
+                                  <View style={styles.benefitMeta}>
+                                    <View style={styles.benefitMetaItem}>
+                                      <MaterialCommunityIcons
+                                        name="tag-outline"
+                                        size={16}
+                                        color="#52677F"
+                                      />
+                                      <Text style={styles.benefitMetaText}>
+                                        {beneficio.tipo_beneficio} {beneficio.valor}
+                                      </Text>
+                                    </View>
+                                    <View style={styles.benefitMetaItem}>
+                                      <MaterialCommunityIcons
+                                        name="counter"
+                                        size={16}
+                                        color="#52677F"
+                                      />
+                                      <Text style={styles.benefitMetaText}>
+                                        Até {beneficio.quantidade_maxima_utilizacoes} utilizações
+                                      </Text>
+                                    </View>
+                                  </View>
                                 </View>
-                                <View style={styles.benefitMetaItem}>
-                                  <MaterialCommunityIcons
-                                    name="counter"
-                                    size={16}
-                                    color="#52677F"
-                                  />
-                                  <Text style={styles.benefitMetaText}>
-                                    Até {beneficio.quantidade_maxima_utilizacoes} utilizações
-                                  </Text>
-                                </View>
+                              ))}
+                            </View>
+                          ),
+                        )
+                      : null}
+                    {selecionada
+                      ? categoria.beneficiosSemConveniado.map((beneficio) => (
+                          <View key={beneficio.id} style={styles.categoryBenefit}>
+                            <View style={styles.benefitHeading}>
+                              <Text style={styles.benefitListTitle}>{beneficio.nome}</Text>
+                              <View style={styles.statusPill}>
+                                <Text style={styles.statusPillText}>{beneficio.status}</Text>
                               </View>
                             </View>
-                          ))}
-                        </View>
-                      ))
-                    : null}
-                  {selecionada
-                    ? categoria.beneficiosSemConveniado.map((beneficio) => (
-                        <View key={beneficio.id} style={styles.categoryBenefit}>
-                          <View style={styles.benefitHeading}>
-                            <Text style={styles.benefitListTitle}>{beneficio.nome}</Text>
-                            <View style={styles.statusPill}>
-                              <Text style={styles.statusPillText}>{beneficio.status}</Text>
+                            {beneficio.descricao ? (
+                              <Text style={styles.benefitListDesc}>{beneficio.descricao}</Text>
+                            ) : null}
+                            <View style={styles.benefitMeta}>
+                              <View style={styles.benefitMetaItem}>
+                                <MaterialCommunityIcons
+                                  name="tag-outline"
+                                  size={16}
+                                  color="#52677F"
+                                />
+                                <Text style={styles.benefitMetaText}>
+                                  {beneficio.tipo_beneficio} {beneficio.valor}
+                                </Text>
+                              </View>
+                              <View style={styles.benefitMetaItem}>
+                                <MaterialCommunityIcons name="counter" size={16} color="#52677F" />
+                                <Text style={styles.benefitMetaText}>
+                                  Até {beneficio.quantidade_maxima_utilizacoes} utilizações
+                                </Text>
+                              </View>
                             </View>
                           </View>
-                          {beneficio.descricao ? (
-                            <Text style={styles.benefitListDesc}>{beneficio.descricao}</Text>
-                          ) : null}
-                          <View style={styles.benefitMeta}>
-                            <View style={styles.benefitMetaItem}>
-                              <MaterialCommunityIcons name="tag-outline" size={16} color="#52677F" />
-                              <Text style={styles.benefitMetaText}>
-                                {beneficio.tipo_beneficio} {beneficio.valor}
-                              </Text>
-                            </View>
-                            <View style={styles.benefitMetaItem}>
-                              <MaterialCommunityIcons name="counter" size={16} color="#52677F" />
-                              <Text style={styles.benefitMetaText}>
-                                Até {beneficio.quantidade_maxima_utilizacoes} utilizações
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      ))
-                    : null}
-                </View>
-              );
+                        ))
+                      : null}
+                  </View>
+                );
               })}
             </>
           )}
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );

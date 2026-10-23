@@ -18,45 +18,48 @@ export function useHomeViewModel() {
   const [erro, setErro] = useState<string | null>(null);
   const requisicaoEmAndamento = useRef(false);
 
-  const carregarBeneficios = useCallback(async (mostrarCarregamento = true) => {
-    if (!token) {
-      setErro('Não foi possível obter o token da sessão.');
-      setCarregando(false);
-      return;
-    }
-    if (requisicaoEmAndamento.current) return;
-
-    requisicaoEmAndamento.current = true;
-    if (mostrarCarregamento) setCarregando(true);
-    setErro(null);
-    try {
-      const listaBeneficios = await benefitService.listarBeneficios(token);
-      setBeneficios(listaBeneficios);
-
-      try {
-        const relacoes = await benefitService.listarRelacoes(token);
-        setOfertas(relacoes.ofertas);
-        setConveniados(relacoes.conveniados);
-      } catch (falhaRelacoes) {
-        setOfertas([]);
-        setConveniados([]);
-        setErro(
-          falhaRelacoes instanceof ApiError
-            ? `Benefícios carregados. Não foi possível carregar conveniados e ofertas: ${falhaRelacoes.message}`
-            : 'Benefícios carregados, mas não foi possível carregar conveniados e ofertas.',
-        );
+  const carregarBeneficios = useCallback(
+    async (mostrarCarregamento = true) => {
+      if (!token) {
+        setErro('Não foi possível obter o token da sessão.');
+        setCarregando(false);
+        return;
       }
-    } catch (falha) {
-      setErro(
-        falha instanceof ApiError
-          ? falha.message
-          : 'Não foi possível carregar o catálogo de benefícios.',
-      );
-    } finally {
-      requisicaoEmAndamento.current = false;
-      setCarregando(false);
-    }
-  }, [token]);
+      if (requisicaoEmAndamento.current) return;
+
+      requisicaoEmAndamento.current = true;
+      if (mostrarCarregamento) setCarregando(true);
+      setErro(null);
+      try {
+        const listaBeneficios = await benefitService.listarBeneficios(token);
+        setBeneficios(listaBeneficios);
+
+        try {
+          const relacoes = await benefitService.listarRelacoes(token);
+          setOfertas(relacoes.ofertas);
+          setConveniados(relacoes.conveniados);
+        } catch (falhaRelacoes) {
+          setOfertas([]);
+          setConveniados([]);
+          setErro(
+            falhaRelacoes instanceof ApiError
+              ? `Benefícios carregados. Não foi possível carregar conveniados e ofertas: ${falhaRelacoes.message}`
+              : 'Benefícios carregados, mas não foi possível carregar conveniados e ofertas.',
+          );
+        }
+      } catch (falha) {
+        setErro(
+          falha instanceof ApiError
+            ? falha.message
+            : 'Não foi possível carregar o catálogo de benefícios.',
+        );
+      } finally {
+        requisicaoEmAndamento.current = false;
+        setCarregando(false);
+      }
+    },
+    [token],
+  );
 
   useFocusEffect(
     useCallback(() => {

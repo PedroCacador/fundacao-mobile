@@ -32,11 +32,31 @@ const darkHeaderOptions = {
 function ProfileStackNavigator() {
   return (
     <ProfileStack.Navigator screenOptions={darkHeaderOptions}>
-      <ProfileStack.Screen name="ProfileMain" component={ProfileView} options={{ title: 'Perfil' }} />
-      <ProfileStack.Screen name="EditProfile" component={EditProfileView} options={{ title: 'Editar Perfil' }} />
-      <ProfileStack.Screen name="EmployeeData" component={EmployeeDataView} options={{ title: 'Dados do Colaborador' }} />
-      <ProfileStack.Screen name="AccountInfo" component={AccountInfoView} options={{ title: 'Informações da Conta' }} />
-      <ProfileStack.Screen name="Settings" component={SettingsView} options={{ title: 'Configurações' }} />
+      <ProfileStack.Screen
+        name="ProfileMain"
+        component={ProfileView}
+        options={{ title: 'Perfil' }}
+      />
+      <ProfileStack.Screen
+        name="EditProfile"
+        component={EditProfileView}
+        options={{ title: 'Editar Perfil' }}
+      />
+      <ProfileStack.Screen
+        name="EmployeeData"
+        component={EmployeeDataView}
+        options={{ title: 'Dados do Colaborador' }}
+      />
+      <ProfileStack.Screen
+        name="AccountInfo"
+        component={AccountInfoView}
+        options={{ title: 'Informações da Conta' }}
+      />
+      <ProfileStack.Screen
+        name="Settings"
+        component={SettingsView}
+        options={{ title: 'Configurações' }}
+      />
     </ProfileStack.Navigator>
   );
 }
@@ -76,7 +96,9 @@ function TabNavigator() {
         options={{
           title: 'Início',
           headerShown: false,
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="home" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -84,7 +106,9 @@ function TabNavigator() {
         component={WalletView}
         options={{
           title: 'Carteira',
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="wallet" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="wallet" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -92,7 +116,9 @@ function TabNavigator() {
         component={HistoryView}
         options={{
           title: 'Histórico',
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="history" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="history" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -101,7 +127,9 @@ function TabNavigator() {
         options={{
           title: 'Perfil',
           headerShown: false,
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="account" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account" size={size} color={color} />
+          ),
         }}
       />
     </Tab.Navigator>
@@ -113,7 +141,14 @@ export default function AppNavigator() {
 
   if (restaurando) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F5F7FA' }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#F5F7FA',
+        }}
+      >
         <ActivityIndicator size="large" color="#1B2A4A" />
       </View>
     );

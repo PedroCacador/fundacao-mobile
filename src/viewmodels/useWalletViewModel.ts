@@ -127,31 +127,33 @@ export function useWalletViewModel() {
       const apiBeneficios = await benefitService.listarBeneficios(token);
 
       if (apiBeneficios && apiBeneficios.length > 0) {
-        const mapeados: ItemBeneficioCarteira[] = apiBeneficios.map((b: Beneficio, index: number) => {
-          const estilo = identificarEstiloCategoria(b.nome);
-          const max = b.quantidade_maxima_utilizacoes || 5;
-          const feitas = Math.max(0, max - (index % 3));
-          const status =
-            b.status === 'DESCONTINUADO' || b.status === 'INATIVO'
-              ? 'EXPIRADO'
-              : feitas === 0
-              ? 'UTILIZADO'
-              : 'DISPONIVEL';
+        const mapeados: ItemBeneficioCarteira[] = apiBeneficios.map(
+          (b: Beneficio, index: number) => {
+            const estilo = identificarEstiloCategoria(b.nome);
+            const max = b.quantidade_maxima_utilizacoes || 5;
+            const feitas = Math.max(0, max - (index % 3));
+            const status =
+              b.status === 'DESCONTINUADO' || b.status === 'INATIVO'
+                ? 'EXPIRADO'
+                : feitas === 0
+                  ? 'UTILIZADO'
+                  : 'DISPONIVEL';
 
-          return {
-            id: b.id,
-            nome: b.nome,
-            descricao: b.descricao,
-            categoria: b.nome,
-            status,
-            utilizacoesFeitas: feitas,
-            utilizacoesMaximas: max,
-            dataRenovacao: b.dia_reset ? `Dia ${b.dia_reset} do mês` : '12/11/2025',
-            icone: estilo.icone,
-            corIcone: estilo.corIcone,
-            fundoIcone: estilo.fundoIcone,
-          };
-        });
+            return {
+              id: b.id,
+              nome: b.nome,
+              descricao: b.descricao,
+              categoria: b.nome,
+              status,
+              utilizacoesFeitas: feitas,
+              utilizacoesMaximas: max,
+              dataRenovacao: b.dia_reset ? `Dia ${b.dia_reset} do mês` : '12/11/2025',
+              icone: estilo.icone,
+              corIcone: estilo.corIcone,
+              fundoIcone: estilo.fundoIcone,
+            };
+          },
+        );
         setBeneficios(mapeados);
       } else {
         setBeneficios(BENEFICIOS_MOCK_FALLBACK);

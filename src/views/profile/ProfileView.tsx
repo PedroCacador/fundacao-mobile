@@ -29,7 +29,6 @@ export default function ProfileView({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-
         <TouchableOpacity
           style={styles.profileHeader}
           onPress={() => navigation.navigate('EditProfile')}
@@ -101,15 +100,10 @@ export default function ProfileView({ navigation }: any) {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={confirmarSaida}
-          activeOpacity={0.7}
-        >
+        <TouchableOpacity style={styles.logoutButton} onPress={confirmarSaida} activeOpacity={0.7}>
           <MaterialCommunityIcons name="logout" size={22} color="#B3261E" />
           <Text style={styles.logoutText}>Sair da conta</Text>
         </TouchableOpacity>
-
       </ScrollView>
     </SafeAreaView>
   );

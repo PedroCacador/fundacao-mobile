@@ -10,7 +10,12 @@ export default function EmployeeDataView() {
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {employeeFields.map((field, index) => (
         <View key={index} style={styles.fieldRow}>
-          <MaterialCommunityIcons name={field.icon as any} size={20} color="#3A5A8C" style={styles.fieldIcon} />
+          <MaterialCommunityIcons
+            name={field.icon as any}
+            size={20}
+            color="#3A5A8C"
+            style={styles.fieldIcon}
+          />
           <View style={styles.fieldContent}>
             <Text style={styles.fieldLabel}>{field.label}</Text>
             <Text style={styles.fieldValue}>{field.value}</Text>

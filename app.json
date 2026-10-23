@@ -12,8 +12,6 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": [
-      "expo-secure-store"
-    ]
+    "plugins": ["expo-secure-store"]
   }
 }

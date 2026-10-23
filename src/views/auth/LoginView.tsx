@@ -58,7 +58,12 @@ export default function LoginView() {
 
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <MaterialCommunityIcons name="account-outline" size={22} color="#8E99A4" style={styles.inputIcon} />
+              <MaterialCommunityIcons
+                name="account-outline"
+                size={22}
+                color="#8E99A4"
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={styles.input}
                 placeholder="E-mail"
@@ -79,7 +84,12 @@ export default function LoginView() {
             </View>
 
             <View style={styles.inputContainer}>
-              <MaterialCommunityIcons name="lock-outline" size={22} color="#8E99A4" style={styles.inputIcon} />
+              <MaterialCommunityIcons
+                name="lock-outline"
+                size={22}
+                color="#8E99A4"
+                style={styles.inputIcon}
+              />
               <TextInput
                 style={styles.input}
                 placeholder="Senha"
@@ -99,7 +109,11 @@ export default function LoginView() {
                 editable={!carregando}
               />
               <TouchableOpacity onPress={() => setSenhaVisivel(!senhaVisivel)}>
-                <MaterialCommunityIcons name={senhaVisivel ? 'eye-outline' : 'eye-off-outline'} size={22} color="#8E99A4" />
+                <MaterialCommunityIcons
+                  name={senhaVisivel ? 'eye-outline' : 'eye-off-outline'}
+                  size={22}
+                  color="#8E99A4"
+                />
               </TouchableOpacity>
             </View>
 
@@ -124,7 +138,7 @@ export default function LoginView() {
             {carregando ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.enterButtonText}>Entrar  →</Text>
+              <Text style={styles.enterButtonText}>Entrar →</Text>
             )}
           </TouchableOpacity>
 

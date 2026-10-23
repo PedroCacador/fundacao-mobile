@@ -30,23 +30,18 @@ export const BenefitCard = React.memo(function BenefitCard({
 }: BenefitCardProps) {
   const porcentagem =
     beneficio.utilizacoesMaximas > 0
-      ? Math.min(100, Math.round((beneficio.utilizacoesFeitas / beneficio.utilizacoesMaximas) * 100))
+      ? Math.min(
+          100,
+          Math.round((beneficio.utilizacoesFeitas / beneficio.utilizacoesMaximas) * 100),
+        )
       : 0;
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.75}
-      onPress={onPress}
-      style={styles.card}
-    >
+    <TouchableOpacity activeOpacity={0.75} onPress={onPress} style={styles.card}>
       <View style={styles.corpo}>
         {/* Ícone da Categoria */}
         <View style={[styles.iconeBox, { backgroundColor: beneficio.fundoIcone }]}>
-          <MaterialCommunityIcons
-            name={beneficio.icone}
-            size={24}
-            color={beneficio.corIcone}
-          />
+          <MaterialCommunityIcons name={beneficio.icone} size={24} color={beneficio.corIcone} />
         </View>
 
         {/* Informações Centrais */}
@@ -83,8 +78,8 @@ export const BenefitCard = React.memo(function BenefitCard({
                       beneficio.status === 'EXPIRADO'
                         ? '#EF4444'
                         : beneficio.status === 'UTILIZADO'
-                        ? '#64748B'
-                        : '#10B981',
+                          ? '#64748B'
+                          : '#10B981',
                   },
                 ]}
               />
