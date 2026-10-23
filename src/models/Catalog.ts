@@ -1,0 +1,14 @@
+import { Beneficio, Conveniado } from './Benefit';
+
+export interface BeneficioCatalogo {
+  beneficio: Beneficio;
+  conveniados: Conveniado[];
+  categoria: string;
+  disponivel: boolean;
+}
+
+export interface ResumoCatalogo {
+  disponiveis: number;
+  locais: number;
+  proximaRenovacao: Date | null;
+}
