@@ -1,233 +1,115 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { StatusBadge, StatusType } from '../common/StatusBadge';
-
-export interface ItemBeneficioCarteira {
-  id: number;
-  nome: string;
-  descricao?: string | null;
-  categoria: string;
-  status: StatusType;
-  utilizacoesFeitas: number;
-  utilizacoesMaximas: number;
-  dataRenovacao: string;
-  icone: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
-  corIcone: string;
-  fundoIcone: string;
-}
+import { BeneficioCatalogo } from '../../models/Catalog';
+import { cores, espaco, fonte, peso, raio } from '../../theme';
+import { calcularProximaRenovacao, descreverLimite, descreverValor } from '../../utils/benefit';
+import { estiloCategoria } from '../../utils/category';
+import { formatarData } from '../../utils/format';
+import { Card } from '../common/Card';
+import { IconBox } from '../common/Icon';
+import { StatusBadge } from '../common/StatusBadge';
 
 interface BenefitCardProps {
-  beneficio: ItemBeneficioCarteira;
-  onPress: () => void;
-  onPressRegras?: () => void;
+  item: BeneficioCatalogo;
+  aoPressionar: () => void;
+  resumido?: boolean;
 }
 
-export const BenefitCard = React.memo(function BenefitCard({
-  beneficio,
-  onPress,
-  onPressRegras,
-}: BenefitCardProps) {
-  const porcentagem =
-    beneficio.utilizacoesMaximas > 0
-      ? Math.min(
-          100,
-          Math.round((beneficio.utilizacoesFeitas / beneficio.utilizacoesMaximas) * 100),
-        )
-      : 0;
+export function BenefitCard({ item, aoPressionar, resumido = false }: BenefitCardProps) {
+  const { beneficio, categoria, disponivel } = item;
+  const estilo = estiloCategoria(categoria);
+  const renovacao = calcularProximaRenovacao(beneficio);
 
   return (
-    <TouchableOpacity activeOpacity={0.75} onPress={onPress} style={styles.card}>
-      <View style={styles.corpo}>
-        {/* Ícone da Categoria */}
-        <View style={[styles.iconeBox, { backgroundColor: beneficio.fundoIcone }]}>
-          <MaterialCommunityIcons name={beneficio.icone} size={24} color={beneficio.corIcone} />
-        </View>
-
-        {/* Informações Centrais */}
+    <Card aoPressionar={aoPressionar} estilo={styles.card} rotuloAcessivel={beneficio.nome}>
+      <View style={styles.linha}>
+        <IconBox nome={estilo.icone} cor={estilo.cor} fundo={estilo.fundo} />
         <View style={styles.info}>
-          <View style={styles.topoLinha}>
+          <View style={styles.topo}>
             <Text style={styles.titulo} numberOfLines={1}>
               {beneficio.nome}
             </Text>
-            <StatusBadge status={beneficio.status} />
+            {resumido ? null : <StatusBadge status={disponivel ? 'DISPONIVEL' : 'INDISPONIVEL'} />}
           </View>
-
           {beneficio.descricao ? (
             <Text style={styles.descricao} numberOfLines={2}>
               {beneficio.descricao}
             </Text>
           ) : null}
-
-          {/* Contador de Utilizações */}
-          <View style={styles.utilizacoesContainer}>
-            <Text style={styles.utilizacoesTexto}>
-              <Text style={styles.utilizacoesDestaque}>{beneficio.utilizacoesFeitas}</Text> de{' '}
-              {beneficio.utilizacoesMaximas}{' '}
-              {beneficio.status === 'DISPONIVEL' ? 'utilizações restantes' : 'utilizações'}
-            </Text>
-
-            {/* Barra de Progresso */}
-            <View style={styles.barraFundo}>
-              <View
-                style={[
-                  styles.barraPreenchimento,
-                  {
-                    width: `${porcentagem}%`,
-                    backgroundColor:
-                      beneficio.status === 'EXPIRADO'
-                        ? '#EF4444'
-                        : beneficio.status === 'UTILIZADO'
-                          ? '#64748B'
-                          : '#10B981',
-                  },
-                ]}
-              />
-            </View>
+          <View style={styles.chips}>
+            <Text style={styles.chip}>{descreverValor(beneficio)}</Text>
+            <Text style={styles.chip}>{descreverLimite(beneficio)}</Text>
           </View>
-
-          {/* Rodapé do Card: Data de renovação / validade e regras */}
-          <View style={styles.rodape}>
-            <View style={styles.renovacaoBox}>
+          {!resumido && renovacao ? (
+            <View style={styles.rodape}>
               <MaterialCommunityIcons
-                name={
-                  beneficio.status === 'EXPIRADO'
-                    ? 'calendar-remove-outline'
-                    : 'calendar-clock-outline'
-                }
-                size={15}
-                color={beneficio.status === 'EXPIRADO' ? '#EF4444' : '#64748B'}
+                name="calendar-clock-outline"
+                size={14}
+                color={cores.textoSecundario}
               />
-              <Text
-                style={[
-                  styles.renovacaoTexto,
-                  beneficio.status === 'EXPIRADO' && styles.renovacaoTextoExpirado,
-                ]}
-              >
-                {beneficio.status === 'EXPIRADO'
-                  ? `Validade encerrada em ${beneficio.dataRenovacao}`
-                  : `Renovação em ${beneficio.dataRenovacao}`}
-              </Text>
+              <Text style={styles.rodapeTexto}>Renovação em {formatarData(renovacao)}</Text>
             </View>
-
-            <TouchableOpacity
-              onPress={onPressRegras ?? onPress}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              style={styles.regrasBotao}
-            >
-              <MaterialCommunityIcons name="information-outline" size={14} color="#2563EB" />
-              <Text style={styles.regrasTexto}>Regras de utilização</Text>
-            </TouchableOpacity>
-          </View>
+          ) : null}
         </View>
+        <MaterialCommunityIcons name="chevron-right" size={22} color={cores.textoFraco} />
       </View>
-    </TouchableOpacity>
+    </Card>
   );
-});
+}
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    marginBottom: espaco.md,
   },
-  corpo: {
+  linha: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 14,
-  },
-  iconeBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: espaco.md,
   },
   info: {
     flex: 1,
+    gap: espaco.xs,
   },
-  topoLinha: {
+  topo: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 4,
-    gap: 8,
+    gap: espaco.sm,
   },
   titulo: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1B2A4A',
+    fontSize: fonte.md,
+    fontWeight: peso.negrito,
+    color: cores.texto,
   },
   descricao: {
-    fontSize: 12,
-    color: '#64748B',
+    fontSize: fonte.xs,
+    color: cores.textoSecundario,
     lineHeight: 16,
-    marginBottom: 10,
   },
-  utilizacoesContainer: {
-    marginTop: 6,
-    marginBottom: 12,
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: espaco.xs,
   },
-  utilizacoesTexto: {
-    fontSize: 12,
-    color: '#475569',
-    marginBottom: 6,
-  },
-  utilizacoesDestaque: {
-    fontWeight: '700',
-    color: '#1B2A4A',
-  },
-  barraFundo: {
-    height: 6,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 3,
+  chip: {
+    fontSize: fonte.xs,
+    fontWeight: peso.semi,
+    color: cores.primaria,
+    backgroundColor: cores.primariaClara,
+    paddingHorizontal: espaco.sm,
+    paddingVertical: 2,
+    borderRadius: raio.sm,
     overflow: 'hidden',
-  },
-  barraPreenchimento: {
-    height: '100%',
-    borderRadius: 3,
   },
   rodape: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#F8FAFC',
-    flexWrap: 'wrap',
-    gap: 8,
+    gap: espaco.xs,
   },
-  renovacaoBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  renovacaoTexto: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '500',
-  },
-  renovacaoTextoExpirado: {
-    color: '#DC2626',
-    fontWeight: '600',
-  },
-  regrasBotao: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  regrasTexto: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#2563EB',
+  rodapeTexto: {
+    fontSize: fonte.xs,
+    color: cores.textoSecundario,
   },
 });

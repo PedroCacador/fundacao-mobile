@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScrollView, TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { cores, espaco, fonte, peso, raio } from '../../theme';
 
 export interface TabOption<T extends string = string> {
   id: T;
@@ -19,83 +20,55 @@ export function FilterTabs<T extends string = string>({
   onSelectTab,
 }: FilterTabsProps<T>) {
   return (
-    <View style={styles.container}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {tabs.map((tab) => {
-          const ativo = tab.id === selectedTab;
-          return (
-            <TouchableOpacity
-              key={tab.id}
-              activeOpacity={0.8}
-              onPress={() => onSelectTab(tab.id)}
-              style={[styles.tab, ativo && styles.tabAtiva]}
-            >
-              <Text style={[styles.texto, ativo && styles.textoAtivo]}>{tab.label}</Text>
-              {tab.count !== undefined ? (
-                <View style={[styles.contador, ativo && styles.contadorAtivo]}>
-                  <Text style={[styles.contadorTexto, ativo && styles.contadorTextoAtivo]}>
-                    {tab.count}
-                  </Text>
-                </View>
-              ) : null}
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-    </View>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.linha}
+      style={styles.rolagem}
+    >
+      {tabs.map((tab) => {
+        const ativo = tab.id === selectedTab;
+        return (
+          <Pressable
+            key={tab.id}
+            onPress={() => onSelectTab(tab.id)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: ativo }}
+            style={[styles.aba, ativo && styles.abaAtiva]}
+          >
+            <Text style={[styles.texto, ativo && styles.textoAtivo]}>
+              {tab.count !== undefined ? `${tab.label} (${tab.count})` : tab.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+  rolagem: {
+    flexGrow: 0,
+    marginBottom: espaco.lg,
   },
-  scrollContent: {
-    paddingHorizontal: 16,
-    gap: 8,
+  linha: {
+    gap: espaco.sm,
   },
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#F1F5F9',
+  aba: {
+    paddingHorizontal: espaco.lg,
+    paddingVertical: espaco.sm,
+    borderRadius: raio.pilula,
+    backgroundColor: cores.primariaClara,
   },
-  tabAtiva: {
-    backgroundColor: '#1B2A4A',
+  abaAtiva: {
+    backgroundColor: cores.primaria,
   },
   texto: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#64748B',
+    fontSize: fonte.sm,
+    fontWeight: peso.semi,
+    color: cores.primaria,
   },
   textoAtivo: {
-    color: '#FFFFFF',
-  },
-  contador: {
-    marginLeft: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 10,
-    backgroundColor: '#E2E8F0',
-  },
-  contadorAtivo: {
-    backgroundColor: '#2E416B',
-  },
-  contadorTexto: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  contadorTextoAtivo: {
-    color: '#FFFFFF',
+    color: cores.branco,
   },
 });

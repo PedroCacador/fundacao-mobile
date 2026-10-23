@@ -1,73 +1,69 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { StyleSheet, Text, View } from 'react-native';
+import { cores, espaco, fonte, peso } from '../../theme';
+import { Card } from './Card';
+import { IconBox, NomeIcone } from './Icon';
 
-interface SummaryCardProps {
-  icone: React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+export interface ItemResumo {
+  icone: NomeIcone;
   valor: string | number;
   rotulo: string;
-  corIcone?: string;
-  fundoIcone?: string;
-  larguraFixa?: boolean;
 }
 
-export const SummaryCard = React.memo(function SummaryCard({
-  icone,
-  valor,
-  rotulo,
-  corIcone = '#2563EB',
-  fundoIcone = '#EFF6FF',
-}: SummaryCardProps) {
+interface SummaryCardProps {
+  titulo?: string;
+  itens: ItemResumo[];
+}
+
+export function SummaryCard({ titulo, itens }: SummaryCardProps) {
   return (
-    <View style={styles.card}>
-      <View style={[styles.iconeContainer, { backgroundColor: fundoIcone }]}>
-        <MaterialCommunityIcons name={icone} size={20} color={corIcone} />
+    <Card estilo={styles.card}>
+      {titulo ? <Text style={styles.titulo}>{titulo}</Text> : null}
+      <View style={styles.linha}>
+        {itens.map((item, indice) => (
+          <View key={item.rotulo} style={[styles.item, indice > 0 && styles.divisor]}>
+            <IconBox nome={item.icone} tamanho={40} redondo />
+            <Text style={styles.valor}>{item.valor}</Text>
+            <Text style={styles.rotulo}>{item.rotulo}</Text>
+          </View>
+        ))}
       </View>
-      <Text style={styles.valor}>{valor}</Text>
-      <Text style={styles.rotulo} numberOfLines={2}>
-        {rotulo}
-      </Text>
-    </View>
+    </Card>
   );
-});
+}
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
-    minWidth: 100,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 2,
+    marginBottom: espaco.lg,
   },
-  iconeContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+  titulo: {
+    fontSize: fonte.md,
+    fontWeight: peso.negrito,
+    color: cores.texto,
+    marginBottom: espaco.md,
+  },
+  linha: {
+    flexDirection: 'row',
+  },
+  item: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
+    gap: espaco.xs,
+    paddingHorizontal: espaco.xs,
+  },
+  divisor: {
+    borderLeftWidth: 1,
+    borderLeftColor: cores.borda,
   },
   valor: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#1B2A4A',
-    marginBottom: 2,
+    fontSize: fonte.lg,
+    fontWeight: peso.negrito,
+    color: cores.texto,
+    marginTop: espaco.xs,
   },
   rotulo: {
-    fontSize: 11,
-    color: '#64748B',
+    fontSize: fonte.xs,
+    color: cores.textoSecundario,
     textAlign: 'center',
-    lineHeight: 14,
-    fontWeight: '500',
   },
 });

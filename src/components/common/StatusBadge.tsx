@@ -1,68 +1,33 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { cores, espaco, fonte, peso, raio } from '../../theme';
 
-export type StatusType = 'DISPONIVEL' | 'UTILIZADO' | 'EXPIRADO' | 'PENDENTE';
+export type StatusVisual = 'DISPONIVEL' | 'INDISPONIVEL' | 'PENDENTE';
 
-interface StatusBadgeProps {
-  status: StatusType | string;
-  rotuloPersonalizado?: string;
-}
+const aparencia: Record<StatusVisual, { rotulo: string; cor: string; fundo: string }> = {
+  DISPONIVEL: { rotulo: 'Disponível', cor: cores.sucesso, fundo: cores.sucessoFundo },
+  INDISPONIVEL: { rotulo: 'Indisponível', cor: cores.textoSecundario, fundo: cores.borda },
+  PENDENTE: { rotulo: 'Pendente', cor: cores.alerta, fundo: cores.alertaFundo },
+};
 
-export const StatusBadge = React.memo(function StatusBadge({
-  status,
-  rotuloPersonalizado,
-}: StatusBadgeProps) {
-  const normalizado = status.toUpperCase();
-
-  let fundo = '#EFF6FF';
-  let cor = '#2563EB';
-  let texto = rotuloPersonalizado ?? 'Disponível';
-
-  switch (normalizado) {
-    case 'DISPONIVEL':
-    case 'DISPONÍVEL':
-    case 'ATIVO':
-      fundo = '#DCFCE7';
-      cor = '#15803D';
-      texto = rotuloPersonalizado ?? 'Disponível';
-      break;
-    case 'UTILIZADO':
-    case 'CONFIRMADO':
-      fundo = '#DBEAFE';
-      cor = '#1D4ED8';
-      texto = rotuloPersonalizado ?? 'Utilizado';
-      break;
-    case 'EXPIRADO':
-    case 'INATIVO':
-      fundo = '#FEE2E2';
-      cor = '#B91C1C';
-      texto = rotuloPersonalizado ?? 'Expirado';
-      break;
-    case 'PENDENTE':
-    case 'EM_ANALISE':
-      fundo = '#FEF3C7';
-      cor = '#B45309';
-      texto = rotuloPersonalizado ?? 'Pendente';
-      break;
-  }
-
+export function StatusBadge({ status }: { status: StatusVisual }) {
+  const { rotulo, cor, fundo } = aparencia[status];
   return (
     <View style={[styles.badge, { backgroundColor: fundo }]}>
-      <Text style={[styles.texto, { color: cor }]}>{texto}</Text>
+      <Text style={[styles.texto, { color: cor }]}>{rotulo}</Text>
     </View>
   );
-});
+}
 
 const styles = StyleSheet.create({
   badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
     alignSelf: 'flex-start',
+    paddingHorizontal: espaco.sm,
+    paddingVertical: 2,
+    borderRadius: raio.sm,
   },
   texto: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.2,
+    fontSize: fonte.xs,
+    fontWeight: peso.semi,
   },
 });

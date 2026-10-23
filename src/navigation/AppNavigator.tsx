@@ -1,137 +1,63 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StyleSheet, View } from 'react-native';
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationOptions,
+} from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Loading } from '../components/common/StateMessage';
+import { NomeIcone } from '../components/common/Icon';
 import { useAuth } from '../context/AuthContext';
+import { cores, fonte, peso } from '../theme';
+import { RootStackParamList, TabParamList } from './types';
 
 import LoginView from '../views/auth/LoginView';
 import HomeView from '../views/home/HomeView';
-import ProfileView from '../views/profile/ProfileView';
-import EditProfileView from '../views/profile/EditProfileView';
-import EmployeeDataView from '../views/profile/EmployeeDataView';
-import AccountInfoView from '../views/profile/AccountInfoView';
-import SettingsView from '../views/profile/SettingsView';
 import WalletView from '../views/wallet/WalletView';
+import HistoryView from '../views/history/HistoryView';
+import ProfileView from '../views/profile/ProfileView';
 import BenefitDetailsView from '../views/benefit/BenefitDetailsView';
 import NotificationsView from '../views/notifications/NotificationsView';
-import HistoryView from '../views/history/HistoryView';
 import LocationsView from '../views/locations/LocationsView';
 
-const Stack = createNativeStackNavigator();
-const ProfileStack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
 
-const darkHeaderOptions = {
-  headerStyle: { backgroundColor: '#1B2A4A' },
-  headerTintColor: '#FFFFFF',
-  headerTitleStyle: { fontWeight: '600' as const },
+const cabecalhoClaro: NativeStackNavigationOptions = {
+  headerShown: true,
+  headerStyle: { backgroundColor: cores.fundo },
+  headerTintColor: cores.texto,
+  headerTitleStyle: { fontWeight: peso.negrito, fontSize: fonte.lg },
+  headerShadowVisible: false,
+  headerBackTitle: 'Voltar',
 };
 
-function ProfileStackNavigator() {
-  return (
-    <ProfileStack.Navigator screenOptions={darkHeaderOptions}>
-      <ProfileStack.Screen
-        name="ProfileMain"
-        component={ProfileView}
-        options={{ title: 'Perfil' }}
-      />
-      <ProfileStack.Screen
-        name="EditProfile"
-        component={EditProfileView}
-        options={{ title: 'Editar Perfil' }}
-      />
-      <ProfileStack.Screen
-        name="EmployeeData"
-        component={EmployeeDataView}
-        options={{ title: 'Dados do Colaborador' }}
-      />
-      <ProfileStack.Screen
-        name="AccountInfo"
-        component={AccountInfoView}
-        options={{ title: 'Informações da Conta' }}
-      />
-      <ProfileStack.Screen
-        name="Settings"
-        component={SettingsView}
-        options={{ title: 'Configurações' }}
-      />
-    </ProfileStack.Navigator>
-  );
-}
+const iconesAba: Record<keyof TabParamList, NomeIcone> = {
+  Home: 'home-outline',
+  Wallet: 'wallet-outline',
+  History: 'history',
+  Profile: 'account-outline',
+};
 
 function TabNavigator() {
-  const insets = useSafeAreaInsets();
-
   return (
     <Tab.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: '#1B2A4A' },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: { fontWeight: '600' },
-        tabBarActiveTintColor: '#1B2A4A',
-        tabBarInactiveTintColor: '#8E99A4',
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 0,
-          elevation: 10,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          height: 60 + insets.bottom,
-          paddingBottom: 8 + insets.bottom,
-          paddingTop: 6,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
-        },
-      }}
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: cores.primaria,
+        tabBarInactiveTintColor: cores.textoFraco,
+        tabBarStyle: { backgroundColor: cores.superficie, borderTopColor: cores.borda },
+        tabBarLabelStyle: { fontSize: fonte.xs, fontWeight: peso.semi },
+        tabBarIcon: ({ color, size }) => (
+          <MaterialCommunityIcons name={iconesAba[route.name]} size={size} color={color} />
+        ),
+      })}
     >
-      <Tab.Screen
-        name="Home"
-        component={HomeView}
-        options={{
-          title: 'Início',
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Wallet"
-        component={WalletView}
-        options={{
-          title: 'Carteira',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="wallet" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="History"
-        component={HistoryView}
-        options={{
-          title: 'Histórico',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="history" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileStackNavigator}
-        options={{
-          title: 'Perfil',
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" size={size} color={color} />
-          ),
-        }}
-      />
+      <Tab.Screen name="Home" component={HomeView} options={{ title: 'Início' }} />
+      <Tab.Screen name="Wallet" component={WalletView} options={{ title: 'Carteira' }} />
+      <Tab.Screen name="History" component={HistoryView} options={{ title: 'Histórico' }} />
+      <Tab.Screen name="Profile" component={ProfileView} options={{ title: 'Perfil' }} />
     </Tab.Navigator>
   );
 }
@@ -141,15 +67,8 @@ export default function AppNavigator() {
 
   if (restaurando) {
     return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#F5F7FA',
-        }}
-      >
-        <ActivityIndicator size="large" color="#1B2A4A" />
+      <View style={styles.carregando}>
+        <Loading texto="Abrindo..." />
       </View>
     );
   }
@@ -162,29 +81,17 @@ export default function AppNavigator() {
           <Stack.Screen
             name="BenefitDetails"
             component={BenefitDetailsView}
-            options={{
-              headerShown: true,
-              ...darkHeaderOptions,
-              title: 'Detalhes do Benefício',
-            }}
+            options={{ ...cabecalhoClaro, title: 'Detalhes do Benefício' }}
           />
           <Stack.Screen
             name="Notifications"
             component={NotificationsView}
-            options={{
-              headerShown: true,
-              ...darkHeaderOptions,
-              title: 'Notificações',
-            }}
+            options={{ ...cabecalhoClaro, title: 'Notificações' }}
           />
           <Stack.Screen
             name="Locations"
             component={LocationsView}
-            options={{
-              headerShown: true,
-              ...darkHeaderOptions,
-              title: 'Locais de Utilização',
-            }}
+            options={{ ...cabecalhoClaro, title: 'Locais de Utilização' }}
           />
         </>
       ) : (
@@ -193,3 +100,11 @@ export default function AppNavigator() {
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  carregando: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: cores.fundo,
+  },
+});

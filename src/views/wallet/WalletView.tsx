@@ -1,176 +1,86 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  RefreshControl,
-  ActivityIndicator,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Header } from '../../components/common/Header';
-import { SummaryCard } from '../../components/common/SummaryCard';
+import { BenefitCard } from '../../components/benefit/BenefitCard';
 import { FilterTabs, TabOption } from '../../components/common/FilterTabs';
-import { BenefitCard, ItemBeneficioCarteira } from '../../components/benefit/BenefitCard';
-import { useWalletViewModel, FiltroCarteira } from '../../viewmodels/useWalletViewModel';
+import { Header } from '../../components/common/Header';
+import { Screen } from '../../components/common/Screen';
+import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
+import { SummaryCard } from '../../components/common/SummaryCard';
+import { TopBar } from '../../components/common/TopBar';
+import { TabScreenProps } from '../../navigation/types';
+import { formatarData } from '../../utils/format';
+import { FiltroCarteira, useWalletViewModel } from '../../viewmodels/useWalletViewModel';
 
-export default function WalletView({ navigation }: any) {
+export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
   const {
+    lista,
+    filtro,
+    setFiltro,
+    contadores,
+    resumo,
     carregando,
     atualizando,
-    filtroAtivo,
-    setFiltroAtivo,
-    beneficios,
-    estatisticas,
-    contadoresAbas,
+    erro,
     recarregar,
   } = useWalletViewModel();
 
-  const abasFiltro: TabOption<FiltroCarteira>[] = [
-    { id: 'TODOS', label: 'Todos', count: contadoresAbas.TODOS },
-    { id: 'DISPONIVEIS', label: 'Disponíveis', count: contadoresAbas.DISPONIVEIS },
-    { id: 'UTILIZADOS', label: 'Utilizados', count: contadoresAbas.UTILIZADOS },
-    { id: 'EXPIRADOS', label: 'Expirados', count: contadoresAbas.EXPIRADOS },
+  const abas: TabOption<FiltroCarteira>[] = [
+    { id: 'TODOS', label: 'Todos', count: contadores.TODOS },
+    { id: 'DISPONIVEIS', label: 'Disponíveis', count: contadores.DISPONIVEIS },
+    { id: 'INDISPONIVEIS', label: 'Indisponíveis', count: contadores.INDISPONIVEIS },
   ];
 
-  const handleAbrirDetalhes = (beneficio: ItemBeneficioCarteira) => {
-    navigation.navigate('BenefitDetails', { beneficio });
-  };
-
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Cabeçalho Padronizado FCV */}
+    <Screen atualizando={atualizando} aoAtualizar={recarregar}>
+      <TopBar />
       <Header
+        icone="wallet-outline"
         titulo="Carteira de Benefícios"
-        subtitulo="Confira todos os seus benefícios e acompanhe o seu saldo e validade."
-        iconeEsquerda="wallet-outline"
+        subtitulo="Confira todos os seus benefícios e onde usar cada um."
       />
 
-      {/* Abas de Filtros Horizontais */}
-      <FilterTabs
-        tabs={abasFiltro}
-        selectedTab={filtroAtivo}
-        onSelectTab={(tabId) => setFiltroAtivo(tabId as FiltroCarteira)}
+      <SummaryCard
+        itens={[
+          {
+            icone: 'gift-outline',
+            valor: carregando ? '-' : resumo.disponiveis,
+            rotulo: 'Benefícios disponíveis',
+          },
+          {
+            icone: 'storefront-outline',
+            valor: carregando ? '-' : resumo.locais,
+            rotulo: 'Locais conveniados',
+          },
+          {
+            icone: 'calendar-month-outline',
+            valor: resumo.proximaRenovacao ? formatarData(resumo.proximaRenovacao) : '-',
+            rotulo: 'Próxima renovação',
+          },
+        ]}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={atualizando}
-            onRefresh={recarregar}
-            colors={['#1B2A4A']}
-            tintColor="#1B2A4A"
-          />
-        }
-      >
-        {/* Cards de Resumo Estatístico do Topo (Fiel ao Protótipo) */}
-        <View style={styles.resumoRow}>
-          <SummaryCard
-            icone="gift-outline"
-            valor={estatisticas.totalDisponiveis}
-            rotulo="Benefícios disponíveis"
-            corIcone="#2563EB"
-            fundoIcone="#EFF6FF"
-          />
-          <SummaryCard
-            icone="check-circle-outline"
-            valor={estatisticas.utilizacoesRestantes}
-            rotulo="Utilizações restantes"
-            corIcone="#059669"
-            fundoIcone="#ECFDF5"
-          />
-          <SummaryCard
-            icone="calendar-month-outline"
-            valor={estatisticas.proximaRenovacao}
-            rotulo="Próxima renovação"
-            corIcone="#7C3AED"
-            fundoIcone="#F5F3FF"
-          />
-        </View>
+      <FilterTabs tabs={abas} selectedTab={filtro} onSelectTab={setFiltro} />
 
-        {/* Lista de Benefícios */}
-        <View style={styles.listaContainer}>
-          {carregando ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#1B2A4A" />
-              <Text style={styles.loadingTexto}>Carregando benefícios...</Text>
-            </View>
-          ) : beneficios.length === 0 ? (
-            <View style={styles.vazioContainer}>
-              <Text style={styles.vazioTitulo}>Nenhum benefício encontrado</Text>
-              <Text style={styles.vazioTexto}>
-                Não encontramos nenhum benefício nesta categoria de filtro.
-              </Text>
-            </View>
-          ) : (
-            beneficios.map((beneficio) => (
-              <BenefitCard
-                key={beneficio.id}
-                beneficio={beneficio}
-                onPress={() => handleAbrirDetalhes(beneficio)}
-                onPressRegras={() => handleAbrirDetalhes(beneficio)}
-              />
-            ))
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      {carregando ? (
+        <Loading texto="Carregando benefícios..." />
+      ) : erro ? (
+        <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
+      ) : lista.length === 0 ? (
+        <EmptyState
+          icone="wallet-outline"
+          titulo="Nenhum benefício encontrado"
+          texto="Não há benefícios neste filtro."
+        />
+      ) : (
+        lista.map((item) => (
+          <BenefitCard
+            key={item.beneficio.id}
+            item={item}
+            aoPressionar={() =>
+              navigation.navigate('BenefitDetails', { beneficioId: item.beneficio.id })
+            }
+          />
+        ))
+      )}
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  resumoRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 20,
-  },
-  listaContainer: {
-    flex: 1,
-  },
-  loadingContainer: {
-    paddingVertical: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingTexto: {
-    marginTop: 12,
-    fontSize: 14,
-    color: '#64748B',
-  },
-  vazioContainer: {
-    paddingVertical: 40,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  vazioTitulo: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1B2A4A',
-    marginBottom: 6,
-  },
-  vazioTexto: {
-    fontSize: 13,
-    color: '#64748B',
-    textAlign: 'center',
-  },
-});

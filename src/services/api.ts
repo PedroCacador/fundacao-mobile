@@ -16,9 +16,20 @@ interface OpcoesRequisicao {
   token?: string | null;
 }
 
-/** Faz a requisição, converte o JSON e transforma falhas em ApiError com mensagem em português. */
+let tokenAtual: string | null = null;
+let aoExpirarSessao: (() => void) | null = null;
+
+export function definirToken(token: string | null) {
+  tokenAtual = token;
+}
+
+export function definirAoExpirarSessao(callback: (() => void) | null) {
+  aoExpirarSessao = callback;
+}
+
 export async function requisitar<T>(caminho: string, opcoes: OpcoesRequisicao = {}): Promise<T> {
-  const { metodo = 'GET', corpo, token } = opcoes;
+  const { metodo = 'GET', corpo } = opcoes;
+  const token = opcoes.token ?? tokenAtual;
 
   const controlador = new AbortController();
   const temporizador = setTimeout(() => controlador.abort(), TEMPO_LIMITE_MS);
@@ -45,11 +56,16 @@ export async function requisitar<T>(caminho: string, opcoes: OpcoesRequisicao = 
     clearTimeout(temporizador);
   }
 
-  let dados: any = null;
+  let dados: { erro?: string } | null = null;
   try {
     dados = await resposta.json();
   } catch {
-    // resposta sem corpo JSON (ex.: 204)
+    dados = null;
+  }
+
+  if (resposta.status === 401 && token && !opcoes.token) {
+    aoExpirarSessao?.();
+    throw new ApiError('Sua sessão expirou. Entre novamente.', 401);
   }
 
   if (!resposta.ok) {

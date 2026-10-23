@@ -1,13 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { UsuarioAutenticado } from '../models/Auth';
-import { ApiError } from '../services/api';
+import { ApiError, definirAoExpirarSessao, definirToken } from '../services/api';
 import { authService } from '../services/authService';
 import { tokenStorage } from '../services/tokenStorage';
 
 interface AuthContextData {
   usuario: UsuarioAutenticado | null;
-  token: string | null;
-  /** true enquanto o app verifica se existe uma sessão salva */
   restaurando: boolean;
   login: (email: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -17,10 +15,21 @@ const AuthContext = createContext<AuthContextData | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [usuario, setUsuario] = useState<UsuarioAutenticado | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [restaurando, setRestaurando] = useState(true);
 
-  // Ao abrir o app: se há token salvo, confirma com a API (GET /auth/eu).
+  const logout = useCallback(async () => {
+    definirToken(null);
+    setUsuario(null);
+    await tokenStorage.remover();
+  }, []);
+
+  useEffect(() => {
+    definirAoExpirarSessao(() => {
+      logout();
+    });
+    return () => definirAoExpirarSessao(null);
+  }, [logout]);
+
   useEffect(() => {
     let ativo = true;
 
@@ -36,10 +45,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await tokenStorage.remover();
           return;
         }
-        setToken(tokenSalvo);
+        definirToken(tokenSalvo);
         setUsuario(dados);
       } catch (erro) {
-        // 401/403/404: sessão vencida ou inválida. Falha de rede: só volta ao login.
         if (erro instanceof ApiError && erro.status !== 0) {
           await tokenStorage.remover();
         }
@@ -65,19 +73,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     await tokenStorage.salvar(resposta.token);
-    setToken(resposta.token);
+    definirToken(resposta.token);
     setUsuario(resposta.usuario);
   }, []);
 
-  const logout = useCallback(async () => {
-    await tokenStorage.remover();
-    setToken(null);
-    setUsuario(null);
-  }, []);
-
   const valor = useMemo(
-    () => ({ usuario, token, restaurando, login, logout }),
-    [usuario, token, restaurando, login, logout],
+    () => ({ usuario, restaurando, login, logout }),
+    [usuario, restaurando, login, logout],
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
@@ -89,4 +91,12 @@ export function useAuth(): AuthContextData {
     throw new Error('useAuth precisa ser usado dentro de um AuthProvider');
   }
   return contexto;
+}
+
+export function useUsuario(): UsuarioAutenticado {
+  const { usuario } = useAuth();
+  if (!usuario) {
+    throw new Error('useUsuario precisa de um usuário logado');
+  }
+  return usuario;
 }

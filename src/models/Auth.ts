@@ -9,7 +9,6 @@ export interface Colaborador {
   telefone: string | null;
 }
 
-/** Usuário como devolvido pela API em /auth/login e /auth/eu. */
 export interface UsuarioAutenticado {
   id: number;
   nome: string;
@@ -19,7 +18,7 @@ export interface UsuarioAutenticado {
   escopo: 'FCV' | 'COLABORADOR' | 'CONVENIADO';
   status: 'ATIVO' | 'INATIVO';
   data_criacao: string;
-  colaborador: Colaborador | null;
+  colaborador?: Colaborador | null;
 }
 
 export interface RespostaLogin {

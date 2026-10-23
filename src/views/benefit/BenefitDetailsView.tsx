@@ -1,443 +1,259 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Card } from '../../components/common/Card';
+import { FilterTabs, TabOption } from '../../components/common/FilterTabs';
+import { IconBox, NomeIcone } from '../../components/common/Icon';
+import { Screen } from '../../components/common/Screen';
+import { EmptyState, Loading } from '../../components/common/StateMessage';
 import { StatusBadge } from '../../components/common/StatusBadge';
-import { ItemBeneficioCarteira } from '../../components/benefit/BenefitCard';
+import { RootScreenProps } from '../../navigation/types';
+import { cores, espaco, fonte, peso } from '../../theme';
+import { estiloCategoria } from '../../utils/category';
+import {
+  AbaDetalhe,
+  useBenefitDetailsViewModel,
+} from '../../viewmodels/useBenefitDetailsViewModel';
 
-type AbaDetalhe = 'ONDE_USAR' | 'REGRAS' | 'QUANTIDADE' | 'ESTABELECIMENTOS';
+const abas: TabOption<AbaDetalhe>[] = [
+  { id: 'ONDE_USAR', label: 'Onde usar' },
+  { id: 'REGRAS', label: 'Regras' },
+  { id: 'QUANTIDADE', label: 'Quantidade' },
+  { id: 'ESTABELECIMENTOS', label: 'Estabelecimentos' },
+];
 
-export default function BenefitDetailsView({ route, navigation }: any) {
-  const beneficio: ItemBeneficioCarteira = route.params?.beneficio ?? {
-    id: 1,
-    nome: 'Alimentação',
-    descricao: 'Restaurantes e estabelecimentos conveniados.',
-    categoria: 'Alimentação',
-    status: 'DISPONIVEL',
-    utilizacoesFeitas: 5,
-    utilizacoesMaximas: 8,
-    dataRenovacao: '12/11/2025',
-    icone: 'silverware-fork-knife',
-    corIcone: '#EF4444',
-    fundoIcone: '#FEE2E2',
-  };
+export default function BenefitDetailsView({ route }: RootScreenProps<'BenefitDetails'>) {
+  const { item, detalhes, aba, setAba, carregando } = useBenefitDetailsViewModel(
+    route.params.beneficioId,
+  );
 
-  const [abaAtiva, setAbaAtiva] = useState<AbaDetalhe>('ONDE_USAR');
+  if (carregando) {
+    return (
+      <Screen bordas={['bottom']}>
+        <Loading />
+      </Screen>
+    );
+  }
 
-  const estabelecimentos = [
-    {
-      id: 1,
-      nome: 'Restaurante Sabor & Cia',
-      endereco: 'Av. Brasil, 123 - Centro',
-      tipo: 'Restaurante',
-      icone: 'silverware-fork-knife',
-    },
-    {
-      id: 2,
-      nome: 'Padaria do Povo',
-      endereco: 'Rua das Flores, 45 - Centro',
-      tipo: 'Padaria',
-      icone: 'bread-slice-outline',
-    },
-    {
-      id: 3,
-      nome: 'Café e Sabor',
-      endereco: 'Av. Paulista, 890 - Bela Vista',
-      tipo: 'Cafeteria',
-      icone: 'coffee-outline',
-    },
-  ];
+  if (!item || !detalhes) {
+    return (
+      <Screen bordas={['bottom']}>
+        <EmptyState icone="gift-off-outline" titulo="Benefício não encontrado" />
+      </Screen>
+    );
+  }
+
+  const { beneficio, conveniados, categoria, disponivel } = item;
+  const estilo = estiloCategoria(categoria);
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        {/* Banner do Benefício com Badge de Status */}
-        <View style={styles.bannerCard}>
-          <View style={[styles.iconeGrande, { backgroundColor: beneficio.fundoIcone }]}>
-            <MaterialCommunityIcons name={beneficio.icone} size={42} color={beneficio.corIcone} />
-          </View>
-          <View style={styles.bannerInfo}>
-            <StatusBadge status={beneficio.status} />
-            <Text style={styles.bannerTitulo}>{beneficio.nome}</Text>
-            <Text style={styles.bannerSubtitulo}>{beneficio.descricao}</Text>
-          </View>
+    <Screen bordas={['bottom']}>
+      <Card estilo={styles.banner}>
+        <IconBox nome={estilo.icone} cor={estilo.cor} fundo={estilo.fundo} tamanho={64} />
+        <View style={styles.bannerInfo}>
+          <StatusBadge status={disponivel ? 'DISPONIVEL' : 'INDISPONIVEL'} />
+          <Text style={styles.bannerTitulo}>{beneficio.nome}</Text>
+          {beneficio.descricao ? (
+            <Text style={styles.bannerDescricao}>{beneficio.descricao}</Text>
+          ) : null}
         </View>
+      </Card>
 
-        {/* Três Métricas Chave (Fiel ao Protótipo da Pág 4) */}
-        <View style={styles.metricasContainer}>
-          <View style={styles.metricaCard}>
-            <MaterialCommunityIcons name="calendar-month-outline" size={20} color="#64748B" />
-            <Text style={styles.metricaRotulo}>Próxima renovação</Text>
-            <Text style={styles.metricaValor}>{beneficio.dataRenovacao}</Text>
-            <Text style={styles.metricaObs}>(em 45 dias)</Text>
-          </View>
+      <View style={styles.metricas}>
+        <Metrica
+          icone="calendar-month-outline"
+          rotulo="Próxima renovação"
+          valor={detalhes.renovacao}
+        />
+        <Metrica icone="tag-outline" rotulo="Usos permitidos" valor={detalhes.limite} />
+        <Metrica icone="sale" rotulo="Benefício" valor={detalhes.valor} />
+      </View>
 
-          <View style={styles.metricaCard}>
-            <MaterialCommunityIcons name="tag-outline" size={20} color="#64748B" />
-            <Text style={styles.metricaRotulo}>Usos permitidos</Text>
-            <Text style={styles.metricaValor}>{beneficio.utilizacoesMaximas} por mês</Text>
-            <Text style={styles.metricaObs}>renovável</Text>
-          </View>
+      <FilterTabs tabs={abas} selectedTab={aba} onSelectTab={setAba} />
 
-          <View style={styles.metricaCard}>
-            <MaterialCommunityIcons name="clock-outline" size={20} color="#64748B" />
-            <Text style={styles.metricaRotulo}>Utilizações restantes</Text>
-            <Text style={styles.metricaValor}>
-              {beneficio.utilizacoesFeitas} de {beneficio.utilizacoesMaximas}
-            </Text>
-            <Text style={styles.metricaObs}>ativas</Text>
-          </View>
-        </View>
-
-        {/* Abas em Pílula */}
-        <View style={styles.abasContainer}>
-          <TouchableOpacity
-            style={[styles.abaPill, abaAtiva === 'ONDE_USAR' && styles.abaPillAtiva]}
-            onPress={() => setAbaAtiva('ONDE_USAR')}
-          >
-            <MaterialCommunityIcons
-              name="map-marker-outline"
-              size={16}
-              color={abaAtiva === 'ONDE_USAR' ? '#FFFFFF' : '#64748B'}
-            />
-            <Text style={[styles.abaTexto, abaAtiva === 'ONDE_USAR' && styles.abaTextoAtivo]}>
-              Onde usar
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.abaPill, abaAtiva === 'REGRAS' && styles.abaPillAtiva]}
-            onPress={() => setAbaAtiva('REGRAS')}
-          >
-            <MaterialCommunityIcons
-              name="file-document-outline"
-              size={16}
-              color={abaAtiva === 'REGRAS' ? '#FFFFFF' : '#64748B'}
-            />
-            <Text style={[styles.abaTexto, abaAtiva === 'REGRAS' && styles.abaTextoAtivo]}>
-              Regras
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.abaPill, abaAtiva === 'QUANTIDADE' && styles.abaPillAtiva]}
-            onPress={() => setAbaAtiva('QUANTIDADE')}
-          >
-            <MaterialCommunityIcons
-              name="counter"
-              size={16}
-              color={abaAtiva === 'QUANTIDADE' ? '#FFFFFF' : '#64748B'}
-            />
-            <Text style={[styles.abaTexto, abaAtiva === 'QUANTIDADE' && styles.abaTextoAtivo]}>
-              Quantidade
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.abaPill, abaAtiva === 'ESTABELECIMENTOS' && styles.abaPillAtiva]}
-            onPress={() => setAbaAtiva('ESTABELECIMENTOS')}
-          >
-            <MaterialCommunityIcons
-              name="store-outline"
-              size={16}
-              color={abaAtiva === 'ESTABELECIMENTOS' ? '#FFFFFF' : '#64748B'}
-            />
-            <Text
-              style={[styles.abaTexto, abaAtiva === 'ESTABELECIMENTOS' && styles.abaTextoAtivo]}
-            >
-              Locais
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Seção: Onde Pode Utilizar */}
-        <View style={styles.secaoCard}>
-          <View style={styles.secaoHeader}>
-            <View style={styles.secaoIcone}>
-              <MaterialCommunityIcons name="map-marker-outline" size={20} color="#2563EB" />
-            </View>
-            <Text style={styles.secaoTitulo}>Onde pode utilizar</Text>
-          </View>
-          <Text style={styles.secaoCorpo}>
-            Em restaurantes, lanchonetes, padarias e outros estabelecimentos conveniados da FCV.
+      {aba === 'ONDE_USAR' ? (
+        <Secao icone="map-marker-outline" titulo="Onde pode utilizar">
+          <Text style={styles.texto}>
+            {detalhes.categorias.length > 0
+              ? `Válido em estabelecimentos de: ${detalhes.categorias.join(', ')}.`
+              : 'Nenhum estabelecimento conveniado ativo para este benefício no momento.'}
           </Text>
-          <View style={styles.dicaCard}>
-            <MaterialCommunityIcons name="information-outline" size={18} color="#2563EB" />
-            <Text style={styles.dicaTexto}>
-              Apresente seu QR Code ou realize a validação no terminal do estabelecimento para
-              efetuar a utilização.
-            </Text>
-          </View>
-        </View>
+        </Secao>
+      ) : null}
 
-        {/* Seção: Regras de Utilização */}
-        <View style={styles.secaoCard}>
-          <View style={styles.secaoHeader}>
-            <View style={styles.secaoIcone}>
-              <MaterialCommunityIcons name="file-document-outline" size={20} color="#2563EB" />
+      {aba === 'REGRAS' ? (
+        <Secao icone="file-document-outline" titulo="Regras de utilização">
+          {detalhes.regras.map((regra) => (
+            <View key={regra} style={styles.regra}>
+              <MaterialCommunityIcons name="check" size={18} color={cores.sucesso} />
+              <Text style={styles.texto}>{regra}</Text>
             </View>
-            <Text style={styles.secaoTitulo}>Regras de utilização</Text>
-          </View>
-          <View style={styles.regraItem}>
-            <MaterialCommunityIcons name="check" size={18} color="#059669" />
-            <Text style={styles.regraTexto}>Válido apenas em estabelecimentos conveniados.</Text>
-          </View>
-          <View style={styles.regraItem}>
-            <MaterialCommunityIcons name="check" size={18} color="#059669" />
-            <Text style={styles.regraTexto}>
-              Não é permitido o uso para compras de bebidas alcoólicas e cigarros.
-            </Text>
-          </View>
-          <View style={styles.regraItem}>
-            <MaterialCommunityIcons name="check" size={18} color="#059669" />
-            <Text style={styles.regraTexto}>O benefício é pessoal e intransferível.</Text>
-          </View>
-          <View style={styles.regraItem}>
-            <MaterialCommunityIcons name="check" size={18} color="#059669" />
-            <Text style={styles.regraTexto}>
-              Em caso de perda ou uso indevido, entre em contato com o RH.
-            </Text>
-          </View>
-        </View>
+          ))}
+        </Secao>
+      ) : null}
 
-        {/* Seção: Estabelecimentos Conveniados */}
-        <View style={styles.secaoCard}>
-          <View style={styles.secaoHeader}>
-            <View style={styles.secaoIcone}>
-              <MaterialCommunityIcons name="storefront-outline" size={20} color="#2563EB" />
-            </View>
-            <Text style={styles.secaoTitulo}>Estabelecimentos conveniados</Text>
-          </View>
-          <Text style={styles.secaoCorpo}>
-            Confira os estabelecimentos onde você pode utilizar seu benefício:
+      {aba === 'QUANTIDADE' ? (
+        <Secao icone="counter" titulo="Quantidade e validade">
+          <Text style={styles.texto}>Usos permitidos: {detalhes.limite}</Text>
+          <Text style={styles.texto}>
+            Próxima renovação: {detalhes.renovacao}
+            {detalhes.emQuantosDias ? ` (${detalhes.emQuantosDias})` : ''}
           </Text>
+        </Secao>
+      ) : null}
 
-          <View style={styles.estabelecimentosLista}>
-            {estabelecimentos.map((est) => (
-              <View key={est.id} style={styles.estItem}>
-                <View style={styles.estIconeBox}>
-                  <MaterialCommunityIcons name={est.icone as any} size={20} color="#1B2A4A" />
+      {aba === 'ESTABELECIMENTOS' ? (
+        <Secao icone="storefront-outline" titulo="Estabelecimentos conveniados">
+          {conveniados.length === 0 ? (
+            <Text style={styles.texto}>Nenhum estabelecimento ativo no momento.</Text>
+          ) : (
+            conveniados.map((conveniado) => {
+              const estiloLocal = estiloCategoria(conveniado.categoria);
+              return (
+                <View key={conveniado.id} style={styles.local}>
+                  <IconBox
+                    nome={estiloLocal.icone}
+                    cor={estiloLocal.cor}
+                    fundo={estiloLocal.fundo}
+                    tamanho={40}
+                  />
+                  <View style={styles.localInfo}>
+                    <Text style={styles.localNome}>{conveniado.nome_fantasia}</Text>
+                    <Text style={styles.localEndereco}>{conveniado.endereco}</Text>
+                    <Text style={styles.localCategoria}>{conveniado.categoria}</Text>
+                  </View>
                 </View>
-                <View style={styles.estInfo}>
-                  <Text style={styles.estNome}>{est.nome}</Text>
-                  <Text style={styles.estEndereco}>{est.endereco}</Text>
-                  <Text style={styles.estTipo}>{est.tipo}</Text>
-                </View>
-                <MaterialCommunityIcons name="chevron-right" size={20} color="#94A3B8" />
-              </View>
-            ))}
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+              );
+            })
+          )}
+        </Secao>
+      ) : null}
+    </Screen>
+  );
+}
+
+function Metrica({ icone, rotulo, valor }: { icone: NomeIcone; rotulo: string; valor: string }) {
+  return (
+    <Card estilo={styles.metrica}>
+      <MaterialCommunityIcons name={icone} size={20} color={cores.primaria} />
+      <Text style={styles.metricaRotulo}>{rotulo}</Text>
+      <Text style={styles.metricaValor}>{valor}</Text>
+    </Card>
+  );
+}
+
+function Secao({
+  icone,
+  titulo,
+  children,
+}: {
+  icone: NomeIcone;
+  titulo: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card estilo={styles.secao}>
+      <View style={styles.secaoTopo}>
+        <IconBox nome={icone} tamanho={36} redondo />
+        <Text style={styles.secaoTitulo}>{titulo}</Text>
+      </View>
+      <View style={styles.secaoCorpo}>{children}</View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  bannerCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 20,
+  banner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 16,
-  },
-  iconeGrande: {
-    width: 68,
-    height: 68,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: espaco.lg,
+    marginBottom: espaco.md,
   },
   bannerInfo: {
     flex: 1,
-    gap: 4,
+    gap: espaco.xs,
   },
   bannerTitulo: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#1B2A4A',
+    fontSize: fonte.xl,
+    fontWeight: peso.negrito,
+    color: cores.texto,
   },
-  bannerSubtitulo: {
-    fontSize: 13,
-    color: '#64748B',
+  bannerDescricao: {
+    fontSize: fonte.sm,
+    color: cores.textoSecundario,
     lineHeight: 18,
   },
-  metricasContainer: {
+  metricas: {
     flexDirection: 'row',
-    gap: 8,
-    marginBottom: 18,
+    gap: espaco.sm,
+    marginBottom: espaco.lg,
   },
-  metricaCard: {
+  metrica: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 12,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    padding: espaco.md,
+    gap: espaco.xs,
   },
   metricaRotulo: {
-    fontSize: 10,
-    color: '#64748B',
-    marginTop: 6,
-    marginBottom: 2,
+    fontSize: fonte.xs,
+    color: cores.textoSecundario,
     textAlign: 'center',
   },
   metricaValor: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#1B2A4A',
+    fontSize: fonte.sm,
+    fontWeight: peso.negrito,
+    color: cores.texto,
     textAlign: 'center',
   },
-  metricaObs: {
-    fontSize: 10,
-    color: '#94A3B8',
-    marginTop: 2,
+  secao: {
+    marginBottom: espaco.md,
   },
-  abasContainer: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 18,
-  },
-  abaPill: {
-    flex: 1,
+  secaoTopo: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  abaPillAtiva: {
-    backgroundColor: '#1B2A4A',
-    borderColor: '#1B2A4A',
-  },
-  abaTexto: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#64748B',
-  },
-  abaTextoAtivo: {
-    color: '#FFFFFF',
-  },
-  secaoCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  secaoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 10,
-  },
-  secaoIcone: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#EFF6FF',
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: espaco.md,
   },
   secaoTitulo: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1B2A4A',
+    fontSize: fonte.md,
+    fontWeight: peso.negrito,
+    color: cores.texto,
   },
   secaoCorpo: {
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 18,
-    marginBottom: 12,
+    marginTop: espaco.md,
+    gap: espaco.sm,
   },
-  dicaCard: {
+  texto: {
+    flex: 1,
+    fontSize: fonte.sm,
+    color: cores.textoSecundario,
+    lineHeight: 20,
+  },
+  regra: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 8,
-    backgroundColor: '#F0F7FF',
-    borderRadius: 10,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#DBEAFE',
+    gap: espaco.sm,
   },
-  dicaTexto: {
-    flex: 1,
-    fontSize: 12,
-    color: '#1E40AF',
-    lineHeight: 16,
-  },
-  regraItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    marginBottom: 8,
-  },
-  regraTexto: {
-    flex: 1,
-    fontSize: 13,
-    color: '#475569',
-    lineHeight: 18,
-  },
-  estabelecimentosLista: {
-    gap: 10,
-    marginTop: 6,
-  },
-  estItem: {
+  local: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
-    borderRadius: 12,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    gap: 12,
+    gap: espaco.md,
+    paddingVertical: espaco.xs,
   },
-  estIconeBox: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  estInfo: {
+  localInfo: {
     flex: 1,
   },
-  estNome: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#1B2A4A',
+  localNome: {
+    fontSize: fonte.sm,
+    fontWeight: peso.negrito,
+    color: cores.texto,
   },
-  estEndereco: {
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 1,
+  localEndereco: {
+    fontSize: fonte.xs,
+    color: cores.textoSecundario,
   },
-  estTipo: {
-    fontSize: 10,
-    color: '#2563EB',
-    fontWeight: '600',
-    marginTop: 2,
+  localCategoria: {
+    fontSize: fonte.xs,
+    fontWeight: peso.semi,
+    color: cores.primaria,
   },
 });

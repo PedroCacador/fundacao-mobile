@@ -3,7 +3,6 @@ import * as SecureStore from 'expo-secure-store';
 
 const CHAVE_TOKEN = 'fcv_token';
 
-/** No celular o token fica no armazenamento seguro; na web usa localStorage. */
 export const tokenStorage = {
   async obter(): Promise<string | null> {
     if (Platform.OS === 'web') {
