@@ -1,173 +1,77 @@
-# 📱 Fundação Mobile
+# FCV Mobile
 
-Aplicativo mobile corporativo desenvolvido com **React Native**, **Expo** e **TypeScript**, estruturado sob a arquitetura **MVVM (Model-View-ViewModel)** com separação clara de responsabilidades, tipagem estrita e foco em estabilidade e escalabilidade.
+App da Plataforma de Benefícios e Relacionamento da Fundação Cristiano Varella. Feito com React Native, Expo e TypeScript, na arquitetura MVVM. Os dados vêm da API do projeto ([fcv-backend](https://github.com/joaovictorcascardo/fcv-backend)).
 
----
+## Rodar na máquina
 
-## 🚀 Tecnologias e Versões
-
-O projeto adota uma stack padronizada para o ecossistema Expo:
-
-| Tecnologia             | Versão    | Função                                              |
-| :--------------------- | :-------- | :-------------------------------------------------- |
-| **Expo SDK**           | `~52.0.x` | Plataforma e runtime de desenvolvimento móvel       |
-| **React**              | `18.3.1`  | Biblioteca de UI e gerenciamento de estado          |
-| **React Native**       | `0.76.7`  | Framework móvel nativo                              |
-| **TypeScript**         | `^5.3.3`  | Tipagem estática e segurança em tempo de compilação |
-| **React Navigation**   | `^7.x`    | Navegação por Stack e Bottom Tabs                   |
-| **React Native Paper** | `^5.13.x` | Biblioteca de componentes Material Design           |
-| **Expo SecureStore**   | `~14.0.x` | Armazenamento criptografado de tokens de sessão     |
-
----
-
-## 🏛 Arquitetura do Projeto
-
-O código está organizado dentro da pasta `src/` seguindo o padrão **MVVM** e princípios de modularidade:
-
-```text
-fundacao-mobile/
-├── assets/                  # Imagens, ícones e fontes estáticas
-├── src/
-│   ├── config/              # Configurações globais e resolução dinâmica de URL da API
-│   │   └── api.ts
-│   ├── context/             # Gerenciamento de estado global (ex: autenticação)
-│   │   └── AuthContext.tsx
-│   ├── models/              # Interfaces de dados, contratos TypeScript e mappers
-│   │   ├── Auth.ts
-│   │   ├── Benefit.ts
-│   │   ├── User.ts
-│   │   └── mapearUsuario.ts
-│   ├── navigation/          # Rotas e navegadores (Stack & Bottom Tabs)
-│   │   └── AppNavigator.tsx
-│   ├── services/            # Comunicação HTTP, endpoints REST e persistência segura
-│   │   ├── api.ts
-│   │   ├── authService.ts
-│   │   ├── benefitService.ts
-│   │   └── tokenStorage.ts
-│   ├── viewmodels/          # Camada de lógica de negócio e hooks reativos (MVVM)
-│   │   ├── useAuthViewModel.ts
-│   │   ├── useHomeViewModel.ts
-│   │   ├── useProfileViewModel.ts
-│   │   └── useQrCodeViewModel.ts
-│   └── views/               # Telas e componentes visuais de apresentação
-│       ├── auth/            # Login e autenticação
-│       ├── history/         # Histórico de transações e atividades
-│       ├── home/            # Painel principal
-│       ├── locations/       # Unidades e locais de atendimento
-│       ├── notifications/   # Central de notificações
-│       ├── profile/         # Perfil, edição, dados do colaborador e configurações
-│       ├── qrcode/          # Apresentação e leitura de QR Code
-│       └── wallet/          # Carteira digital e saldos de benefícios
-├── App.tsx                  # Ponto de entrada com Providers (Theme, Safe Area, Auth)
-├── app.json                 # Configuração do Expo (plugins, slug, permissões)
-├── index.ts                 # Registro de inicialização do Expo
-├── package.json             # Dependências e scripts
-└── tsconfig.json            # Configuração do compilador TypeScript
-```
-
----
-
-## ⚙️ Pré-requisitos
-
-Antes de iniciar, certifique-se de ter instalado em sua máquina:
-
-- **Node.js** (versão 18, 20 ou superior recomendada)
-- **NPM** (versão 9+)
-- Dispositivo móvel com o app **Expo Go** instalado (disponível na Google Play Store e Apple App Store) ou um emulador Android/iOS configurado.
-
----
-
-## 📦 Instalação
-
-1. Clone o repositório e navegue até a pasta do projeto:
-
-```bash
-cd fundacao-mobile
-```
-
+1. Suba a API (veja o README do fcv-backend). Ela roda em `http://localhost:3333/api/v1`.
 2. Instale as dependências:
 
 ```bash
 npm install
 ```
 
----
-
-## 🌐 Configuração da API
-
-A URL da API é resolvida automaticamente pelo arquivo `src/config/api.ts`:
-
-- **Dispositivo físico com Expo Go:** Detecta automaticamente o IP da sua máquina na mesma rede Wi-Fi na porta `3333`.
-- **Emulador Android:** Utiliza `http://10.0.2.2:3333/api/v1`.
-- **Navegador Web / Simulador iOS:** Utiliza `http://localhost:3333/api/v1`.
-
-### Sobrescrevendo a URL manualmente (Opcional):
-
-Crie um arquivo `.env` na raiz do projeto com:
-
-```env
-EXPO_PUBLIC_API_URL=http://SEU_IP_AQUI:3333/api/v1
-```
-
----
-
-## 🏃 Como Executar
-
-### 1. Iniciar o servidor Expo (Metro Bundler)
+3. Inicie o Expo:
 
 ```bash
 npm start
 ```
 
-ou:
+4. Abra no celular com o Expo Go (mesma Wi-Fi do computador), ou aperte `w` para abrir no navegador.
 
-```bash
-npx expo start
+O endereço da API é descoberto sozinho em `src/config/api.ts`: no celular usa o IP do computador que está rodando o Expo, no emulador Android usa `10.0.2.2` e no navegador usa `localhost`. Para forçar outro endereço, crie um `.env` na raiz:
+
+```env
+EXPO_PUBLIC_API_URL=http://SEU_IP:3333/api/v1
 ```
 
-### 2. Testar nos Ambientes:
+Se o celular não conectar, confira se o firewall do Windows libera a porta 3333.
 
-- **📱 Celular Físico (Android ou iOS):**
-  1. Conecte o celular na mesma rede Wi-Fi do computador.
-  2. No Android: abra o aplicativo **Expo Go** e selecione **"Scan QR code"** para escanear o código gerado no terminal.
-  3. No iPhone: abra a câmera do sistema e escaneie o QR code para abrir via **Expo Go**.
+## Usuário de teste
 
-- **🤖 Emulador Android:**
-  Com o emulador aberto, pressione a tecla `a` no terminal ou execute:
+O app é para colaboradores. Use `carla@fcv.org.br` com a senha `123456` (dados do seed da API).
 
-  ```bash
-  npm run android
-  ```
+## Scripts
 
-- **🍎 Simulador iOS (macOS):**
-  Pressione a tecla `i` no terminal ou execute:
+| Comando             | O que faz                            |
+| ------------------- | ------------------------------------ |
+| `npm start`         | Inicia o Expo                        |
+| `npm run web`       | Abre no navegador                    |
+| `npm run lint`      | Procura problemas no código (ESLint) |
+| `npm run format`    | Formata o código (Prettier)          |
+| `npm run typecheck` | Confere os tipos (TypeScript)        |
 
-  ```bash
-  npm run ios
-  ```
+Rode `lint` e `typecheck` antes de cada commit.
 
-- **💻 Navegador Web:**
-  Pressione a tecla `w` no terminal ou execute:
-  ```bash
-  npm run web
-  ```
+## Estrutura
 
----
+```text
+src/
+├── components/
+│   ├── common/      componentes reaproveitados em todas as telas (Screen, Card, Button, TextField...)
+│   └── benefit/     componentes ligados a benefício (BenefitCard)
+├── config/          endereço da API
+├── context/         estado global: sessão (AuthContext) e catálogo de benefícios (CatalogContext)
+├── models/          tipos dos dados que vêm da API
+├── navigation/      navegadores e tipos das rotas
+├── services/        chamadas HTTP e armazenamento do token
+├── theme/           cores, fontes, espaçamentos, raios e sombras
+├── utils/           formatação de valores, datas e categorias
+├── viewmodels/      lógica de cada tela (hooks)
+└── views/           telas
+```
 
-## 🔍 Scripts Disponíveis
+Como as camadas conversam:
 
-| Script    | Comando           | Descrição                                               |
-| :-------- | :---------------- | :------------------------------------------------------ |
-| `start`   | `npm start`       | Inicia o Metro Bundler interativo do Expo               |
-| `android` | `npm run android` | Executa o app diretamente no emulador Android conectado |
-| `ios`     | `npm run ios`     | Executa o app diretamente no simulador iOS              |
-| `web`     | `npm run web`     | Roda a versão web no navegador                          |
+- **View** só desenha a tela e chama o ViewModel. Não tem regra nem dado fixo.
+- **ViewModel** prepara o que a tela mostra, usando os contexts e os utils.
+- **Context** guarda o que várias telas usam. O catálogo é buscado uma vez e compartilhado entre Início, Carteira e Detalhe.
+- **Service** fala com a API. O token é colocado sozinho em toda requisição, e se a API responder 401 o app volta para o login.
 
----
+## Padrões
 
-## 🛡️ Boas Práticas Adotadas
-
-- **Separação de Preocupações (SoC):** Views são responsáveis apenas pela apresentação; a lógica de negócio, chamadas assíncronas e tratativas de erro residem nos ViewModels.
-- **Segurança de Sessão:** Tokens JWT e credenciais persistidas através do `expo-secure-store`, utilizando Keychain (iOS) e Keystore (Android).
-- **Tipagem Estrita:** TypeScript configurado em modo estrito (`strict: true`), garantindo tipagem consistente de rotas, modelos e serviços.
-- **Resolução de Rede Automática:** Conexão facilitada para testes locais entre computador e celular sem necessidade de alterar código-fonte a cada troca de IP.
+- Cores, fontes e espaçamentos sempre do `src/theme`. Não use cor solta no `StyleSheet`.
+- Antes de criar um componente, veja se já existe um em `components/common`.
+- Todo dado mostrado vem da API. Se a API ainda não tem a informação, a tela não mostra nada no lugar dela.
+- Rotas novas precisam ser registradas em `src/navigation/types.ts`.
+- Commits no padrão `feat:`, `fix:`, `refactor:`, `style:`, `chore:` e `docs:`.
