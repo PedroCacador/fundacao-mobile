@@ -1,39 +1,70 @@
 import { useMemo } from 'react';
-import { User } from '../models/User';
-import { mapearUsuario } from '../models/mapearUsuario';
-import { useAuth } from '../context/AuthContext';
+import Constants from 'expo-constants';
+import { NomeIcone } from '../models/Icon';
+import { useAuth, useUsuario } from '../context/AuthContext';
+import { formatarData, formatarTelefone, lerData } from '../utils/format';
+
+export interface CampoPerfil {
+  icone: NomeIcone;
+  rotulo: string;
+  valor: string;
+}
+
+function semVazios(campos: (CampoPerfil | null)[]) {
+  return campos.filter((campo): campo is CampoPerfil => campo !== null);
+}
 
 export function useProfileViewModel() {
-  const { usuario, logout } = useAuth();
-  const user: User = useMemo(() => mapearUsuario(usuario!), [usuario]);
+  const usuario = useUsuario();
+  const { logout } = useAuth();
+  const colaborador = usuario.colaborador;
 
-  const employeeFields = [
-    { icon: 'account-outline', label: 'Nome completo', value: user.name },
-    { icon: 'card-account-details-outline', label: 'CPF', value: user.cpf },
-    { icon: 'briefcase-outline', label: 'Cargo', value: user.cargo },
-    { icon: 'domain', label: 'Setor', value: user.setor },
-    { icon: 'email-outline', label: 'E-mail corporativo', value: user.emailCorporativo },
-  ];
+  const dadosColaborador = useMemo(
+    () =>
+      semVazios([
+        { icone: 'account-outline', rotulo: 'Nome completo', valor: usuario.nome },
+        colaborador
+          ? { icone: 'briefcase-outline', rotulo: 'Cargo', valor: colaborador.cargo }
+          : null,
+        colaborador ? { icone: 'domain', rotulo: 'Setor', valor: colaborador.setor } : null,
+        colaborador
+          ? {
+              icone: 'calendar-outline',
+              rotulo: 'Admissão',
+              valor: formatarData(lerData(colaborador.data_admissao)),
+            }
+          : null,
+      ]),
+    [usuario, colaborador],
+  );
 
-  const accountFields = [
-    { icon: 'email-outline', label: 'E-mail de contato', value: user.emailCorporativo },
-    { icon: 'phone-outline', label: 'Telefone', value: user.phone },
-    { icon: 'lock-outline', label: 'Senha', value: '••••••••' },
-  ];
+  const dadosConta = useMemo(
+    () =>
+      semVazios([
+        { icone: 'email-outline', rotulo: 'E-mail', valor: usuario.email },
+        colaborador?.telefone
+          ? {
+              icone: 'phone-outline',
+              rotulo: 'Telefone',
+              valor: formatarTelefone(colaborador.telefone),
+            }
+          : null,
+        {
+          icone: 'calendar-check-outline',
+          rotulo: 'Conta criada em',
+          valor: formatarData(lerData(usuario.data_criacao)),
+        },
+      ]),
+    [usuario, colaborador],
+  );
 
-  const editProfileFields = [
-    { icon: 'account-outline', label: 'Nome completo', value: user.name },
-    { icon: 'email-outline', label: 'E-mail pessoal', value: user.email },
-    { icon: 'phone-outline', label: 'Telefone', value: user.phone },
-    { icon: 'lock-outline', label: 'Senha', value: '••••••••' },
-  ];
-
-  const settingsOptions = [
-    { icon: 'bell-outline', label: 'Notificações', value: 'Ativadas' },
-    { icon: 'shield-check-outline', label: 'Privacidade', value: 'Gerenciar' },
-    { icon: 'web', label: 'Idioma', value: 'Português (BR)' },
-    { icon: 'information-outline', label: 'Sobre o app', value: 'Versão 1.0.0' },
-  ];
-
-  return { user, employeeFields, accountFields, editProfileFields, settingsOptions, logout };
+  return {
+    nome: usuario.nome,
+    cargo: colaborador?.cargo ?? 'Colaborador(a) da FCV',
+    matricula: colaborador?.matricula ?? null,
+    dadosColaborador,
+    dadosConta,
+    versao: Constants.expoConfig?.version ?? '1.0.0',
+    logout,
+  };
 }

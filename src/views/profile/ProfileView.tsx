@@ -1,19 +1,19 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  Platform,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useProfileViewModel } from '../../viewmodels/useProfileViewModel';
+import { Avatar } from '../../components/common/Avatar';
+import { Button } from '../../components/common/Button';
+import { Card } from '../../components/common/Card';
+import { IconBox, NomeIcone } from '../../components/common/Icon';
+import { ListItem } from '../../components/common/ListItem';
+import { Screen } from '../../components/common/Screen';
+import { TopBar } from '../../components/common/TopBar';
+import { cores, espaco, fonte, peso, raio } from '../../theme';
+import { CampoPerfil, useProfileViewModel } from '../../viewmodels/useProfileViewModel';
 
-export default function ProfileView({ navigation }: any) {
-  const { user, logout } = useProfileViewModel();
+export default function ProfileView() {
+  const { nome, cargo, matricula, dadosColaborador, dadosConta, versao, logout } =
+    useProfileViewModel();
 
   const confirmarSaida = () => {
     if (Platform.OS === 'web') {
@@ -27,205 +27,146 @@ export default function ProfileView({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <TouchableOpacity
-          style={styles.profileHeader}
-          onPress={() => navigation.navigate('EditProfile')}
-          activeOpacity={0.7}
-        >
-          <View style={styles.avatarPlaceholder}>
-            <MaterialCommunityIcons name="account" size={48} color="#8E99A4" />
-          </View>
-          <View style={styles.profileInfo}>
-            <Text style={styles.greeting}>Olá,</Text>
-            <Text style={styles.userName}>{user.name}</Text>
-            <Text style={styles.userRole}>{user.role}</Text>
-            <View style={styles.badgeRow}>
-              <MaterialCommunityIcons name="account-outline" size={16} color="#3A5A8C" />
-              <Text style={styles.badgeText}>Matrícula: {user.matricula}</Text>
-            </View>
-          </View>
-          <MaterialCommunityIcons name="chevron-right" size={26} color="#8E99A4" />
-        </TouchableOpacity>
+    <Screen>
+      <TopBar />
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('EmployeeData')}
-          activeOpacity={0.7}
-        >
-          <View style={styles.cardHeader}>
-            <View style={styles.cardIconCircle}>
-              <MaterialCommunityIcons name="account-circle-outline" size={24} color="#1B2A4A" />
+      <View style={styles.perfil}>
+        <Avatar nome={nome} tamanho={80} />
+        <View style={styles.perfilInfo}>
+          <Text style={styles.ola}>Olá,</Text>
+          <Text style={styles.nome}>{nome}</Text>
+          <Text style={styles.cargo}>{cargo}</Text>
+          {matricula ? (
+            <View style={styles.matricula}>
+              <MaterialCommunityIcons name="account-outline" size={14} color={cores.primaria} />
+              <Text style={styles.matriculaTexto}>Matrícula: {matricula}</Text>
             </View>
-            <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>Dados do colaborador</Text>
-              <Text style={styles.cardSubtitle}>Seus dados pessoais e profissionais.</Text>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#8E99A4" />
-          </View>
-        </TouchableOpacity>
+          ) : null}
+        </View>
+      </View>
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('AccountInfo')}
-          activeOpacity={0.7}
-        >
-          <View style={styles.cardHeader}>
-            <View style={styles.cardIconCircle}>
-              <MaterialCommunityIcons name="shield-account-outline" size={24} color="#1B2A4A" />
-            </View>
-            <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>Informações da conta</Text>
-              <Text style={styles.cardSubtitle}>Gerencie seus dados de acesso e segurança.</Text>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#8E99A4" />
-          </View>
-        </TouchableOpacity>
+      <Secao
+        icone="account-outline"
+        titulo="Dados do colaborador"
+        subtitulo="Seus dados pessoais e profissionais."
+        campos={dadosColaborador}
+      />
+      <Secao
+        icone="shield-account-outline"
+        titulo="Informações da conta"
+        subtitulo="Seus dados de acesso."
+        campos={dadosConta}
+      />
+      <Secao
+        icone="cog-outline"
+        titulo="Configurações"
+        subtitulo="Informações do aplicativo."
+        campos={[
+          { icone: 'information-outline', rotulo: 'Sobre o app', valor: `Versão ${versao}` },
+        ]}
+      />
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Settings')}
-          activeOpacity={0.7}
-        >
-          <View style={styles.cardHeader}>
-            <View style={styles.cardIconCircle}>
-              <MaterialCommunityIcons name="cog-outline" size={24} color="#1B2A4A" />
-            </View>
-            <View style={styles.cardTitleContainer}>
-              <Text style={styles.cardTitle}>Configurações</Text>
-              <Text style={styles.cardSubtitle}>Personalize sua experiência no app.</Text>
-            </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#8E99A4" />
-          </View>
-        </TouchableOpacity>
+      <Button
+        titulo="Sair da conta"
+        icone="logout"
+        variante="perigo"
+        aoPressionar={confirmarSaida}
+      />
+    </Screen>
+  );
+}
 
-        <TouchableOpacity style={styles.logoutButton} onPress={confirmarSaida} activeOpacity={0.7}>
-          <MaterialCommunityIcons name="logout" size={22} color="#B3261E" />
-          <Text style={styles.logoutText}>Sair da conta</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </SafeAreaView>
+function Secao({
+  icone,
+  titulo,
+  subtitulo,
+  campos,
+}: {
+  icone: NomeIcone;
+  titulo: string;
+  subtitulo: string;
+  campos: CampoPerfil[];
+}) {
+  return (
+    <Card estilo={styles.secao}>
+      <View style={styles.secaoTopo}>
+        <IconBox nome={icone} tamanho={44} redondo />
+        <View style={styles.secaoTextos}>
+          <Text style={styles.secaoTitulo}>{titulo}</Text>
+          <Text style={styles.secaoSubtitulo}>{subtitulo}</Text>
+        </View>
+      </View>
+      {campos.map((campo, indice) => (
+        <ListItem
+          key={campo.rotulo}
+          icone={campo.icone}
+          rotulo={campo.rotulo}
+          valor={campo.valor}
+          ultimo={indice === campos.length - 1}
+        />
+      ))}
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F0F4F8',
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 40,
-  },
-  profileHeader: {
+  perfil: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    gap: espaco.lg,
+    marginBottom: espaco.xl,
   },
-  avatarPlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#E8EDF2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  profileInfo: {
+  perfilInfo: {
     flex: 1,
   },
-  greeting: {
-    fontSize: 14,
-    color: '#6B7B8D',
+  ola: {
+    fontSize: fonte.sm,
+    color: cores.textoSecundario,
   },
-  userName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1B2A4A',
-    marginBottom: 2,
+  nome: {
+    fontSize: fonte.xl,
+    fontWeight: peso.negrito,
+    color: cores.texto,
   },
-  userRole: {
-    fontSize: 13,
-    color: '#6B7B8D',
-    marginBottom: 8,
+  cargo: {
+    fontSize: fonte.sm,
+    color: cores.textoSecundario,
   },
-  badgeRow: {
+  matricula: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8EDF2',
     alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    gap: espaco.xs,
+    marginTop: espaco.sm,
+    paddingHorizontal: espaco.sm,
+    paddingVertical: 2,
+    borderRadius: raio.sm,
+    backgroundColor: cores.primariaClara,
   },
-  badgeText: {
-    fontSize: 12,
-    color: '#3A5A8C',
-    fontWeight: '600',
-    marginLeft: 4,
+  matriculaTexto: {
+    fontSize: fonte.xs,
+    fontWeight: peso.semi,
+    color: cores.primaria,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+  secao: {
+    marginBottom: espaco.md,
   },
-  cardHeader: {
+  secaoTopo: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: espaco.md,
+    marginBottom: espaco.sm,
   },
-  cardIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#E8EDF2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
-  cardTitleContainer: {
+  secaoTextos: {
     flex: 1,
   },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1B2A4A',
-    marginBottom: 2,
+  secaoTitulo: {
+    fontSize: fonte.md,
+    fontWeight: peso.negrito,
+    color: cores.texto,
   },
-  cardSubtitle: {
-    fontSize: 13,
-    color: '#6B7B8D',
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 16,
-    marginTop: 6,
-    borderWidth: 1,
-    borderColor: '#F3C9C5',
-  },
-  logoutText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#B3261E',
+  secaoSubtitulo: {
+    fontSize: fonte.xs,
+    color: cores.textoSecundario,
   },
 });
