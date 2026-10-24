@@ -41,39 +41,51 @@ function montarCatalogo(
     });
 }
 
+interface Resultado {
+  usuarioId: number;
+  itens: BeneficioCatalogo[];
+  erro: string | null;
+}
+
+async function buscarCatalogo(usuarioId: number): Promise<Resultado> {
+  try {
+    const { beneficios, ofertas, conveniados } = await benefitService.listarCatalogo();
+    return { usuarioId, itens: montarCatalogo(beneficios, ofertas, conveniados), erro: null };
+  } catch (falha) {
+    const erro =
+      falha instanceof ApiError ? falha.message : 'Não foi possível carregar os benefícios.';
+    return { usuarioId, itens: [], erro };
+  }
+}
+
 export function CatalogProvider({ children }: { children: React.ReactNode }) {
   const { usuario } = useAuth();
-  const [itens, setItens] = useState<BeneficioCatalogo[]>([]);
-  const [carregando, setCarregando] = useState(true);
+  const usuarioId = usuario?.id ?? null;
+  const [resultado, setResultado] = useState<Resultado | null>(null);
   const [atualizando, setAtualizando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-
-  const buscar = useCallback(async () => {
-    try {
-      setErro(null);
-      const { beneficios, ofertas, conveniados } = await benefitService.listarCatalogo();
-      setItens(montarCatalogo(beneficios, ofertas, conveniados));
-    } catch (falha) {
-      setErro(
-        falha instanceof ApiError ? falha.message : 'Não foi possível carregar os benefícios.',
-      );
-    }
-  }, []);
 
   useEffect(() => {
-    if (!usuario) {
-      setItens([]);
-      setCarregando(true);
-      return;
-    }
-    buscar().finally(() => setCarregando(false));
-  }, [usuario, buscar]);
+    if (usuarioId === null) return;
+    let ativo = true;
+    buscarCatalogo(usuarioId).then((novo) => {
+      if (ativo) setResultado(novo);
+    });
+    return () => {
+      ativo = false;
+    };
+  }, [usuarioId]);
 
   const recarregar = useCallback(async () => {
+    if (usuarioId === null) return;
     setAtualizando(true);
-    await buscar();
+    setResultado(await buscarCatalogo(usuarioId));
     setAtualizando(false);
-  }, [buscar]);
+  }, [usuarioId]);
+
+  const atual = resultado && resultado.usuarioId === usuarioId ? resultado : null;
+  const itens = useMemo(() => atual?.itens ?? [], [atual]);
+  const carregando = usuarioId !== null && atual === null;
+  const erro = atual?.erro ?? null;
 
   const valor = useMemo(
     () => ({ itens, carregando, atualizando, erro, recarregar }),

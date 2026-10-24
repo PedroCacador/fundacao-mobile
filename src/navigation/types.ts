@@ -28,7 +28,6 @@ export type TabScreenProps<T extends keyof TabParamList> = CompositeScreenProps<
 >;
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     interface RootParamList extends RootStackParamList {}
