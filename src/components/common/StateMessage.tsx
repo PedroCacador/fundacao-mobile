@@ -1,9 +1,8 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { cores, espaco, fonte, peso, raio } from '../../theme';
+import { cores, espaco, familia, fonte, raio } from '../../theme';
 import { Button } from './Button';
-import { NomeIcone } from './Icon';
+import { Icone, NomeIcone } from './Icon';
 
 export function Loading({ texto = 'Carregando...' }: { texto?: string }) {
   return (
@@ -23,7 +22,7 @@ interface EmptyStateProps {
 export function EmptyState({ icone, titulo, texto }: EmptyStateProps) {
   return (
     <View style={styles.centro}>
-      <MaterialCommunityIcons name={icone} size={48} color={cores.textoFraco} />
+      <Icone nome={icone} tamanho={44} cor={cores.textoFraco} espessura={1.5} />
       <Text style={styles.titulo}>{titulo}</Text>
       {texto ? <Text style={styles.texto}>{texto}</Text> : null}
     </View>
@@ -39,7 +38,7 @@ export function ErrorMessage({ mensagem, aoTentarDeNovo }: ErrorMessageProps) {
   return (
     <View style={styles.erro} accessibilityRole="alert">
       <View style={styles.erroLinha}>
-        <MaterialCommunityIcons name="alert-circle-outline" size={18} color={cores.erro} />
+        <Icone nome="circle-alert" tamanho={18} cor={cores.erro} />
         <Text style={styles.erroTexto}>{mensagem}</Text>
       </View>
       {aoTentarDeNovo ? (
@@ -58,12 +57,13 @@ const styles = StyleSheet.create({
     gap: espaco.sm,
   },
   titulo: {
-    fontSize: fonte.md,
-    fontWeight: peso.semi,
+    fontFamily: familia.semi,
+    fontSize: fonte.base,
     color: cores.texto,
     textAlign: 'center',
   },
   texto: {
+    fontFamily: familia.regular,
     fontSize: fonte.sm,
     color: cores.textoSecundario,
     textAlign: 'center',
@@ -82,6 +82,7 @@ const styles = StyleSheet.create({
   },
   erroTexto: {
     flex: 1,
+    fontFamily: familia.regular,
     fontSize: fonte.sm,
     color: cores.erro,
     lineHeight: 18,

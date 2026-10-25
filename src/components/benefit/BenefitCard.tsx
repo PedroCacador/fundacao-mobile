@@ -1,13 +1,12 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BeneficioCatalogo } from '../../models/Catalog';
-import { cores, espaco, fonte, peso, raio } from '../../theme';
+import { cores, espaco, familia, fonte, raio } from '../../theme';
 import { calcularProximaRenovacao, descreverLimite, descreverValor } from '../../utils/benefit';
 import { estiloCategoria } from '../../utils/category';
 import { formatarData } from '../../utils/format';
 import { Card } from '../common/Card';
-import { IconBox } from '../common/Icon';
+import { Icone, IconBox } from '../common/Icon';
 import { StatusBadge } from '../common/StatusBadge';
 
 interface BenefitCardProps {
@@ -43,16 +42,12 @@ export function BenefitCard({ item, aoPressionar, resumido = false }: BenefitCar
           </View>
           {!resumido && renovacao ? (
             <View style={styles.rodape}>
-              <MaterialCommunityIcons
-                name="calendar-clock-outline"
-                size={14}
-                color={cores.textoSecundario}
-              />
+              <Icone nome="calendar" tamanho={14} cor={cores.textoSecundario} />
               <Text style={styles.rodapeTexto}>Renovação em {formatarData(renovacao)}</Text>
             </View>
           ) : null}
         </View>
-        <MaterialCommunityIcons name="chevron-right" size={22} color={cores.textoFraco} />
+        <Icone nome="chevron-right" tamanho={22} cor={cores.textoFraco} />
       </View>
     </Card>
   );
@@ -79,8 +74,8 @@ const styles = StyleSheet.create({
   },
   titulo: {
     flex: 1,
-    fontSize: fonte.md,
-    fontWeight: peso.negrito,
+    fontSize: fonte.lg,
+    fontFamily: familia.negrito,
     color: cores.texto,
   },
   descricao: {
@@ -95,7 +90,7 @@ const styles = StyleSheet.create({
   },
   chip: {
     fontSize: fonte.xs,
-    fontWeight: peso.semi,
+    fontFamily: familia.semi,
     color: cores.primaria,
     backgroundColor: cores.primariaClara,
     paddingHorizontal: espaco.sm,

@@ -1,8 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { cores, espaco, fonte, peso, raio, sombra } from '../../theme';
-import { NomeIcone } from './Icon';
+import { cores, espaco, familia, fonte, raio } from '../../theme';
+import { Icone, NomeIcone } from './Icon';
 
 interface ShortcutCardProps {
   icone: NomeIcone;
@@ -33,11 +32,13 @@ export function ShortcutCard({
       ]}
     >
       <View style={styles.topo}>
-        <MaterialCommunityIcons name={icone} size={26} color={corPrincipal} />
-        <MaterialCommunityIcons
-          name="chevron-right"
-          size={18}
-          color={destaque ? cores.primariaClara : cores.textoFraco}
+        <View style={[styles.icone, destaque && styles.iconeSemFundo]}>
+          <Icone nome={icone} tamanho={22} cor={corPrincipal} />
+        </View>
+        <Icone
+          nome="chevron-right"
+          tamanho={16}
+          cor={destaque ? cores.branco : cores.textoSecundario}
         />
       </View>
       <Text style={[styles.titulo, { color: destaque ? cores.branco : cores.texto }]}>
@@ -51,14 +52,13 @@ export function ShortcutCard({
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    minHeight: 112,
-    backgroundColor: cores.superficie,
-    borderRadius: raio.lg,
+    minHeight: 118,
+    backgroundColor: cores.azulSuave,
+    borderRadius: raio.md,
     borderWidth: 1,
-    borderColor: cores.borda,
-    padding: espaco.md,
-    gap: espaco.xs,
-    ...sombra.card,
+    borderColor: cores.bordaAzul,
+    padding: 10,
+    gap: 2,
   },
   destaque: {
     backgroundColor: cores.primaria,
@@ -71,16 +71,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: espaco.sm,
+    marginBottom: espaco.md,
+  },
+  icone: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: cores.branco,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconeSemFundo: {
+    backgroundColor: 'transparent',
+    alignItems: 'flex-start',
   },
   titulo: {
+    fontFamily: familia.semi,
     fontSize: fonte.sm,
-    fontWeight: peso.negrito,
   },
   subtitulo: {
-    fontSize: fonte.xs,
+    fontFamily: familia.regular,
+    fontSize: fonte.xxs,
     color: cores.textoSecundario,
-    lineHeight: 15,
+    lineHeight: 14,
   },
   subtituloDestaque: {
     color: cores.primariaClara,

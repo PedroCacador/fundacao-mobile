@@ -11,10 +11,10 @@ const regras: { padrao: RegExp; icone: NomeIcone; tom: keyof typeof coresCategor
   { padrao: /farmac|drogaria|medicamento/, icone: 'pill', tom: 'azul' },
   { padrao: /academ|fitness|muscula/, icone: 'dumbbell', tom: 'roxo' },
   { padrao: /otica|oculos|visao/, icone: 'glasses', tom: 'ciano' },
-  { padrao: /aliment|restaurante|refeic|padaria/, icone: 'silverware-fork-knife', tom: 'vermelho' },
+  { padrao: /aliment|restaurante|refeic|padaria/, icone: 'utensils', tom: 'vermelho' },
   { padrao: /saude|bem.?estar|clinica|odonto/, icone: 'heart-pulse', tom: 'roxo' },
-  { padrao: /cultura|lazer|cinema|teatro/, icone: 'ticket-outline', tom: 'verde' },
-  { padrao: /educa|curso|escola/, icone: 'school-outline', tom: 'azul' },
+  { padrao: /cultura|lazer|cinema|teatro/, icone: 'gift', tom: 'verde' },
+  { padrao: /educa|curso|escola/, icone: 'graduation-cap', tom: 'azul' },
   { padrao: /transporte|mobilidade|combustivel/, icone: 'bus', tom: 'laranja' },
 ];
 
@@ -22,7 +22,7 @@ export function estiloCategoria(categoria: string): EstiloCategoria {
   const normalizada = categoria.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const regra = regras.find((item) => item.padrao.test(normalizada));
   if (!regra) {
-    return { icone: 'tag-outline', ...coresCategoria.cinza };
+    return { icone: 'tag', ...coresCategoria.cinza };
   }
   return { icone: regra.icone, ...coresCategoria[regra.tom] };
 }

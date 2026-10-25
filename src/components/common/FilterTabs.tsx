@@ -1,11 +1,12 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
-import { cores, espaco, fonte, peso, raio } from '../../theme';
+import { cores, espaco, familia, fonte, raio } from '../../theme';
+import { Icone, NomeIcone } from './Icon';
 
 export interface TabOption<T extends string = string> {
   id: T;
   label: string;
-  count?: number;
+  icone?: NomeIcone;
 }
 
 interface FilterTabsProps<T extends string = string> {
@@ -28,6 +29,7 @@ export function FilterTabs<T extends string = string>({
     >
       {tabs.map((tab) => {
         const ativo = tab.id === selectedTab;
+        const cor = ativo ? cores.branco : cores.texto;
         return (
           <Pressable
             key={tab.id}
@@ -36,8 +38,9 @@ export function FilterTabs<T extends string = string>({
             accessibilityState={{ selected: ativo }}
             style={[styles.aba, ativo && styles.abaAtiva]}
           >
-            <Text style={[styles.texto, ativo && styles.textoAtivo]}>
-              {tab.count !== undefined ? `${tab.label} (${tab.count})` : tab.label}
+            {tab.icone ? <Icone nome={tab.icone} tamanho={16} cor={cor} /> : null}
+            <Text style={[styles.texto, { color: cor }, ativo && styles.textoAtivo]}>
+              {tab.label}
             </Text>
           </Pressable>
         );
@@ -55,8 +58,11 @@ const styles = StyleSheet.create({
     gap: espaco.sm,
   },
   aba: {
-    paddingHorizontal: espaco.lg,
-    paddingVertical: espaco.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: espaco.xl,
+    height: 36,
     borderRadius: raio.pilula,
     backgroundColor: cores.primariaClara,
   },
@@ -64,11 +70,10 @@ const styles = StyleSheet.create({
     backgroundColor: cores.primaria,
   },
   texto: {
+    fontFamily: familia.medio,
     fontSize: fonte.sm,
-    fontWeight: peso.semi,
-    color: cores.primaria,
   },
   textoAtivo: {
-    color: cores.branco,
+    fontFamily: familia.semi,
   },
 });

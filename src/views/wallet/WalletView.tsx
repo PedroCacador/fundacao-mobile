@@ -11,29 +11,20 @@ import { formatarData } from '../../utils/format';
 import { FiltroCarteira, useWalletViewModel } from '../../viewmodels/useWalletViewModel';
 
 export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
-  const {
-    lista,
-    filtro,
-    setFiltro,
-    contadores,
-    resumo,
-    carregando,
-    atualizando,
-    erro,
-    recarregar,
-  } = useWalletViewModel();
+  const { lista, filtro, setFiltro, resumo, carregando, atualizando, erro, recarregar } =
+    useWalletViewModel();
 
   const abas: TabOption<FiltroCarteira>[] = [
-    { id: 'TODOS', label: 'Todos', count: contadores.TODOS },
-    { id: 'DISPONIVEIS', label: 'Disponíveis', count: contadores.DISPONIVEIS },
-    { id: 'INDISPONIVEIS', label: 'Indisponíveis', count: contadores.INDISPONIVEIS },
+    { id: 'TODOS', label: 'Todos' },
+    { id: 'DISPONIVEIS', label: 'Disponíveis' },
+    { id: 'INDISPONIVEIS', label: 'Indisponíveis' },
   ];
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
       <TopBar />
       <Header
-        icone="wallet-outline"
+        icone="wallet"
         titulo="Carteira de Benefícios"
         subtitulo="Confira todos os seus benefícios e onde usar cada um."
       />
@@ -41,17 +32,17 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
       <SummaryCard
         itens={[
           {
-            icone: 'gift-outline',
+            icone: 'gift',
             valor: carregando ? '-' : resumo.disponiveis,
             rotulo: 'Benefícios disponíveis',
           },
           {
-            icone: 'storefront-outline',
+            icone: 'store',
             valor: carregando ? '-' : resumo.locais,
             rotulo: 'Locais conveniados',
           },
           {
-            icone: 'calendar-month-outline',
+            icone: 'calendar',
             valor: resumo.proximaRenovacao ? formatarData(resumo.proximaRenovacao) : '-',
             rotulo: 'Próxima renovação',
           },
@@ -66,7 +57,7 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
         <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
       ) : lista.length === 0 ? (
         <EmptyState
-          icone="wallet-outline"
+          icone="wallet"
           titulo="Nenhum benefício encontrado"
           texto="Não há benefícios neste filtro."
         />

@@ -5,11 +5,10 @@ import {
   NativeStackNavigationOptions,
 } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Loading } from '../components/common/StateMessage';
-import { NomeIcone } from '../components/common/Icon';
+import { Icone, NomeIcone } from '../components/common/Icon';
 import { useAuth } from '../context/AuthContext';
-import { cores, fonte, peso } from '../theme';
+import { cores, familia, fonte } from '../theme';
 import { RootStackParamList, TabParamList } from './types';
 
 import LoginView from '../views/auth/LoginView';
@@ -28,16 +27,16 @@ const cabecalhoClaro: NativeStackNavigationOptions = {
   headerShown: true,
   headerStyle: { backgroundColor: cores.fundo },
   headerTintColor: cores.texto,
-  headerTitleStyle: { fontWeight: peso.negrito, fontSize: fonte.lg },
+  headerTitleStyle: { fontFamily: familia.negrito, fontSize: fonte.xxl },
   headerShadowVisible: false,
   headerBackTitle: 'Voltar',
 };
 
 const iconesAba: Record<keyof TabParamList, NomeIcone> = {
-  Home: 'home-outline',
-  Wallet: 'wallet-outline',
+  Home: 'house',
+  Wallet: 'wallet',
   History: 'history',
-  Profile: 'account-outline',
+  Profile: 'user',
 };
 
 function TabNavigator() {
@@ -48,9 +47,9 @@ function TabNavigator() {
         tabBarActiveTintColor: cores.primaria,
         tabBarInactiveTintColor: cores.textoFraco,
         tabBarStyle: { backgroundColor: cores.superficie, borderTopColor: cores.borda },
-        tabBarLabelStyle: { fontSize: fonte.xs, fontWeight: peso.semi },
+        tabBarLabelStyle: { fontSize: fonte.xs, fontFamily: familia.semi },
         tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons name={iconesAba[route.name]} size={size} color={color} />
+          <Icone nome={iconesAba[route.name]} tamanho={size} cor={color} />
         ),
       })}
     >

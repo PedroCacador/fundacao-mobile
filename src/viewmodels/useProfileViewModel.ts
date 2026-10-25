@@ -22,14 +22,12 @@ export function useProfileViewModel() {
   const dadosColaborador = useMemo(
     () =>
       semVazios([
-        { icone: 'account-outline', rotulo: 'Nome completo', valor: usuario.nome },
-        colaborador
-          ? { icone: 'briefcase-outline', rotulo: 'Cargo', valor: colaborador.cargo }
-          : null,
-        colaborador ? { icone: 'domain', rotulo: 'Setor', valor: colaborador.setor } : null,
+        { icone: 'user', rotulo: 'Nome completo', valor: usuario.nome },
+        colaborador ? { icone: 'briefcase', rotulo: 'Cargo', valor: colaborador.cargo } : null,
+        colaborador ? { icone: 'building', rotulo: 'Setor', valor: colaborador.setor } : null,
         colaborador
           ? {
-              icone: 'calendar-outline',
+              icone: 'calendar',
               rotulo: 'Admissão',
               valor: formatarData(lerData(colaborador.data_admissao)),
             }
@@ -41,16 +39,16 @@ export function useProfileViewModel() {
   const dadosConta = useMemo(
     () =>
       semVazios([
-        { icone: 'email-outline', rotulo: 'E-mail', valor: usuario.email },
+        { icone: 'mail', rotulo: 'E-mail', valor: usuario.email },
         colaborador?.telefone
           ? {
-              icone: 'phone-outline',
+              icone: 'phone',
               rotulo: 'Telefone',
               valor: formatarTelefone(colaborador.telefone),
             }
           : null,
         {
-          icone: 'calendar-check-outline',
+          icone: 'calendar-check',
           rotulo: 'Conta criada em',
           valor: formatarData(lerData(usuario.data_criacao)),
         },

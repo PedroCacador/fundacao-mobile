@@ -9,7 +9,7 @@ export default function HistoryView() {
     <Screen>
       <TopBar />
       <Header icone="history" titulo="Histórico" subtitulo="Suas utilizações de benefícios." />
-      <EmptyState icone="progress-wrench" titulo="Tela em desenvolvimento" />
+      <EmptyState icone="construction" titulo="Tela em desenvolvimento" />
     </Screen>
   );
 }

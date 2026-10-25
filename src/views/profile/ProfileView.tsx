@@ -1,14 +1,13 @@
 import React from 'react';
 import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Avatar } from '../../components/common/Avatar';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
-import { IconBox, NomeIcone } from '../../components/common/Icon';
+import { Icone, IconBox, NomeIcone } from '../../components/common/Icon';
 import { ListItem } from '../../components/common/ListItem';
 import { Screen } from '../../components/common/Screen';
 import { TopBar } from '../../components/common/TopBar';
-import { cores, espaco, fonte, peso, raio } from '../../theme';
+import { cores, espaco, familia, fonte, raio } from '../../theme';
 import { CampoPerfil, useProfileViewModel } from '../../viewmodels/useProfileViewModel';
 
 export default function ProfileView() {
@@ -38,7 +37,7 @@ export default function ProfileView() {
           <Text style={styles.cargo}>{cargo}</Text>
           {matricula ? (
             <View style={styles.matricula}>
-              <MaterialCommunityIcons name="account-outline" size={14} color={cores.primaria} />
+              <Icone nome="user" tamanho={14} cor={cores.primaria} />
               <Text style={styles.matriculaTexto}>Matrícula: {matricula}</Text>
             </View>
           ) : null}
@@ -46,29 +45,27 @@ export default function ProfileView() {
       </View>
 
       <Secao
-        icone="account-outline"
+        icone="user"
         titulo="Dados do colaborador"
         subtitulo="Seus dados pessoais e profissionais."
         campos={dadosColaborador}
       />
       <Secao
-        icone="shield-account-outline"
+        icone="credit-card"
         titulo="Informações da conta"
         subtitulo="Seus dados de acesso."
         campos={dadosConta}
       />
       <Secao
-        icone="cog-outline"
+        icone="settings"
         titulo="Configurações"
         subtitulo="Informações do aplicativo."
-        campos={[
-          { icone: 'information-outline', rotulo: 'Sobre o app', valor: `Versão ${versao}` },
-        ]}
+        campos={[{ icone: 'info', rotulo: 'Sobre o app', valor: `Versão ${versao}` }]}
       />
 
       <Button
         titulo="Sair da conta"
-        icone="logout"
+        icone="log-out"
         variante="perigo"
         aoPressionar={confirmarSaida}
       />
@@ -120,16 +117,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   ola: {
-    fontSize: fonte.sm,
+    fontSize: fonte.md,
     color: cores.textoSecundario,
   },
   nome: {
-    fontSize: fonte.xl,
-    fontWeight: peso.negrito,
+    fontSize: fonte.tituloTela,
+    fontFamily: familia.negrito,
     color: cores.texto,
   },
   cargo: {
-    fontSize: fonte.sm,
+    fontSize: fonte.md,
     color: cores.textoSecundario,
   },
   matricula: {
@@ -145,7 +142,7 @@ const styles = StyleSheet.create({
   },
   matriculaTexto: {
     fontSize: fonte.xs,
-    fontWeight: peso.semi,
+    fontFamily: familia.semi,
     color: cores.primaria,
   },
   secao: {
@@ -161,8 +158,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   secaoTitulo: {
-    fontSize: fonte.md,
-    fontWeight: peso.negrito,
+    fontSize: fonte.lg,
+    fontFamily: familia.negrito,
     color: cores.texto,
   },
   secaoSubtitulo: {

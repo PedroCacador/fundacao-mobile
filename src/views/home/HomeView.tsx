@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Icone } from '../../components/common/Icon';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
 import { Avatar } from '../../components/common/Avatar';
 import { Screen } from '../../components/common/Screen';
@@ -9,7 +9,7 @@ import { EmptyState, ErrorMessage, Loading } from '../../components/common/State
 import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
 import { TabScreenProps } from '../../navigation/types';
-import { cores, espaco, fonte, peso } from '../../theme';
+import { cores, espaco, familia, fonte } from '../../theme';
 import { formatarData } from '../../utils/format';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 
@@ -33,24 +33,24 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           <Text style={styles.nome}>{nome}</Text>
           <Text style={styles.cargo}>{cargo}</Text>
         </View>
-        <MaterialCommunityIcons name="chevron-right" size={24} color={cores.textoFraco} />
+        <Icone nome="chevron-right" tamanho={24} cor={cores.textoFraco} />
       </Pressable>
 
       <SummaryCard
         titulo="Resumo dos seus benefícios"
         itens={[
           {
-            icone: 'gift-outline',
+            icone: 'gift',
             valor: carregando ? '-' : resumo.disponiveis,
             rotulo: 'Benefícios disponíveis',
           },
           {
-            icone: 'storefront-outline',
+            icone: 'store',
             valor: carregando ? '-' : resumo.locais,
             rotulo: 'Locais conveniados',
           },
           {
-            icone: 'calendar-month-outline',
+            icone: 'calendar',
             valor: resumo.proximaRenovacao ? formatarData(resumo.proximaRenovacao) : '-',
             rotulo: 'Próxima renovação',
           },
@@ -60,7 +60,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
       <View style={styles.atalhos}>
         <ShortcutCard
           destaque
-          icone="wallet-outline"
+          icone="wallet"
           titulo="Minha Carteira"
           subtitulo="Veja seus benefícios"
           aoPressionar={() => navigation.navigate('Wallet')}
@@ -72,7 +72,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           aoPressionar={() => navigation.navigate('History')}
         />
         <ShortcutCard
-          icone="map-marker-outline"
+          icone="map-pin"
           titulo="Locais"
           subtitulo="Onde usar seus benefícios"
           aoPressionar={() => navigation.navigate('Locations')}
@@ -95,7 +95,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
       ) : erro ? (
         <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
       ) : destaques.length === 0 ? (
-        <EmptyState icone="gift-off-outline" titulo="Nenhum benefício disponível no momento" />
+        <EmptyState icone="gift" titulo="Nenhum benefício disponível no momento" />
       ) : (
         destaques.map((item) => (
           <BenefitCard
@@ -123,16 +123,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   ola: {
-    fontSize: fonte.sm,
+    fontSize: fonte.md,
     color: cores.textoSecundario,
   },
   nome: {
-    fontSize: fonte.xl,
-    fontWeight: peso.negrito,
+    fontSize: fonte.tituloTela,
+    fontFamily: familia.negrito,
     color: cores.texto,
   },
   cargo: {
-    fontSize: fonte.sm,
+    fontSize: fonte.md,
     color: cores.textoSecundario,
   },
   atalhos: {
@@ -147,13 +147,13 @@ const styles = StyleSheet.create({
     marginBottom: espaco.md,
   },
   secaoTitulo: {
-    fontSize: fonte.lg,
-    fontWeight: peso.negrito,
+    fontSize: fonte.xxl,
+    fontFamily: familia.negrito,
     color: cores.texto,
   },
   verTodos: {
-    fontSize: fonte.sm,
-    fontWeight: peso.semi,
+    fontSize: fonte.md,
+    fontFamily: familia.semi,
     color: cores.primaria,
   },
 });

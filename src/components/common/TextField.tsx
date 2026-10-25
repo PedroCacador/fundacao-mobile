@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, TextInputProps, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { cores, espaco, fonte, raio } from '../../theme';
-import { NomeIcone } from './Icon';
+import { cores, espaco, familia, fonte, raio } from '../../theme';
+import { Icone, NomeIcone } from './Icon';
 
 interface TextFieldProps extends TextInputProps {
   icone: NomeIcone;
@@ -14,10 +13,10 @@ export function TextField({ icone, senha = false, style, ...props }: TextFieldPr
 
   return (
     <View style={styles.campo}>
-      <MaterialCommunityIcons name={icone} size={22} color={cores.textoFraco} />
+      <Icone nome={icone} tamanho={22} cor={cores.texto} espessura={1.5} />
       <TextInput
         style={[styles.input, style]}
-        placeholderTextColor={cores.textoFraco}
+        placeholderTextColor={cores.textoSecundario}
         secureTextEntry={senha && !visivel}
         autoCapitalize="none"
         autoCorrect={false}
@@ -30,10 +29,11 @@ export function TextField({ icone, senha = false, style, ...props }: TextFieldPr
           accessibilityRole="button"
           accessibilityLabel={visivel ? 'Esconder senha' : 'Mostrar senha'}
         >
-          <MaterialCommunityIcons
-            name={visivel ? 'eye-outline' : 'eye-off-outline'}
-            size={22}
-            color={cores.textoFraco}
+          <Icone
+            nome={visivel ? 'eye-off' : 'eye'}
+            tamanho={22}
+            cor={cores.texto}
+            espessura={1.5}
           />
         </Pressable>
       ) : null}
@@ -48,14 +48,16 @@ const styles = StyleSheet.create({
     gap: espaco.md,
     backgroundColor: cores.superficie,
     borderWidth: 1,
-    borderColor: cores.borda,
+    borderColor: cores.bordaCampo,
     borderRadius: raio.md,
     paddingHorizontal: espaco.lg,
-    minHeight: 54,
+    minHeight: 56,
   },
   input: {
     flex: 1,
-    fontSize: fonte.md,
+    minWidth: 0,
+    fontFamily: familia.regular,
+    fontSize: fonte.xl,
     color: cores.texto,
     paddingVertical: espaco.md,
   },

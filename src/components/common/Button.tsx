@@ -1,8 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { cores, espaco, fonte, peso, raio, sombra } from '../../theme';
-import { NomeIcone } from './Icon';
+import { cores, espaco, familia, fonte, raio } from '../../theme';
+import { Icone, NomeIcone } from './Icon';
 
 type Variante = 'primaria' | 'secundaria' | 'perigo';
 
@@ -48,7 +47,7 @@ export function Button({
       ) : (
         <>
           <Text style={[styles.texto, { color: corTexto }]}>{titulo}</Text>
-          {icone ? <MaterialCommunityIcons name={icone} size={20} color={corTexto} /> : null}
+          {icone ? <Icone nome={icone} tamanho={20} cor={corTexto} espessura={2} /> : null}
         </>
       )}
     </Pressable>
@@ -57,7 +56,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 52,
+    minHeight: 54,
     borderRadius: raio.pilula,
     paddingHorizontal: espaco.xl,
     flexDirection: 'row',
@@ -67,7 +66,6 @@ const styles = StyleSheet.create({
   },
   primaria: {
     backgroundColor: cores.primaria,
-    ...sombra.destaque,
   },
   secundaria: {
     backgroundColor: cores.superficie,
@@ -86,7 +84,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   texto: {
-    fontSize: fonte.md,
-    fontWeight: peso.semi,
+    fontFamily: familia.semi,
+    fontSize: fonte.xl,
   },
 });

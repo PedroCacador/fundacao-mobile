@@ -4,7 +4,7 @@ import { Button } from '../../components/common/Button';
 import { Screen } from '../../components/common/Screen';
 import { ErrorMessage } from '../../components/common/StateMessage';
 import { TextField } from '../../components/common/TextField';
-import { cores, espaco, fonte, peso } from '../../theme';
+import { cores, espaco, familia, fonte } from '../../theme';
 import { useAuthViewModel } from '../../viewmodels/useAuthViewModel';
 
 export default function LoginView() {
@@ -35,7 +35,7 @@ export default function LoginView() {
 
         <View style={styles.formulario}>
           <TextField
-            icone="account-outline"
+            icone="user"
             placeholder="E-mail"
             value={email}
             onChangeText={setEmail}
@@ -46,7 +46,7 @@ export default function LoginView() {
             editable={!carregando}
           />
           <TextField
-            icone="lock-outline"
+            icone="lock"
             placeholder="Senha"
             senha
             value={senha}
@@ -85,13 +85,13 @@ const styles = StyleSheet.create({
   },
   sigla: {
     fontSize: 44,
-    fontWeight: peso.negrito,
+    fontFamily: familia.negrito,
     color: cores.primaria,
     letterSpacing: 2,
   },
   nomeFundacao: {
-    fontSize: fonte.sm,
-    fontWeight: peso.semi,
+    fontSize: fonte.md,
+    fontFamily: familia.semi,
     color: cores.primaria,
     lineHeight: 16,
   },
@@ -102,25 +102,25 @@ const styles = StyleSheet.create({
   },
   plataforma: {
     marginTop: espaco.xl,
-    fontSize: fonte.lg,
-    fontWeight: peso.semi,
+    fontSize: fonte.xxl,
+    fontFamily: familia.semi,
     color: cores.texto,
     textAlign: 'center',
   },
   plataformaLinha: {
-    fontSize: fonte.lg,
+    fontSize: fonte.xxl,
     color: cores.texto,
     textAlign: 'center',
   },
   boasVindas: {
     marginTop: espaco.xxl,
-    fontSize: fonte.xxl,
-    fontWeight: peso.negrito,
+    fontSize: fonte.grande,
+    fontFamily: familia.negrito,
     color: cores.primaria,
   },
   instrucao: {
     marginTop: espaco.xs,
-    fontSize: fonte.md,
+    fontSize: fonte.lg,
     color: cores.textoSecundario,
     lineHeight: 22,
   },

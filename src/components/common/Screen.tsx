@@ -10,6 +10,8 @@ interface ScreenProps {
   atualizando?: boolean;
   aoAtualizar?: () => void;
   estiloConteudo?: StyleProp<ViewStyle>;
+  fundo?: React.ReactNode;
+  refRolagem?: React.Ref<React.ComponentRef<typeof ScrollView>>;
 }
 
 export function Screen({
@@ -19,11 +21,15 @@ export function Screen({
   atualizando = false,
   aoAtualizar,
   estiloConteudo,
+  fundo,
+  refRolagem,
 }: ScreenProps) {
   return (
     <SafeAreaView style={styles.tela} edges={bordas}>
+      {fundo}
       {rolavel ? (
         <ScrollView
+          ref={refRolagem}
           contentContainerStyle={[styles.conteudo, estiloConteudo]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -51,9 +57,11 @@ const styles = StyleSheet.create({
   tela: {
     flex: 1,
     backgroundColor: cores.fundo,
+    overflow: 'hidden',
   },
   conteudo: {
-    padding: espaco.lg,
+    paddingHorizontal: espaco.xl,
+    paddingTop: espaco.md,
     paddingBottom: espaco.xxl,
   },
   fixo: {

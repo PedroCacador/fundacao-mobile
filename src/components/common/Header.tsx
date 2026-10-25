@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { cores, espaco, fonte, peso } from '../../theme';
+import { cores, espaco, familia, fonte } from '../../theme';
 import { IconBox, NomeIcone } from './Icon';
 
 interface HeaderProps {
@@ -12,7 +12,7 @@ interface HeaderProps {
 export function Header({ titulo, subtitulo, icone }: HeaderProps) {
   return (
     <View style={styles.header}>
-      <IconBox nome={icone} tamanho={52} redondo />
+      <IconBox nome={icone} tamanho={64} redondo />
       <View style={styles.textos}>
         <Text style={styles.titulo} accessibilityRole="header">
           {titulo}
@@ -27,21 +27,22 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: espaco.md,
+    gap: espaco.lg,
     marginBottom: espaco.lg,
   },
   textos: {
     flex: 1,
   },
   titulo: {
-    fontSize: fonte.xl,
-    fontWeight: peso.negrito,
+    fontFamily: familia.titulo,
+    fontSize: fonte.tituloTela,
     color: cores.texto,
   },
   subtitulo: {
-    fontSize: fonte.sm,
+    fontFamily: familia.regular,
+    fontSize: fonte.md,
     color: cores.textoSecundario,
     marginTop: 2,
-    lineHeight: 18,
+    lineHeight: 19,
   },
 });

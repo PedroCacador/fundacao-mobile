@@ -1,14 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Card } from '../../components/common/Card';
 import { FilterTabs, TabOption } from '../../components/common/FilterTabs';
-import { IconBox, NomeIcone } from '../../components/common/Icon';
+import { Icone, IconBox, NomeIcone } from '../../components/common/Icon';
 import { Screen } from '../../components/common/Screen';
 import { EmptyState, Loading } from '../../components/common/StateMessage';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { RootScreenProps } from '../../navigation/types';
-import { cores, espaco, fonte, peso } from '../../theme';
+import { cores, espaco, familia, fonte } from '../../theme';
 import { estiloCategoria } from '../../utils/category';
 import {
   AbaDetalhe,
@@ -38,7 +37,7 @@ export default function BenefitDetailsView({ route }: RootScreenProps<'BenefitDe
   if (!item || !detalhes) {
     return (
       <Screen bordas={['bottom']}>
-        <EmptyState icone="gift-off-outline" titulo="Benefício não encontrado" />
+        <EmptyState icone="gift" titulo="Benefício não encontrado" />
       </Screen>
     );
   }
@@ -60,19 +59,15 @@ export default function BenefitDetailsView({ route }: RootScreenProps<'BenefitDe
       </Card>
 
       <View style={styles.metricas}>
-        <Metrica
-          icone="calendar-month-outline"
-          rotulo="Próxima renovação"
-          valor={detalhes.renovacao}
-        />
-        <Metrica icone="tag-outline" rotulo="Usos permitidos" valor={detalhes.limite} />
-        <Metrica icone="sale" rotulo="Benefício" valor={detalhes.valor} />
+        <Metrica icone="calendar" rotulo="Próxima renovação" valor={detalhes.renovacao} />
+        <Metrica icone="tag" rotulo="Usos permitidos" valor={detalhes.limite} />
+        <Metrica icone="badge-percent" rotulo="Benefício" valor={detalhes.valor} />
       </View>
 
       <FilterTabs tabs={abas} selectedTab={aba} onSelectTab={setAba} />
 
       {aba === 'ONDE_USAR' ? (
-        <Secao icone="map-marker-outline" titulo="Onde pode utilizar">
+        <Secao icone="map-pin" titulo="Onde pode utilizar">
           <Text style={styles.texto}>
             {detalhes.categorias.length > 0
               ? `Válido em estabelecimentos de: ${detalhes.categorias.join(', ')}.`
@@ -82,10 +77,10 @@ export default function BenefitDetailsView({ route }: RootScreenProps<'BenefitDe
       ) : null}
 
       {aba === 'REGRAS' ? (
-        <Secao icone="file-document-outline" titulo="Regras de utilização">
+        <Secao icone="file-text" titulo="Regras de utilização">
           {detalhes.regras.map((regra) => (
             <View key={regra} style={styles.regra}>
-              <MaterialCommunityIcons name="check" size={18} color={cores.sucesso} />
+              <Icone nome="check" tamanho={18} cor={cores.sucesso} />
               <Text style={styles.texto}>{regra}</Text>
             </View>
           ))}
@@ -93,7 +88,7 @@ export default function BenefitDetailsView({ route }: RootScreenProps<'BenefitDe
       ) : null}
 
       {aba === 'QUANTIDADE' ? (
-        <Secao icone="counter" titulo="Quantidade e validade">
+        <Secao icone="coins" titulo="Quantidade e validade">
           <Text style={styles.texto}>Usos permitidos: {detalhes.limite}</Text>
           <Text style={styles.texto}>
             Próxima renovação: {detalhes.renovacao}
@@ -103,7 +98,7 @@ export default function BenefitDetailsView({ route }: RootScreenProps<'BenefitDe
       ) : null}
 
       {aba === 'ESTABELECIMENTOS' ? (
-        <Secao icone="storefront-outline" titulo="Estabelecimentos conveniados">
+        <Secao icone="store" titulo="Estabelecimentos conveniados">
           {conveniados.length === 0 ? (
             <Text style={styles.texto}>Nenhum estabelecimento ativo no momento.</Text>
           ) : (
@@ -135,7 +130,7 @@ export default function BenefitDetailsView({ route }: RootScreenProps<'BenefitDe
 function Metrica({ icone, rotulo, valor }: { icone: NomeIcone; rotulo: string; valor: string }) {
   return (
     <Card estilo={styles.metrica}>
-      <MaterialCommunityIcons name={icone} size={20} color={cores.primaria} />
+      <Icone nome={icone} tamanho={20} cor={cores.primaria} />
       <Text style={styles.metricaRotulo}>{rotulo}</Text>
       <Text style={styles.metricaValor}>{valor}</Text>
     </Card>
@@ -174,12 +169,12 @@ const styles = StyleSheet.create({
     gap: espaco.xs,
   },
   bannerTitulo: {
-    fontSize: fonte.xl,
-    fontWeight: peso.negrito,
+    fontSize: fonte.tituloTela,
+    fontFamily: familia.negrito,
     color: cores.texto,
   },
   bannerDescricao: {
-    fontSize: fonte.sm,
+    fontSize: fonte.md,
     color: cores.textoSecundario,
     lineHeight: 18,
   },
@@ -200,8 +195,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   metricaValor: {
-    fontSize: fonte.sm,
-    fontWeight: peso.negrito,
+    fontSize: fonte.md,
+    fontFamily: familia.negrito,
     color: cores.texto,
     textAlign: 'center',
   },
@@ -214,8 +209,8 @@ const styles = StyleSheet.create({
     gap: espaco.md,
   },
   secaoTitulo: {
-    fontSize: fonte.md,
-    fontWeight: peso.negrito,
+    fontSize: fonte.lg,
+    fontFamily: familia.negrito,
     color: cores.texto,
   },
   secaoCorpo: {
@@ -224,7 +219,7 @@ const styles = StyleSheet.create({
   },
   texto: {
     flex: 1,
-    fontSize: fonte.sm,
+    fontSize: fonte.md,
     color: cores.textoSecundario,
     lineHeight: 20,
   },
@@ -243,8 +238,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   localNome: {
-    fontSize: fonte.sm,
-    fontWeight: peso.negrito,
+    fontSize: fonte.md,
+    fontFamily: familia.negrito,
     color: cores.texto,
   },
   localEndereco: {
@@ -253,7 +248,7 @@ const styles = StyleSheet.create({
   },
   localCategoria: {
     fontSize: fonte.xs,
-    fontWeight: peso.semi,
+    fontFamily: familia.semi,
     color: cores.primaria,
   },
 });

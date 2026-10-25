@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { cores, peso } from '../../theme';
+import { cores, familia, sombra } from '../../theme';
 
 interface AvatarProps {
   nome: string;
@@ -20,7 +20,7 @@ export function Avatar({ nome, tamanho = 64 }: AvatarProps) {
       style={[styles.avatar, { width: tamanho, height: tamanho, borderRadius: tamanho / 2 }]}
       accessibilityLabel={`Foto de ${nome}`}
     >
-      <Text style={[styles.texto, { fontSize: tamanho * 0.36 }]}>{iniciais(nome)}</Text>
+      <Text style={[styles.texto, { fontSize: tamanho * 0.34 }]}>{iniciais(nome)}</Text>
     </View>
   );
 }
@@ -28,11 +28,14 @@ export function Avatar({ nome, tamanho = 64 }: AvatarProps) {
 const styles = StyleSheet.create({
   avatar: {
     backgroundColor: cores.primariaClara,
+    borderWidth: 3,
+    borderColor: cores.branco,
     alignItems: 'center',
     justifyContent: 'center',
+    ...sombra.card,
   },
   texto: {
+    fontFamily: familia.titulo,
     color: cores.primaria,
-    fontWeight: peso.negrito,
   },
 });
