@@ -46,12 +46,14 @@ Rode `lint` e `typecheck` antes de cada commit.
 ## Estrutura
 
 ```text
+assets/              logo da FCV
 src/
 ├── components/
-│   ├── common/      componentes reaproveitados em todas as telas (Screen, Card, Button, TextField...)
-│   └── benefit/     componentes ligados a benefício (BenefitCard)
+│   ├── common/      componentes reaproveitados em todas as telas (Screen, Card, Button, SectionCard, Icone...)
+│   └── benefit/     componentes ligados a benefício (BenefitCard, BenefitHero, EstablishmentCard)
 ├── config/          endereço da API
 ├── context/         estado global: sessão (AuthContext) e catálogo de benefícios (CatalogContext)
+├── hooks/           hooks de interface reaproveitáveis (rolar até uma seção)
 ├── models/          tipos dos dados que vêm da API
 ├── navigation/      navegadores e tipos das rotas
 ├── services/        chamadas HTTP e armazenamento do token
@@ -71,6 +73,9 @@ Como as camadas conversam:
 ## Padrões
 
 - Cores, fontes e espaçamentos sempre do `src/theme`. Não use cor solta no `StyleSheet`.
+- Texto usa `fontFamily: familia.x` (Poppins nos títulos, Inter no resto) e tamanho de `fonte`. Não use `fontWeight`: com fonte carregada ele não troca o peso no Android.
+- Ícones sempre pelo componente `Icone` (Lucide). Para um ícone novo, acrescente o nome em `models/Icon.ts` e no mapa de `components/common/Icon.tsx`.
+- O visual segue o protótipo (`MOBILE.pdf`). O que fica diferente é dado que a API ainda não tem.
 - Antes de criar um componente, veja se já existe um em `components/common`.
 - Todo dado mostrado vem da API. Se a API ainda não tem a informação, a tela não mostra nada no lugar dela.
 - Rotas novas precisam ser registradas em `src/navigation/types.ts`.
