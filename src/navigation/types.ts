@@ -1,6 +1,7 @@
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AbaDetalhe } from '../models/Catalog';
 
 export type TabParamList = {
   Home: undefined;
@@ -12,7 +13,7 @@ export type TabParamList = {
 export type RootStackParamList = {
   Login: undefined;
   Main: NavigatorScreenParams<TabParamList> | undefined;
-  BenefitDetails: { beneficioId: number };
+  BenefitDetails: { beneficioId: number; aba?: AbaDetalhe };
   Notifications: undefined;
   Locations: undefined;
 };

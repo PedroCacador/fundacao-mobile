@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useCatalog } from '../context/CatalogContext';
+import { AbaDetalhe } from '../models/Catalog';
 import {
   calcularProximaRenovacao,
   descreverLimite,
@@ -8,11 +9,12 @@ import {
 } from '../utils/benefit';
 import { diasAte, formatarData, plural } from '../utils/format';
 
-export type AbaDetalhe = 'ONDE_USAR' | 'REGRAS' | 'QUANTIDADE' | 'ESTABELECIMENTOS';
-
-export function useBenefitDetailsViewModel(beneficioId: number) {
+export function useBenefitDetailsViewModel(
+  beneficioId: number,
+  abaInicial: AbaDetalhe = 'ONDE_USAR',
+) {
   const { itens, carregando } = useCatalog();
-  const [aba, setAba] = useState<AbaDetalhe>('ONDE_USAR');
+  const [aba, setAba] = useState<AbaDetalhe>(abaInicial);
 
   const item = useMemo(
     () => itens.find((atual) => atual.beneficio.id === beneficioId) ?? null,
@@ -24,14 +26,17 @@ export function useBenefitDetailsViewModel(beneficioId: number) {
     const { beneficio, conveniados } = item;
     const renovacao = calcularProximaRenovacao(beneficio);
     const dias = renovacao ? diasAte(renovacao) : null;
-    const categorias = Array.from(new Set(conveniados.map((c) => c.categoria)));
+    const categorias = Array.from(new Set(conveniados.map((c) => c.categoria.toLowerCase())));
 
     return {
       valor: descreverValor(beneficio),
       limite: descreverLimite(beneficio),
       renovacao: renovacao ? formatarData(renovacao) : 'Após o último uso',
-      emQuantosDias: dias !== null ? `em ${dias} ${plural(dias, 'dia', 'dias')}` : null,
-      categorias,
+      emQuantosDias: dias !== null ? `(em ${dias} ${plural(dias, 'dia', 'dias')})` : null,
+      ondeUsar:
+        categorias.length > 0
+          ? `Em estabelecimentos de ${categorias.join(', ')} conveniados da FCV.`
+          : 'Nenhum estabelecimento conveniado ativo para este benefício no momento.',
       regras: [
         descreverValor(beneficio),
         `Até ${descreverLimite(beneficio)}`,
