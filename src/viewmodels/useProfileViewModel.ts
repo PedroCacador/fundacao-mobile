@@ -32,6 +32,7 @@ export function useProfileViewModel() {
               valor: formatarData(lerData(colaborador.data_admissao)),
             }
           : null,
+        { icone: 'mail', rotulo: 'E-mail', valor: usuario.email },
       ]),
     [usuario, colaborador],
   );
@@ -39,7 +40,6 @@ export function useProfileViewModel() {
   const dadosConta = useMemo(
     () =>
       semVazios([
-        { icone: 'mail', rotulo: 'E-mail', valor: usuario.email },
         colaborador?.telefone
           ? {
               icone: 'phone',
@@ -47,6 +47,7 @@ export function useProfileViewModel() {
               valor: formatarTelefone(colaborador.telefone),
             }
           : null,
+        { icone: 'lock', rotulo: 'Senha', valor: '••••••••' },
         {
           icone: 'calendar-check',
           rotulo: 'Conta criada em',
@@ -56,13 +57,19 @@ export function useProfileViewModel() {
     [usuario, colaborador],
   );
 
+  const versao = Constants.expoConfig?.version ?? '1.0.0';
+  const configuracoes: CampoPerfil[] = [
+    { icone: 'globe', rotulo: 'Idioma', valor: 'Português (BR)' },
+    { icone: 'info', rotulo: 'Sobre o app', valor: `Versão ${versao}` },
+  ];
+
   return {
     nome: usuario.nome,
     cargo: colaborador?.cargo ?? 'Colaborador(a) da FCV',
     matricula: colaborador?.matricula ?? null,
     dadosColaborador,
     dadosConta,
-    versao: Constants.expoConfig?.version ?? '1.0.0',
+    configuracoes,
     logout,
   };
 }
