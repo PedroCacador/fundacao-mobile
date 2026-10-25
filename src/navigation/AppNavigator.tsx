@@ -1,10 +1,8 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import {
-  createNativeStackNavigator,
-  NativeStackNavigationOptions,
-} from '@react-navigation/native-stack';
+import { StyleSheet, Text, View } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Loading } from '../components/common/StateMessage';
 import { Icone, NomeIcone } from '../components/common/Icon';
 import { useAuth } from '../context/AuthContext';
@@ -23,40 +21,56 @@ import LocationsView from '../views/locations/LocationsView';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
-const cabecalhoClaro: NativeStackNavigationOptions = {
-  headerShown: true,
-  headerStyle: { backgroundColor: cores.fundo },
-  headerTintColor: cores.texto,
-  headerTitleStyle: { fontFamily: familia.negrito, fontSize: fonte.xxl },
-  headerShadowVisible: false,
-  headerBackTitle: 'Voltar',
+const abas: Record<keyof TabParamList, { icone: NomeIcone; titulo: string }> = {
+  Home: { icone: 'house', titulo: 'Início' },
+  Wallet: { icone: 'wallet', titulo: 'Carteira' },
+  History: { icone: 'history', titulo: 'Histórico' },
+  Profile: { icone: 'user', titulo: 'Perfil' },
 };
 
-const iconesAba: Record<keyof TabParamList, NomeIcone> = {
-  Home: 'house',
-  Wallet: 'wallet',
-  History: 'history',
-  Profile: 'user',
-};
+function RotuloAba({ titulo, ativo }: { titulo: string; ativo: boolean }) {
+  return (
+    <View style={styles.rotulo}>
+      <Text style={[styles.rotuloTexto, ativo && styles.rotuloAtivo]}>{titulo}</Text>
+      <View style={[styles.indicador, ativo && styles.indicadorAtivo]} />
+    </View>
+  );
+}
 
 function TabNavigator() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        title: abas[route.name].titulo,
         tabBarActiveTintColor: cores.primaria,
-        tabBarInactiveTintColor: cores.textoFraco,
-        tabBarStyle: { backgroundColor: cores.superficie, borderTopColor: cores.borda },
-        tabBarLabelStyle: { fontSize: fonte.xs, fontFamily: familia.semi },
-        tabBarIcon: ({ color, size }) => (
-          <Icone nome={iconesAba[route.name]} tamanho={size} cor={color} />
+        tabBarInactiveTintColor: cores.textoSecundario,
+        tabBarStyle: {
+          backgroundColor: cores.superficie,
+          borderTopColor: cores.borda,
+          height: 70 + insets.bottom,
+          paddingTop: 10,
+          paddingBottom: insets.bottom + 6,
+        },
+        tabBarIcon: ({ color, focused }) => (
+          <Icone
+            nome={abas[route.name].icone}
+            tamanho={24}
+            cor={color}
+            espessura={focused ? 2 : 1.6}
+          />
+        ),
+        tabBarLabel: ({ focused }) => (
+          <RotuloAba titulo={abas[route.name].titulo} ativo={focused} />
         ),
       })}
     >
-      <Tab.Screen name="Home" component={HomeView} options={{ title: 'Início' }} />
-      <Tab.Screen name="Wallet" component={WalletView} options={{ title: 'Carteira' }} />
-      <Tab.Screen name="History" component={HistoryView} options={{ title: 'Histórico' }} />
-      <Tab.Screen name="Profile" component={ProfileView} options={{ title: 'Perfil' }} />
+      <Tab.Screen name="Home" component={HomeView} />
+      <Tab.Screen name="Wallet" component={WalletView} />
+      <Tab.Screen name="History" component={HistoryView} />
+      <Tab.Screen name="Profile" component={ProfileView} />
     </Tab.Navigator>
   );
 }
@@ -77,21 +91,9 @@ export default function AppNavigator() {
       {usuario ? (
         <>
           <Stack.Screen name="Main" component={TabNavigator} />
-          <Stack.Screen
-            name="BenefitDetails"
-            component={BenefitDetailsView}
-            options={{ ...cabecalhoClaro, title: 'Detalhes do Benefício' }}
-          />
-          <Stack.Screen
-            name="Notifications"
-            component={NotificationsView}
-            options={{ ...cabecalhoClaro, title: 'Notificações' }}
-          />
-          <Stack.Screen
-            name="Locations"
-            component={LocationsView}
-            options={{ ...cabecalhoClaro, title: 'Locais de Utilização' }}
-          />
+          <Stack.Screen name="BenefitDetails" component={BenefitDetailsView} />
+          <Stack.Screen name="Notifications" component={NotificationsView} />
+          <Stack.Screen name="Locations" component={LocationsView} />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginView} />
@@ -105,5 +107,28 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: cores.fundo,
+  },
+  rotulo: {
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
+  rotuloTexto: {
+    fontFamily: familia.regular,
+    fontSize: fonte.sm,
+    color: cores.textoSecundario,
+  },
+  rotuloAtivo: {
+    fontFamily: familia.semi,
+    color: cores.primaria,
+  },
+  indicador: {
+    width: 28,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: 'transparent',
+  },
+  indicadorAtivo: {
+    backgroundColor: cores.primaria,
   },
 });

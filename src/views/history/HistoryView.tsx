@@ -7,7 +7,7 @@ import { TopBar } from '../../components/common/TopBar';
 export default function HistoryView() {
   return (
     <Screen>
-      <TopBar />
+      <TopBar voltar perfil />
       <Header icone="history" titulo="Histórico" subtitulo="Suas utilizações de benefícios." />
       <EmptyState icone="construction" titulo="Tela em desenvolvimento" />
     </Screen>
