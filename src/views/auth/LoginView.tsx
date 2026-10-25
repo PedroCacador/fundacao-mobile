@@ -1,6 +1,8 @@
 import React from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../components/common/Button';
+import { DecorativeCircles } from '../../components/common/DecorativeCircles';
+import { Logo } from '../../components/common/Logo';
 import { Screen } from '../../components/common/Screen';
 import { ErrorMessage } from '../../components/common/StateMessage';
 import { TextField } from '../../components/common/TextField';
@@ -15,14 +17,13 @@ export default function LoginView() {
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Screen bordas={['top', 'bottom']} estiloConteudo={styles.conteudo}>
+      <Screen
+        bordas={['top', 'bottom']}
+        estiloConteudo={styles.conteudo}
+        fundo={<DecorativeCircles posicoes={['topoEsquerda', 'baseDireita']} />}
+      >
         <View style={styles.logo}>
-          <Text style={styles.sigla}>FCV</Text>
-          <View>
-            <Text style={styles.nomeFundacao}>Fundação</Text>
-            <Text style={styles.nomeFundacao}>Cristiano Varella</Text>
-            <Text style={styles.slogan}>Pela vida.</Text>
-          </View>
+          <Logo largura={230} />
         </View>
 
         <Text style={styles.plataforma}>Plataforma de Benefícios</Text>
@@ -75,63 +76,49 @@ const styles = StyleSheet.create({
   conteudo: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: espaco.xl,
+    paddingHorizontal: 40,
   },
   logo: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: espaco.sm,
-  },
-  sigla: {
-    fontSize: 44,
-    fontFamily: familia.negrito,
-    color: cores.primaria,
-    letterSpacing: 2,
-  },
-  nomeFundacao: {
-    fontSize: fonte.md,
-    fontFamily: familia.semi,
-    color: cores.primaria,
-    lineHeight: 16,
-  },
-  slogan: {
-    fontSize: fonte.xs,
-    fontStyle: 'italic',
-    color: cores.primaria,
   },
   plataforma: {
-    marginTop: espaco.xl,
-    fontSize: fonte.xxl,
-    fontFamily: familia.semi,
-    color: cores.texto,
+    marginTop: espaco.xxl,
+    fontFamily: familia.tituloMedio,
+    fontSize: fonte.titulo,
+    lineHeight: 28,
+    color: cores.primaria,
     textAlign: 'center',
   },
   plataformaLinha: {
-    fontSize: fonte.xxl,
-    color: cores.texto,
+    fontFamily: familia.tituloRegular,
+    fontSize: fonte.titulo,
+    lineHeight: 28,
+    color: cores.primariaMedia,
     textAlign: 'center',
   },
   boasVindas: {
-    marginTop: espaco.xxl,
-    fontSize: fonte.grande,
+    marginTop: 44,
     fontFamily: familia.negrito,
+    fontSize: fonte.display,
     color: cores.primaria,
   },
   instrucao: {
-    marginTop: espaco.xs,
-    fontSize: fonte.lg,
+    marginTop: espaco.sm,
+    maxWidth: 280,
+    fontFamily: familia.regular,
+    fontSize: fonte.xl,
     color: cores.textoSecundario,
-    lineHeight: 22,
+    lineHeight: 23,
   },
   formulario: {
-    marginTop: espaco.xl,
-    marginBottom: espaco.xl,
-    gap: espaco.md,
+    marginTop: 28,
+    marginBottom: 28,
+    gap: espaco.lg,
   },
   rodape: {
-    marginTop: espaco.xl,
-    fontSize: fonte.xs,
+    marginTop: 28,
+    fontFamily: familia.regular,
+    fontSize: fonte.sm,
     color: cores.textoSecundario,
     textAlign: 'center',
   },
