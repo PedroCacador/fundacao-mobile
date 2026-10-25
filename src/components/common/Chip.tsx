@@ -7,13 +7,21 @@ interface ChipProps {
   texto: string;
   icone?: NomeIcone;
   pequeno?: boolean;
+  cor?: string;
+  fundo?: string;
 }
 
-export function Chip({ texto, icone, pequeno = false }: ChipProps) {
+export function Chip({
+  texto,
+  icone,
+  pequeno = false,
+  cor = cores.primaria,
+  fundo = cores.primariaClara,
+}: ChipProps) {
   return (
-    <View style={[styles.chip, pequeno && styles.chipPequeno]}>
-      {icone ? <Icone nome={icone} tamanho={13} cor={cores.primaria} /> : null}
-      <Text style={[styles.texto, pequeno && styles.textoPequeno]}>{texto}</Text>
+    <View style={[styles.chip, pequeno && styles.chipPequeno, { backgroundColor: fundo }]}>
+      {icone ? <Icone nome={icone} tamanho={13} cor={cor} /> : null}
+      <Text style={[styles.texto, pequeno && styles.textoPequeno, { color: cor }]}>{texto}</Text>
     </View>
   );
 }
@@ -27,7 +35,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: espaco.sm,
     paddingVertical: 3,
     borderRadius: raio.sm,
-    backgroundColor: cores.primariaClara,
   },
   chipPequeno: {
     paddingHorizontal: 6,
@@ -37,7 +44,6 @@ const styles = StyleSheet.create({
   texto: {
     fontFamily: familia.medio,
     fontSize: fonte.xs,
-    color: cores.primaria,
   },
   textoPequeno: {
     fontSize: fonte.xxs,

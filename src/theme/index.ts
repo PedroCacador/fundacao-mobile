@@ -30,6 +30,7 @@ export const coresCategoria = {
   verde: { cor: '#2E8B57', fundo: '#E3F3E8' },
   laranja: { cor: '#E08A16', fundo: '#FFF1DC' },
   ciano: { cor: '#1F8296', fundo: '#E1F3F6' },
+  rosa: { cor: '#D6336C', fundo: '#FCE7EF' },
   cinza: { cor: '#5F6E86', fundo: '#EDF0F5' },
 };
 

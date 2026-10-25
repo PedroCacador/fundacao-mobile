@@ -32,13 +32,16 @@ import {
   House,
   IdCard,
   Info,
+  KeyRound,
   Lock,
   LogOut,
   LucideIcon,
   Mail,
   MapPin,
+  Megaphone,
   Phone,
   Pill,
+  Search,
   Settings,
   Store,
   Tag,
@@ -46,6 +49,7 @@ import {
   User,
   Utensils,
   Wallet,
+  X,
 } from 'lucide-react-native';
 import { NomeIcone } from '../../models/Icon';
 import { cores, raio } from '../../theme';
@@ -84,12 +88,15 @@ const icones: Record<NomeIcone, LucideIcon> = {
   house: House,
   'id-card': IdCard,
   info: Info,
+  'key-round': KeyRound,
   lock: Lock,
   'log-out': LogOut,
   mail: Mail,
   'map-pin': MapPin,
+  megaphone: Megaphone,
   phone: Phone,
   pill: Pill,
+  search: Search,
   settings: Settings,
   store: Store,
   tag: Tag,
@@ -97,6 +104,7 @@ const icones: Record<NomeIcone, LucideIcon> = {
   user: User,
   utensils: Utensils,
   wallet: Wallet,
+  x: X,
 };
 
 interface IconeProps {
