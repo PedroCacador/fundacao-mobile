@@ -1,13 +1,13 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Icone } from '../../components/common/Icon';
+import { StyleSheet, Text, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
-import { Avatar } from '../../components/common/Avatar';
 import { Screen } from '../../components/common/Screen';
+import { SeeAllLink } from '../../components/common/SeeAllLink';
 import { ShortcutCard } from '../../components/common/ShortcutCard';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
+import { UserGreeting } from '../../components/common/UserGreeting';
 import { TabScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte } from '../../theme';
 import { formatarData } from '../../utils/format';
@@ -19,22 +19,14 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
-      <TopBar />
+      <TopBar perfil />
 
-      <Pressable
-        style={styles.perfil}
-        onPress={() => navigation.navigate('Profile')}
-        accessibilityRole="button"
-        accessibilityLabel="Abrir perfil"
-      >
-        <Avatar nome={nome} />
-        <View style={styles.perfilInfo}>
-          <Text style={styles.ola}>Olá,</Text>
-          <Text style={styles.nome}>{nome}</Text>
-          <Text style={styles.cargo}>{cargo}</Text>
-        </View>
-        <Icone nome="chevron-right" tamanho={24} cor={cores.textoFraco} />
-      </Pressable>
+      <UserGreeting
+        nome={nome}
+        cargo={cargo}
+        tamanhoFoto={68}
+        aoPressionar={() => navigation.navigate('Profile')}
+      />
 
       <SummaryCard
         titulo="Resumo dos seus benefícios"
@@ -50,6 +42,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
             rotulo: 'Locais conveniados',
           },
           {
+            largo: true,
             icone: 'calendar',
             valor: resumo.proximaRenovacao ? formatarData(resumo.proximaRenovacao) : '-',
             rotulo: 'Próxima renovação',
@@ -73,21 +66,15 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
         />
         <ShortcutCard
           icone="map-pin"
-          titulo="Locais"
-          subtitulo="Onde usar seus benefícios"
+          titulo="Locais de utilização"
+          subtitulo="Encontre estabelecimentos perto de você"
           aoPressionar={() => navigation.navigate('Locations')}
         />
       </View>
 
       <View style={styles.secaoTopo}>
         <Text style={styles.secaoTitulo}>Seus benefícios</Text>
-        <Pressable
-          onPress={() => navigation.navigate('Wallet')}
-          hitSlop={8}
-          accessibilityRole="link"
-        >
-          <Text style={styles.verTodos}>Ver todos</Text>
-        </Pressable>
+        <SeeAllLink aoPressionar={() => navigation.navigate('Wallet')} />
       </View>
 
       {carregando ? (
@@ -113,28 +100,6 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
 }
 
 const styles = StyleSheet.create({
-  perfil: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: espaco.md,
-    marginBottom: espaco.lg,
-  },
-  perfilInfo: {
-    flex: 1,
-  },
-  ola: {
-    fontSize: fonte.md,
-    color: cores.textoSecundario,
-  },
-  nome: {
-    fontSize: fonte.tituloTela,
-    fontFamily: familia.negrito,
-    color: cores.texto,
-  },
-  cargo: {
-    fontSize: fonte.md,
-    color: cores.textoSecundario,
-  },
   atalhos: {
     flexDirection: 'row',
     gap: espaco.sm,
@@ -147,13 +112,8 @@ const styles = StyleSheet.create({
     marginBottom: espaco.md,
   },
   secaoTitulo: {
+    fontFamily: familia.titulo,
     fontSize: fonte.xxl,
-    fontFamily: familia.negrito,
     color: cores.texto,
-  },
-  verTodos: {
-    fontSize: fonte.md,
-    fontFamily: familia.semi,
-    color: cores.primaria,
   },
 });

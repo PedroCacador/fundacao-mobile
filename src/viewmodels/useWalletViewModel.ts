@@ -10,15 +10,6 @@ export function useWalletViewModel() {
 
   const resumo = useMemo(() => resumirCatalogo(itens), [itens]);
 
-  const contadores = useMemo(() => {
-    const disponiveis = itens.filter((item) => item.disponivel).length;
-    return {
-      TODOS: itens.length,
-      DISPONIVEIS: disponiveis,
-      INDISPONIVEIS: itens.length - disponiveis,
-    };
-  }, [itens]);
-
   const lista = useMemo(() => {
     if (filtro === 'DISPONIVEIS') return itens.filter((item) => item.disponivel);
     if (filtro === 'INDISPONIVEIS') return itens.filter((item) => !item.disponivel);
@@ -29,7 +20,6 @@ export function useWalletViewModel() {
     lista,
     filtro,
     setFiltro,
-    contadores,
     resumo,
     carregando,
     atualizando,

@@ -7,29 +7,31 @@ import { EmptyState, ErrorMessage, Loading } from '../../components/common/State
 import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
 import { TabScreenProps } from '../../navigation/types';
+import { coresCategoria } from '../../theme';
 import { formatarData } from '../../utils/format';
 import { FiltroCarteira, useWalletViewModel } from '../../viewmodels/useWalletViewModel';
+
+const abas: TabOption<FiltroCarteira>[] = [
+  { id: 'TODOS', label: 'Todos' },
+  { id: 'DISPONIVEIS', label: 'Disponíveis' },
+  { id: 'INDISPONIVEIS', label: 'Indisponíveis' },
+];
 
 export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
   const { lista, filtro, setFiltro, resumo, carregando, atualizando, erro, recarregar } =
     useWalletViewModel();
 
-  const abas: TabOption<FiltroCarteira>[] = [
-    { id: 'TODOS', label: 'Todos' },
-    { id: 'DISPONIVEIS', label: 'Disponíveis' },
-    { id: 'INDISPONIVEIS', label: 'Indisponíveis' },
-  ];
-
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
-      <TopBar />
+      <TopBar voltar perfil />
       <Header
         icone="wallet"
         titulo="Carteira de Benefícios"
-        subtitulo="Confira todos os seus benefícios e onde usar cada um."
+        subtitulo="Confira todos os seus benefícios e acompanhe a validade de cada um."
       />
 
       <SummaryCard
+        slogan="caixa"
         itens={[
           {
             icone: 'gift',
@@ -40,11 +42,14 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
             icone: 'store',
             valor: carregando ? '-' : resumo.locais,
             rotulo: 'Locais conveniados',
+            ...coresCategoria.verde,
           },
           {
+            largo: true,
             icone: 'calendar',
             valor: resumo.proximaRenovacao ? formatarData(resumo.proximaRenovacao) : '-',
             rotulo: 'Próxima renovação',
+            ...coresCategoria.roxo,
           },
         ]}
       />
@@ -68,6 +73,12 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
             item={item}
             aoPressionar={() =>
               navigation.navigate('BenefitDetails', { beneficioId: item.beneficio.id })
+            }
+            aoVerRegras={() =>
+              navigation.navigate('BenefitDetails', {
+                beneficioId: item.beneficio.id,
+                aba: 'REGRAS',
+              })
             }
           />
         ))
