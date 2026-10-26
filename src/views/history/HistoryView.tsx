@@ -18,8 +18,6 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
 
   return (
     <Screen>
-      {/* CABEÇALHO */}
-
       <View style={styles.cabecalho}>
         <Pressable
           style={styles.botaoVoltar}
@@ -54,8 +52,6 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
         </View>
       </View>
 
-      {/* FILTROS DE PERÍODO */}
-
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -82,8 +78,6 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
           );
         })}
       </ScrollView>
-
-      {/* MENSAGEM DE HISTÓRICO VAZIO */}
 
       <Card estilo={styles.cardVazio}>
         <EmptyState

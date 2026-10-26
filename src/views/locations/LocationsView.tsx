@@ -33,7 +33,6 @@ export default function LocationsView({ navigation }: RootScreenProps<'Locations
     recarregar,
   } = useLocationsViewModel();
 
-  // Evita que apareçam dois cabeçalhos.
   useLayoutEffect(() => {
     navigation.setOptions({
       headerShown: false,
@@ -53,8 +52,6 @@ export default function LocationsView({ navigation }: RootScreenProps<'Locations
 
   return (
     <Screen bordas={['top', 'bottom']} atualizando={atualizando} aoAtualizar={recarregar}>
-      {/* CABEÇALHO */}
-
       <View style={styles.cabecalho}>
         <Pressable
           style={styles.botaoVoltar}
@@ -89,8 +86,6 @@ export default function LocationsView({ navigation }: RootScreenProps<'Locations
         </View>
       </View>
 
-      {/* CAMPO DE BUSCA */}
-
       <View style={styles.busca}>
         <TextField
           icone="search"
@@ -100,8 +95,6 @@ export default function LocationsView({ navigation }: RootScreenProps<'Locations
           returnKeyType="search"
         />
       </View>
-
-      {/* FILTROS POR CATEGORIA */}
 
       <ScrollView
         horizontal
@@ -133,8 +126,6 @@ export default function LocationsView({ navigation }: RootScreenProps<'Locations
           );
         })}
       </ScrollView>
-
-      {/* ESTABELECIMENTOS */}
 
       {carregando ? (
         <Loading texto="Carregando estabelecimentos..." />
