@@ -28,5 +28,4 @@ export interface RespostaLogin {
 
 export interface RespostaCodigo {
   mensagem: string;
-  codigo: string;
 }

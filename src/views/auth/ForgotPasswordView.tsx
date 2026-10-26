@@ -35,7 +35,7 @@ export default function ForgotPasswordView({ navigation }: RootScreenProps<'Forg
     etapa,
     email,
     setEmail,
-    codigoRecebido,
+    aviso,
     codigo,
     setCodigo,
     novaSenha,
@@ -97,13 +97,10 @@ export default function ForgotPasswordView({ navigation }: RootScreenProps<'Forg
         ) : null}
         {etapa === 'CODIGO' ? (
           <View style={styles.formulario}>
-            {codigoRecebido ? (
+            {aviso ? (
               <View style={styles.aviso}>
                 <Icone nome="info" tamanho={18} cor={cores.primaria} />
-                <Text style={styles.avisoTexto}>
-                  Seu código é <Text style={styles.avisoCodigo}>{codigoRecebido}</Text>. Ele vale 15
-                  minutos.
-                </Text>
+                <Text style={styles.avisoTexto}>{aviso}</Text>
               </View>
             ) : null}
             <TextField
@@ -194,9 +191,5 @@ const styles = StyleSheet.create({
     fontSize: fonte.md,
     lineHeight: 18,
     color: cores.texto,
-  },
-  avisoCodigo: {
-    fontFamily: familia.negrito,
-    color: cores.primaria,
   },
 });

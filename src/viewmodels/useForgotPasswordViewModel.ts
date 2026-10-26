@@ -13,7 +13,7 @@ function mensagemDeErro(falha: unknown) {
 export function useForgotPasswordViewModel() {
   const [etapa, setEtapa] = useState<EtapaRecuperacao>('EMAIL');
   const [email, setEmail] = useState('');
-  const [codigoRecebido, setCodigoRecebido] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
   const [codigo, setCodigo] = useState('');
   const [novaSenha, setNovaSenha] = useState('');
   const [confirmacao, setConfirmacao] = useState('');
@@ -30,7 +30,7 @@ export function useForgotPasswordViewModel() {
     setCarregando(true);
     try {
       const resposta = await authService.solicitarCodigo(email.trim());
-      setCodigoRecebido(resposta.codigo);
+      setAviso(resposta.mensagem);
       setEtapa('CODIGO');
     } catch (falha) {
       setErro(mensagemDeErro(falha));
@@ -69,7 +69,7 @@ export function useForgotPasswordViewModel() {
     etapa,
     email,
     setEmail,
-    codigoRecebido,
+    aviso,
     codigo,
     setCodigo,
     novaSenha,
