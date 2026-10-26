@@ -1,4 +1,4 @@
-import { RespostaLogin, UsuarioAutenticado } from '../models/Auth';
+import { RespostaCodigo, RespostaLogin, UsuarioAutenticado } from '../models/Auth';
 import { requisitar } from './api';
 
 export const authService = {
@@ -11,5 +11,19 @@ export const authService = {
 
   buscarUsuarioLogado(token: string) {
     return requisitar<UsuarioAutenticado>('/auth/eu', { token });
+  },
+
+  solicitarCodigo(email: string) {
+    return requisitar<RespostaCodigo>('/auth/esqueci-senha', {
+      metodo: 'POST',
+      corpo: { email },
+    });
+  },
+  
+  redefinirSenha(email: string, codigo: string, novaSenha: string) {
+    return requisitar<{ mensagem: string }>('/auth/redefinir-senha', {
+      metodo: 'POST',
+      corpo: { email, codigo, nova_senha: novaSenha },
+    });
   },
 };

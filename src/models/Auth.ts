@@ -25,3 +25,8 @@ export interface RespostaLogin {
   token: string;
   usuario: UsuarioAutenticado;
 }
+
+export interface RespostaCodigo {
+  mensagem: string;
+  codigo: string;
+}
