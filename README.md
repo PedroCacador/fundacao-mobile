@@ -27,6 +27,22 @@ EXPO_PUBLIC_API_URL=http://SEU_IP:3333/api/v1
 
 Se o celular não conectar, confira se o firewall do Windows libera a porta 3333.
 
+## Telas
+
+| Tela                 | O que mostra                                                   |
+| -------------------- | -------------------------------------------------------------- |
+| Login                | Entrada com e-mail e senha                                     |
+| Esqueci senha        | Pede o código pelo e-mail e cria uma nova senha                |
+| Início               | Saudação, resumo e atalhos                                     |
+| Carteira             | Benefícios do colaborador, com filtro por disponibilidade      |
+| Detalhe do benefício | Valor, limite, renovação e onde usar                           |
+| Locais               | Estabelecimentos conveniados, com busca e filtro por categoria |
+| Histórico            | Utilizações, com filtro de período                             |
+| Notificações         | Renovações próximas e campanhas ativas                         |
+| Perfil               | Dados da conta e sair                                          |
+
+O código da recuperação de senha não volta mais na resposta da API. Enquanto ela não envia e-mail, o código aparece no terminal onde a API está rodando.
+
 ## Usuário de teste
 
 O app é para colaboradores. Use `carla@fcv.org.br` com a senha `123456` (dados do seed da API).
@@ -50,7 +66,9 @@ assets/              logo da FCV
 src/
 ├── components/
 │   ├── common/      componentes reaproveitados em todas as telas (Screen, Card, Button, SectionCard, Icone...)
-│   └── benefit/     componentes ligados a benefício (BenefitCard, BenefitHero, EstablishmentCard)
+│   ├── benefit/     componentes ligados a benefício (BenefitCard, BenefitHero, EstablishmentCard)
+│   ├── location/    card de estabelecimento da tela Locais (LocationCard)
+│   └── notification/ card de notificação (NotificationCard)
 ├── config/          endereço da API
 ├── context/         estado global: sessão (AuthContext) e catálogo de benefícios (CatalogContext)
 ├── hooks/           hooks de interface reaproveitáveis (rolar até uma seção)
