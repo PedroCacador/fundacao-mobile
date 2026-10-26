@@ -10,6 +10,7 @@ import { cores, familia, fonte } from '../theme';
 import { RootStackParamList, TabParamList } from './types';
 
 import LoginView from '../views/auth/LoginView';
+import ForgotPasswordView from '../views/auth/ForgotPasswordView';
 import HomeView from '../views/home/HomeView';
 import WalletView from '../views/wallet/WalletView';
 import HistoryView from '../views/history/HistoryView';
@@ -96,7 +97,10 @@ export default function AppNavigator() {
           <Stack.Screen name="Locations" component={LocationsView} />
         </>
       ) : (
-        <Stack.Screen name="Login" component={LoginView} />
+        <>
+          <Stack.Screen name="Login" component={LoginView} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordView} />
+        </>
       )}
     </Stack.Navigator>
   );

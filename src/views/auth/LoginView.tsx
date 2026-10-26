@@ -1,15 +1,16 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../components/common/Button';
 import { DecorativeCircles } from '../../components/common/DecorativeCircles';
 import { Logo } from '../../components/common/Logo';
 import { Screen } from '../../components/common/Screen';
 import { ErrorMessage } from '../../components/common/StateMessage';
 import { TextField } from '../../components/common/TextField';
+import { RootScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte } from '../../theme';
 import { useAuthViewModel } from '../../viewmodels/useAuthViewModel';
 
-export default function LoginView() {
+export default function LoginView({ navigation }: RootScreenProps<'Login'>) {
   const { email, setEmail, senha, setSenha, login, carregando, erro } = useAuthViewModel();
 
   return (
@@ -58,6 +59,14 @@ export default function LoginView() {
             onSubmitEditing={login}
             editable={!carregando}
           />
+          <Pressable
+            onPress={() => navigation.navigate('ForgotPassword')}
+            hitSlop={8}
+            accessibilityRole="link"
+            style={styles.esqueci}
+          >
+            <Text style={styles.esqueciTexto}>Esqueceu sua senha?</Text>
+          </Pressable>
           {erro ? <ErrorMessage mensagem={erro} /> : null}
         </View>
 
@@ -114,6 +123,14 @@ const styles = StyleSheet.create({
     marginTop: 28,
     marginBottom: 28,
     gap: espaco.lg,
+  },
+  esqueci: {
+    alignSelf: 'flex-end',
+  },
+  esqueciTexto: {
+    fontFamily: familia.medio,
+    fontSize: fonte.md,
+    color: cores.primaria,
   },
   rodape: {
     marginTop: 28,

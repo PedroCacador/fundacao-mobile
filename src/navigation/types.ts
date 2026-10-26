@@ -12,6 +12,7 @@ export type TabParamList = {
 
 export type RootStackParamList = {
   Login: undefined;
+  ForgotPassword: undefined;
   Main: NavigatorScreenParams<TabParamList> | undefined;
   BenefitDetails: { beneficioId: number; aba?: AbaDetalhe };
   Notifications: undefined;
