@@ -7,6 +7,16 @@ export function lerData(texto: string) {
   return new Date(ano, mes - 1, dia);
 }
 
+export function formatarHora(texto: string) {
+  return texto.slice(11, 16);
+}
+
+export function dataParaApi(data: Date) {
+  const mes = String(data.getMonth() + 1).padStart(2, '0');
+  const dia = String(data.getDate()).padStart(2, '0');
+  return `${data.getFullYear()}-${mes}-${dia}`;
+}
+
 export function formatarMoeda(valor: number) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
