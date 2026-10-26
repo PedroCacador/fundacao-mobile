@@ -14,3 +14,8 @@ export interface ResumoCatalogo {
 }
 
 export type AbaDetalhe = 'ONDE_USAR' | 'REGRAS' | 'QUANTIDADE' | 'ESTABELECIMENTOS';
+
+export interface LocalConveniado {
+  conveniado: Conveniado;
+  beneficios: Beneficio[];
+}
