@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: espaco.sm,
     paddingVertical: 3,
     borderRadius: raio.pilula,
-    backgroundColor: '#DCE9FA',
+    backgroundColor: cores.primariaClara,
   },
 
   chipTexto: {
