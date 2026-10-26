@@ -18,7 +18,6 @@ const abas: TabOption<FiltroNotificacao>[] = [
 ];
 
 export default function NotificationsView() {
-  
   const { lista, filtro, setFiltro, carregando, erro, tentarDeNovo } = useNotificationsViewModel();
   return (
     <Screen>

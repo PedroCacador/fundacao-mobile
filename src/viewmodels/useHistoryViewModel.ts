@@ -1,9 +1,6 @@
 import { useState } from 'react';
 
-export type PeriodoHistorico =
-  | 'MES'
-  | 'TRIMESTRE'
-  | 'SEMESTRE';
+export type PeriodoHistorico = 'MES' | 'TRIMESTRE' | 'SEMESTRE';
 
 export const periodos: {
   id: PeriodoHistorico;
@@ -28,13 +25,9 @@ export const periodos: {
 ];
 
 export function useHistoryViewModel() {
-  const [periodo, setPeriodo] =
-    useState<PeriodoHistorico>('TRIMESTRE');
+  const [periodo, setPeriodo] = useState<PeriodoHistorico>('TRIMESTRE');
 
-  const selecionado =
-    periodos.find(
-      (opcao) => opcao.id === periodo
-    ) ?? periodos[1];
+  const selecionado = periodos.find((opcao) => opcao.id === periodo) ?? periodos[1];
 
   return {
     periodo,

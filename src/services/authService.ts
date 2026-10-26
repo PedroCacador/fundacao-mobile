@@ -19,7 +19,7 @@ export const authService = {
       corpo: { email },
     });
   },
-  
+
   redefinirSenha(email: string, codigo: string, novaSenha: string) {
     return requisitar<{ mensagem: string }>('/auth/redefinir-senha', {
       metodo: 'POST',

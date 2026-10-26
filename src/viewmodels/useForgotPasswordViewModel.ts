@@ -3,7 +3,7 @@ import { ApiError } from '../services/api';
 import { authService } from '../services/authService';
 
 export type EtapaRecuperacao = 'EMAIL' | 'CODIGO' | 'CONCLUIDO';
- 
+
 const TAMANHO_MINIMO_SENHA = 6;
 
 function mensagemDeErro(falha: unknown) {
@@ -19,7 +19,7 @@ export function useForgotPasswordViewModel() {
   const [confirmacao, setConfirmacao] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
-  
+
   const enviarEmail = async () => {
     if (carregando) return;
     if (!email.trim()) {

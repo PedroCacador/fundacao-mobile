@@ -53,8 +53,7 @@ export function useLocationsViewModel() {
     const termo = normalizar(busca.trim());
 
     return locais.filter(({ conveniado }) => {
-      const naCategoria =
-        categoria === TODAS_CATEGORIAS || conveniado.categoria === categoria;
+      const naCategoria = categoria === TODAS_CATEGORIAS || conveniado.categoria === categoria;
 
       const texto = normalizar(
         `${conveniado.nome_fantasia} ${conveniado.endereco} ${conveniado.categoria}`,
