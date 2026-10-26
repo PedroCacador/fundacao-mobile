@@ -5,7 +5,8 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '../../components/common/Card';
 import { Icone } from '../../components/common/Icon';
 import { Screen } from '../../components/common/Screen';
-import { EmptyState } from '../../components/common/StateMessage';
+import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
+import { UtilizationCard } from '../../components/history/UtilizationCard';
 
 import { TabScreenProps } from '../../navigation/types';
 
@@ -14,10 +15,20 @@ import { cores, espaco, fonte, familia, raio } from '../../theme';
 import { periodos, useHistoryViewModel } from '../../viewmodels/useHistoryViewModel';
 
 export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
-  const { periodo, setPeriodo, frasePeriodo } = useHistoryViewModel();
+  const {
+    periodo,
+    setPeriodo,
+    frasePeriodo,
+    lista,
+    carregando,
+    erro,
+    atualizando,
+    tentarDeNovo,
+    recarregar,
+  } = useHistoryViewModel();
 
   return (
-    <Screen>
+    <Screen atualizando={atualizando} aoAtualizar={recarregar}>
       <View style={styles.cabecalho}>
         <Pressable
           style={styles.botaoVoltar}
@@ -79,13 +90,36 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
         })}
       </ScrollView>
 
-      <Card estilo={styles.cardVazio}>
-        <EmptyState
-          icone="history"
-          titulo={`Nenhuma utilização ${frasePeriodo}`}
-          texto="Quando você usar um benefício em um estabelecimento conveniado, ele aparece aqui."
-        />
-      </Card>
+      {erro ? (
+        <View style={styles.erro}>
+          <ErrorMessage mensagem={erro} aoTentarDeNovo={tentarDeNovo} />
+        </View>
+      ) : carregando ? (
+        <Loading texto="Carregando histórico..." />
+      ) : lista.length === 0 ? (
+        <Card estilo={styles.cardVazio}>
+          <EmptyState
+            icone="history"
+            titulo={`Nenhuma utilização ${frasePeriodo}`}
+            texto="Quando você usar um benefício em um estabelecimento conveniado, ele aparece aqui."
+          />
+        </Card>
+      ) : (
+        lista.map((utilizacao) => {
+          const beneficioId = utilizacao.beneficio_id;
+          return (
+            <UtilizationCard
+              key={utilizacao.id}
+              utilizacao={utilizacao}
+              aoPressionar={
+                beneficioId
+                  ? () => navigation.navigate('BenefitDetails', { beneficioId })
+                  : undefined
+              }
+            />
+          );
+        })
+      )}
     </Screen>
   );
 }
@@ -173,6 +207,10 @@ const styles = StyleSheet.create({
 
   abaTextoAtivo: {
     color: cores.branco,
+  },
+
+  erro: {
+    marginBottom: espaco.md,
   },
 
   cardVazio: {
