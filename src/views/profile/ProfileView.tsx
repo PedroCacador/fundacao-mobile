@@ -1,6 +1,6 @@
 import React from 'react';
-import { Alert, Platform } from 'react-native';
 import { Button } from '../../components/common/Button';
+import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { DecorativeCircles } from '../../components/common/DecorativeCircles';
 import { NomeIcone } from '../../components/common/Icon';
 import { ListItem } from '../../components/common/ListItem';
@@ -21,19 +21,11 @@ export default function ProfileView() {
     ehColaborador,
     dadosConta,
     configuracoes,
-    logout,
+    confirmacaoSaidaAberta,
+    solicitarSaida,
+    cancelarSaida,
+    confirmarSaida,
   } = useProfileViewModel();
-
-  const confirmarSaida = () => {
-    if (Platform.OS === 'web') {
-      if (window.confirm('Deseja realmente sair da sua conta?')) logout();
-      return;
-    }
-    Alert.alert('Sair da conta', 'Deseja realmente sair da sua conta?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: () => logout() },
-    ]);
-  };
 
   return (
     <Screen fundo={<DecorativeCircles posicoes={['topoDireita']} />}>
@@ -64,7 +56,15 @@ export default function ProfileView() {
         titulo="Sair da conta"
         icone="log-out"
         variante="perigo"
-        aoPressionar={confirmarSaida}
+        aoPressionar={solicitarSaida}
+      />
+      <ConfirmationModal
+        aberto={confirmacaoSaidaAberta}
+        titulo="Sair da conta"
+        mensagem="Deseja realmente sair da sua conta?"
+        textoConfirmar="Sair"
+        aoCancelar={cancelarSaida}
+        aoConfirmar={confirmarSaida}
       />
     </Screen>
   );

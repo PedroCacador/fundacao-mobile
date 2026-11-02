@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Constants from 'expo-constants';
 import { NomeIcone } from '../models/Icon';
 import { useAuth, useUsuario } from '../context/AuthContext';
@@ -17,6 +17,13 @@ function semVazios(campos: (CampoPerfil | null)[]) {
 export function useProfileViewModel() {
   const usuario = useUsuario();
   const { logout } = useAuth();
+  const [confirmacaoSaidaAberta, setConfirmacaoSaidaAberta] = useState(false);
+  const solicitarSaida = useCallback(() => setConfirmacaoSaidaAberta(true), []);
+  const cancelarSaida = useCallback(() => setConfirmacaoSaidaAberta(false), []);
+  const confirmarSaida = useCallback(async () => {
+    setConfirmacaoSaidaAberta(false);
+    await logout();
+  }, [logout]);
   const colaborador = usuario.colaborador;
   const conveniado = usuario.conveniado;
   const ehColaborador = usuario.escopo === 'COLABORADOR';
@@ -89,6 +96,9 @@ export function useProfileViewModel() {
       : 'Dados cadastrais do seu estabelecimento.',
     dadosConta,
     configuracoes,
-    logout,
+    confirmacaoSaidaAberta,
+    solicitarSaida,
+    cancelarSaida,
+    confirmarSaida,
   };
 }

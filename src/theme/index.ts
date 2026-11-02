@@ -21,6 +21,7 @@ export const cores = {
   alertaFundo: '#FDF2DC',
   erro: '#B3261E',
   erroFundo: '#FDECEA',
+  sobreposicao: 'rgba(21, 39, 85, 0.45)',
 };
 
 export const coresCategoria = {
