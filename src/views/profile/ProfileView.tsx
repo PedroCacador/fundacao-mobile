@@ -11,8 +11,18 @@ import { UserGreeting } from '../../components/common/UserGreeting';
 import { CampoPerfil, useProfileViewModel } from '../../viewmodels/useProfileViewModel';
 
 export default function ProfileView() {
-  const { nome, cargo, matricula, dadosColaborador, dadosConta, configuracoes, logout } =
-    useProfileViewModel();
+  const {
+    nome,
+    cargo,
+    matricula,
+    dadosPerfil,
+    tituloPerfil,
+    subtituloPerfil,
+    ehColaborador,
+    dadosConta,
+    configuracoes,
+    logout,
+  } = useProfileViewModel();
 
   const confirmarSaida = () => {
     if (Platform.OS === 'web') {
@@ -27,14 +37,14 @@ export default function ProfileView() {
 
   return (
     <Screen fundo={<DecorativeCircles posicoes={['topoDireita']} />}>
-      <TopBar voltar />
+      <TopBar voltar={ehColaborador} notificacoes={ehColaborador} />
       <UserGreeting nome={nome} cargo={cargo} matricula={matricula} tamanhoFoto={92} />
 
       <SecaoCampos
         icone="user"
-        titulo="Dados do colaborador"
-        subtitulo="Seus dados pessoais e profissionais."
-        campos={dadosColaborador}
+        titulo={tituloPerfil}
+        subtitulo={subtituloPerfil}
+        campos={dadosPerfil}
       />
       <SecaoCampos
         icone="credit-card"

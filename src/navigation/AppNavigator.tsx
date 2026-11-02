@@ -77,7 +77,7 @@ function TabNavigator() {
 }
 
 export default function AppNavigator() {
-  const { usuario, restaurando } = useAuth();
+  const { usuario, restaurando, idSessao } = useAuth();
 
   if (restaurando) {
     return (
@@ -88,8 +88,13 @@ export default function AppNavigator() {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {usuario ? (
+    <Stack.Navigator
+      key={usuario ? `sessao-${idSessao}` : 'publico'}
+      screenOptions={{ headerShown: false }}
+    >
+      {usuario?.escopo === 'CONVENIADO' ? (
+        <Stack.Screen name="PartnerProfile" component={ProfileView} />
+      ) : usuario ? (
         <>
           <Stack.Screen name="Main" component={TabNavigator} />
           <Stack.Screen name="BenefitDetails" component={BenefitDetailsView} />

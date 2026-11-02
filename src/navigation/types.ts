@@ -17,6 +17,7 @@ export type RootStackParamList = {
   BenefitDetails: { beneficioId: number; aba?: AbaDetalhe };
   Notifications: undefined;
   Locations: undefined;
+  PartnerProfile: undefined;
 };
 
 export type RootScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
