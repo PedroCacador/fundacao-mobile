@@ -29,6 +29,17 @@ export interface RespostaLogin {
   usuario: UsuarioAutenticado;
 }
 
+export type UsuarioMobile = UsuarioAutenticado &
+  (
+    | { escopo: 'COLABORADOR'; colaborador: Colaborador; conveniado: null }
+    | { escopo: 'CONVENIADO'; colaborador: null; conveniado: Conveniado }
+  );
+
+export interface SessaoMobile {
+  token: string;
+  usuario: UsuarioMobile;
+}
+
 export interface RespostaCodigo {
   mensagem: string;
 }

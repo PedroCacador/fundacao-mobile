@@ -8,4 +8,8 @@ module.exports = defineConfig([
   {
     ignores: ['node_modules/*', '.expo/*', 'dist/*'],
   },
+  {
+    files: ['tests/**/*.cjs'],
+    languageOptions: { globals: { __dirname: 'readonly' } },
+  },
 ]);
