@@ -13,8 +13,11 @@ const { AuthProvider, useAuth } = runtime.fonte('context/AuthContext.tsx');
 async function montar({ estrito = false, Conteudo } = {}) {
   let auth;
   function Observar() {
-    auth = useAuth();
-    return React.createElement('output', null, auth.usuario?.escopo ?? 'ANONIMA');
+    const contexto = useAuth();
+    React.useEffect(() => {
+      auth = contexto;
+    }, [contexto]);
+    return React.createElement('output', null, contexto.usuario?.escopo ?? 'ANONIMA');
   }
   const elemento = document.createElement('div');
   document.body.appendChild(elemento);
