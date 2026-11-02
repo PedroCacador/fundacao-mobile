@@ -18,6 +18,18 @@ test('salva, recupera e remove usando SecureStore no nativo', async () => {
   assert.equal(await tokenStorage.obter(), null);
 });
 
+test('iOS grava credencial acessível com o aparelho desbloqueado e sem migração a outro dispositivo', async () => {
+  nativo.Platform.OS = 'ios';
+  let opcoes;
+  secureStore.setItemAsync = async (chave, valor, configuracao) => {
+    opcoes = configuracao;
+    credenciais.set(chave, valor);
+  };
+  await tokenStorage.salvar('teste');
+  assert.deepEqual(opcoes, { keychainAccessible: secureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+  assert.equal(await tokenStorage.obter(), 'teste');
+});
+
 test('logout aguardando uma gravação anterior deixa a credencial removida', async () => {
   const espera = adiar();
   secureStore.setItemAsync = async (chave, valor) => {

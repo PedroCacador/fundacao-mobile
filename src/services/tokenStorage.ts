@@ -1,17 +1,9 @@
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
+import { criarFilaAssincrona } from '../utils/asyncQueue';
 
 const CHAVE_TOKEN = 'fcv_token';
-let fila: Promise<unknown> = Promise.resolve();
-
-function executarEmOrdem<T>(operacao: () => Promise<T>): Promise<T> {
-  const resultado = fila.then(operacao);
-  fila = resultado.then(
-    () => undefined,
-    () => undefined,
-  );
-  return resultado;
-}
+const executarEmOrdem = criarFilaAssincrona();
 
 function armazenamentoWeb(): Storage {
   if (typeof localStorage === 'undefined') {
@@ -34,7 +26,9 @@ export const tokenStorage = {
       if (Platform.OS === 'web') {
         armazenamentoWeb().setItem(CHAVE_TOKEN, token);
       } else {
-        await SecureStore.setItemAsync(CHAVE_TOKEN, token);
+        await SecureStore.setItemAsync(CHAVE_TOKEN, token, {
+          keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        });
       }
     });
   },

@@ -7,7 +7,26 @@ const nativo = {
   Platform: { OS: 'android' },
 };
 const credenciais = new Map();
+const preferenciasGuardadas = new Map();
+const asyncStorage = {
+  async getItem(chave) {
+    return preferenciasGuardadas.get(chave) ?? null;
+  },
+  async setItem(chave, valor) {
+    preferenciasGuardadas.set(chave, valor);
+  },
+  async removeItem(chave) {
+    preferenciasGuardadas.delete(chave);
+  },
+  async getAllKeys() {
+    return [...preferenciasGuardadas.keys()];
+  },
+  async multiRemove(chaves) {
+    for (const chave of chaves) preferenciasGuardadas.delete(chave);
+  },
+};
 const secureStore = {
+  WHEN_UNLOCKED_THIS_DEVICE_ONLY: 6,
   async getItemAsync(chave) {
     return credenciais.get(chave) ?? null;
   },
@@ -25,6 +44,7 @@ const carregar = Module._load;
 Module._load = function (nome, ...argumentos) {
   if (nome === 'react-native') return nativo;
   if (nome === 'expo-secure-store') return secureStore;
+  if (nome === '@react-native-async-storage/async-storage') return asyncStorage;
   if (nome === 'expo-constants') return { expoConfig: {} };
   return carregar.call(this, nome, ...argumentos);
 };
@@ -104,4 +124,14 @@ function usuario(escopo = 'COLABORADOR', id = 3) {
   };
 }
 
-module.exports = { fonte, nativo, secureStore, credenciais, adiar, json, usuario };
+module.exports = {
+  fonte,
+  nativo,
+  secureStore,
+  credenciais,
+  asyncStorage,
+  preferenciasGuardadas,
+  adiar,
+  json,
+  usuario,
+};
