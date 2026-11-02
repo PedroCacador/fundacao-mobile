@@ -13,6 +13,7 @@ import { Poppins_600SemiBold } from '@expo-google-fonts/poppins/600SemiBold';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/context/AuthContext';
 import { CatalogProvider } from './src/context/CatalogContext';
+import { PreferencesProvider } from './src/context/PreferencesContext';
 
 export default function App() {
   const [fontesCarregadas] = useFonts({
@@ -32,12 +33,14 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <CatalogProvider>
-          <NavigationContainer>
-            <StatusBar style="dark" />
-            <AppNavigator />
-          </NavigationContainer>
-        </CatalogProvider>
+        <PreferencesProvider>
+          <CatalogProvider>
+            <NavigationContainer>
+              <StatusBar style="dark" />
+              <AppNavigator />
+            </NavigationContainer>
+          </CatalogProvider>
+        </PreferencesProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

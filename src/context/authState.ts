@@ -2,7 +2,11 @@ import type { UsuarioMobile } from '../models/Auth';
 
 export interface AvisoSessao {
   mensagem: string;
-  acao: 'RESTAURAR' | 'LIMPAR_CREDENCIAL' | null;
+  acao: 'RESTAURAR' | 'LIMPAR_CREDENCIAL' | 'LIMPAR_PREFERENCIAS' | null;
+}
+
+export function precisaLimparSessao(aviso: AvisoSessao | null): boolean {
+  return aviso?.acao === 'LIMPAR_CREDENCIAL' || aviso?.acao === 'LIMPAR_PREFERENCIAS';
 }
 
 type EtapaSessao = 'RESTAURANDO' | 'ANONIMA' | 'AUTENTICANDO' | 'AUTENTICADA' | 'SAINDO';

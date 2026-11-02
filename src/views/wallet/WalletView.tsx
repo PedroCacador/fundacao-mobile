@@ -18,8 +18,19 @@ const abas: TabOption<FiltroCarteira>[] = [
 ];
 
 export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
-  const { lista, filtro, setFiltro, resumo, carregando, atualizando, erro, recarregar } =
-    useWalletViewModel();
+  const {
+    lista,
+    filtro,
+    setFiltro,
+    resumo,
+    carregando,
+    atualizando,
+    erro,
+    recarregar,
+    carregandoPreferencias,
+    erroPreferencias,
+    tentarPreferencias,
+  } = useWalletViewModel();
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
@@ -54,7 +65,15 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
         ]}
       />
 
-      <FilterTabs tabs={abas} selectedTab={filtro} onSelectTab={setFiltro} />
+      {erroPreferencias ? (
+        <ErrorMessage mensagem={erroPreferencias} aoTentarDeNovo={tentarPreferencias} />
+      ) : null}
+      <FilterTabs
+        tabs={abas}
+        selectedTab={filtro}
+        onSelectTab={setFiltro}
+        desabilitado={carregandoPreferencias}
+      />
 
       {carregando ? (
         <Loading texto="Carregando benefícios..." />

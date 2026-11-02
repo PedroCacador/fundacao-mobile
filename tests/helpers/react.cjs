@@ -9,6 +9,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const React = require('react');
 const { createRoot } = require('react-dom/client');
 const { AuthProvider, useAuth } = runtime.fonte('context/AuthContext.tsx');
+const { PreferencesProvider } = runtime.fonte('context/PreferencesContext.tsx');
 
 async function montar({ estrito = false, Conteudo } = {}) {
   let auth;
@@ -26,7 +27,7 @@ async function montar({ estrito = false, Conteudo } = {}) {
     AuthProvider,
     null,
     React.createElement(Observar),
-    Conteudo ? React.createElement(Conteudo) : null,
+    React.createElement(PreferencesProvider, null, Conteudo ? React.createElement(Conteudo) : null),
   );
   await React.act(async () => {
     root.render(estrito ? React.createElement(React.StrictMode, null, conteudo) : conteudo);

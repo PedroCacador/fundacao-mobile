@@ -1,12 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useCatalog } from '../context/CatalogContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { resumirCatalogo } from '../utils/benefit';
 
-export type FiltroCarteira = 'TODOS' | 'DISPONIVEIS' | 'INDISPONIVEIS';
+export type { FiltroCarteira } from '../models/Preferences';
 
 export function useWalletViewModel() {
-  const { itens, carregando, atualizando, erro, recarregar } = useCatalog();
-  const [filtro, setFiltro] = useState<FiltroCarteira>('TODOS');
+  const { itens, carregando: carregandoCatalogo, atualizando, erro, recarregar } = useCatalog();
+  const {
+    preferencias,
+    definirFiltroCarteira: setFiltro,
+    carregando: carregandoPreferencias,
+    erro: erroPreferencias,
+    tentarDeNovo: tentarPreferencias,
+  } = usePreferences();
+  const filtro = preferencias.filtroCarteira;
 
   const resumo = useMemo(() => resumirCatalogo(itens), [itens]);
 
@@ -21,7 +29,10 @@ export function useWalletViewModel() {
     filtro,
     setFiltro,
     resumo,
-    carregando,
+    carregando: carregandoCatalogo || carregandoPreferencias,
+    carregandoPreferencias,
+    erroPreferencias,
+    tentarPreferencias,
     atualizando,
     erro,
     recarregar,

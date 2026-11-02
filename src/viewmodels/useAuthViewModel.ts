@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { precisaLimparSessao } from '../context/authState';
 import { ApiError } from '../services/api';
 
 export function useAuthViewModel() {
@@ -8,7 +9,7 @@ export function useAuthViewModel() {
   const [senha, setSenhaState] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const carregando = autenticando || saindo;
-  const limpezaPendente = avisoSessao?.acao === 'LIMPAR_CREDENCIAL';
+  const limpezaPendente = precisaLimparSessao(avisoSessao);
 
   const setEmail = useCallback((texto: string) => {
     setEmailState(texto);
@@ -43,7 +44,9 @@ export function useAuthViewModel() {
     login,
     carregando,
     limpezaPendente,
-    erro: limpezaPendente ? avisoSessao.mensagem : (erro ?? avisoSessao?.mensagem ?? null),
+    erro: limpezaPendente
+      ? (avisoSessao?.mensagem ?? null)
+      : (erro ?? avisoSessao?.mensagem ?? null),
     tentarDeNovo: avisoSessao?.acao ? tratarAviso : undefined,
   };
 }

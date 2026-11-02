@@ -70,6 +70,12 @@ O [relatório de contexto e autenticação](docs/sprint-5/relatorio-contexto-aut
 documenta os estados de `useAuth()`, isolamento do catálogo, arquivos alterados,
 testes realizados e pendências de integração.
 
+Os filtros da Carteira e do Histórico agora usam AsyncStorage por conta/escopo.
+Eles persistem quando o app é reaberto com a sessão válida e são removidos no
+logout ou na troca de conta. O token nativo continua no SecureStore.
+Veja o [relatório de persistência](docs/sprint-5/relatorio-persistencia.md) e o
+[roteiro de teste em aparelho](docs/sprint-5/validacao-persistencia-aparelho.md).
+
 ## Estrutura
 
 ```text

@@ -1,5 +1,10 @@
 # Relatório — Contextos e autenticação do FCV Mobile
 
+> Atualização posterior: a etapa 8 implementou M03/AsyncStorage e integrou a limpeza
+> das preferências à sessão. O [relatório de persistência](relatorio-persistencia.md)
+> é o registro vigente desse bloco; as pendências abaixo descrevem o fechamento
+> anterior das etapas 3–6. A validação em aparelho continua pendente.
+
 Samuel C. · Grupo 3 · Sprint 5 · 02/11/2026.
 Branch: `feat/samuel-c-sessao-persistencia`, repositório `PedroCacador/fundacao-mobile`.
 Base anterior: `e20e789` (etapa 2, tipos de usuário e conveniado).

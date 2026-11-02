@@ -11,7 +11,8 @@ import type { UsuarioMobile } from '../models/Auth';
 import { ApiError, definirAoExpirarSessao, definirToken } from '../services/api';
 import { sessionService } from '../services/sessionService';
 import { tokenStorage } from '../services/tokenStorage';
-import { authReducer, estadoAuthInicial, type AvisoSessao } from './authState';
+import { storageService } from '../services/storageService';
+import { authReducer, estadoAuthInicial, precisaLimparSessao, type AvisoSessao } from './authState';
 
 export interface AuthContextData {
   usuario: UsuarioMobile | null;
@@ -55,6 +56,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           acao: 'LIMPAR_CREDENCIAL',
         };
       }
+      try {
+        await storageService.limparConta();
+      } catch {
+        if (aviso?.acao !== 'LIMPAR_CREDENCIAL') {
+          aviso = {
+            mensagem:
+              'A sessão foi encerrada, mas não foi possível limpar os filtros salvos. Tente novamente para concluir a saída.',
+            acao: 'LIMPAR_PREFERENCIAS',
+          };
+        }
+      }
       if (estaAtual(id)) dispatch({ tipo: 'ENCERRAR', operacao: id, aviso });
     },
     [estaAtual],
@@ -78,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = await tokenStorage.obter();
       if (!estaAtual(id)) return;
       if (!token) {
-        dispatch({ tipo: 'ENCERRAR', operacao: id });
+        await limparCredencial(id);
         return;
       }
       const usuario = await sessionService.restaurar(token);
@@ -125,8 +137,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (email: string, senha: string) => {
       if (!montado.current || loginEmAndamento.current === operacao.current) return;
-      if (estado.aviso?.acao === 'LIMPAR_CREDENCIAL') {
-        throw new ApiError('Conclua a remoção da credencial salva antes de entrar novamente.', 0);
+      if (precisaLimparSessao(estado.aviso)) {
+        throw new ApiError('Conclua a limpeza dos dados salvos antes de entrar novamente.', 0);
       }
       const id = iniciar('AUTENTICANDO');
       loginEmAndamento.current = id;
@@ -135,6 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         // Uma tentativa de troca de conta não deve deixar a credencial anterior salva.
         await tokenStorage.remover();
+        await storageService.limparConta();
         preparando = false;
         if (!estaAtual(id)) return;
         const sessao = await sessionService.entrar(email, senha);
@@ -159,13 +172,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (loginEmAndamento.current === id) loginEmAndamento.current = null;
       }
     },
-    [estado.aviso?.acao, iniciar, estaAtual, limparCredencial],
+    [estado.aviso, iniciar, estaAtual, limparCredencial],
   );
 
   const tratarAviso = useCallback(async () => {
-    if (estado.aviso?.acao === 'LIMPAR_CREDENCIAL') await logout();
+    if (precisaLimparSessao(estado.aviso)) await logout();
     else if (estado.aviso?.acao === 'RESTAURAR') await restaurar();
-  }, [estado.aviso?.acao, logout, restaurar]);
+  }, [estado.aviso, logout, restaurar]);
 
   const valor = useMemo<AuthContextData>(
     () => ({

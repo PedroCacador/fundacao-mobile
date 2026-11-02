@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { usePreferences } from '../context/PreferencesContext';
+import type { PeriodoHistorico } from '../models/Preferences';
 import { Utilizacao } from '../models/Utilization';
 import { ApiError } from '../services/api';
 import { utilizationService } from '../services/utilizationService';
 import { dataParaApi } from '../utils/format';
 
-export type PeriodoHistorico = 'MES' | 'TRIMESTRE' | 'SEMESTRE';
+export type { PeriodoHistorico } from '../models/Preferences';
 
 export const periodos: {
   id: PeriodoHistorico;
@@ -33,63 +35,112 @@ export const periodos: {
 ];
 
 interface ResultadoHistorico {
+  periodo: PeriodoHistorico;
   lista: Utilizacao[];
   erro: string | null;
 }
 
-async function buscarHistorico(meses: number): Promise<ResultadoHistorico> {
+async function buscarHistorico(
+  meses: number,
+  periodo: PeriodoHistorico,
+): Promise<ResultadoHistorico> {
   const inicio = new Date();
   inicio.setMonth(inicio.getMonth() - meses);
   try {
-    return { lista: await utilizationService.listarMinhas(dataParaApi(inicio)), erro: null };
+    return {
+      periodo,
+      lista: await utilizationService.listarMinhas(dataParaApi(inicio)),
+      erro: null,
+    };
   } catch (falha) {
     const erro =
       falha instanceof ApiError ? falha.message : 'Não foi possível carregar o histórico.';
-    return { lista: [], erro };
+    return { periodo, lista: [], erro };
   }
 }
 
 export function useHistoryViewModel() {
-  const [periodo, setPeriodo] = useState<PeriodoHistorico>('TRIMESTRE');
+  const {
+    preferencias,
+    definirPeriodoHistorico,
+    carregando: carregandoPreferencias,
+    erro: erroPreferencias,
+    tentarDeNovo: tentarPreferencias,
+  } = usePreferences();
+  const periodo = preferencias.periodoHistorico;
   const [resultado, setResultado] = useState<ResultadoHistorico | null>(null);
-  const [atualizando, setAtualizando] = useState(false);
+  const [periodoAtualizando, setPeriodoAtualizando] = useState<PeriodoHistorico | null>(null);
+  const versaoRequisicao = useRef(0);
+  const montado = useRef(false);
 
   const selecionado = periodos.find((opcao) => opcao.id === periodo) ?? periodos[1];
 
   useEffect(() => {
+    montado.current = true;
+    const versao = ++versaoRequisicao.current;
+    if (carregandoPreferencias)
+      return () => {
+        montado.current = false;
+        versaoRequisicao.current += 1;
+      };
     let ativo = true;
-    buscarHistorico(selecionado.meses).then((novo) => {
-      if (ativo) setResultado(novo);
+    buscarHistorico(selecionado.meses, periodo).then((novo) => {
+      if (ativo && versao === versaoRequisicao.current) {
+        setResultado(novo);
+        setPeriodoAtualizando(null);
+      }
     });
     return () => {
       ativo = false;
+      montado.current = false;
+      versaoRequisicao.current += 1;
     };
-  }, [selecionado.meses]);
+  }, [selecionado.meses, periodo, carregandoPreferencias]);
 
-  const escolherPeriodo = useCallback((novo: PeriodoHistorico) => {
-    setResultado(null);
-    setPeriodo(novo);
-  }, []);
+  const escolherPeriodo = useCallback(
+    (novo: PeriodoHistorico) => {
+      setResultado(null);
+      setPeriodoAtualizando(null);
+      definirPeriodoHistorico(novo);
+    },
+    [definirPeriodoHistorico],
+  );
 
   const tentarDeNovo = useCallback(async () => {
+    if (!montado.current || carregandoPreferencias) return;
+    const versao = ++versaoRequisicao.current;
     setResultado(null);
-    setResultado(await buscarHistorico(selecionado.meses));
-  }, [selecionado.meses]);
+    const novo = await buscarHistorico(selecionado.meses, periodo);
+    if (montado.current && versao === versaoRequisicao.current) {
+      setResultado(novo);
+      setPeriodoAtualizando(null);
+    }
+  }, [selecionado.meses, periodo, carregandoPreferencias]);
 
   const recarregar = useCallback(async () => {
-    setAtualizando(true);
-    setResultado(await buscarHistorico(selecionado.meses));
-    setAtualizando(false);
-  }, [selecionado.meses]);
+    if (!montado.current || carregandoPreferencias) return;
+    const versao = ++versaoRequisicao.current;
+    setPeriodoAtualizando(periodo);
+    const novo = await buscarHistorico(selecionado.meses, periodo);
+    if (montado.current && versao === versaoRequisicao.current) {
+      setResultado(novo);
+      setPeriodoAtualizando(null);
+    }
+  }, [selecionado.meses, periodo, carregandoPreferencias]);
+
+  const atual = !carregandoPreferencias && resultado?.periodo === periodo ? resultado : null;
 
   return {
     periodo,
     setPeriodo: escolherPeriodo,
     frasePeriodo: selecionado.frase,
-    lista: resultado?.lista ?? [],
-    carregando: resultado === null,
-    erro: resultado?.erro ?? null,
-    atualizando,
+    lista: atual?.lista ?? [],
+    carregando: atual === null,
+    erro: atual?.erro ?? null,
+    atualizando: periodoAtualizando === periodo && !carregandoPreferencias,
+    carregandoPreferencias,
+    erroPreferencias,
+    tentarPreferencias,
     tentarDeNovo,
     recarregar,
   };
