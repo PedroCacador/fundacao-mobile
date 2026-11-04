@@ -14,3 +14,20 @@ export interface Campanha {
   patrocinador: string | null;
   status: StatusCampanha;
 }
+export interface ItemCampanha {
+  id: number;
+  campanha_id: number;
+  nome: string;
+  descricao: string | null;
+  tipo_beneficio: 'PERCENTUAL' | 'VALOR_FIXO';
+  valor: number;
+  quantidade_maxima_utilizacoes: number | null;
+  status: 'ATIVO' | 'INATIVO';
+}
+export interface OfertaCampanha {
+  id: number;
+  beneficio_campanha_id: number;
+  conveniado_id: number;
+  status: 'ATIVO' | 'INATIVO';
+}
+
