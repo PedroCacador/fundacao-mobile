@@ -21,4 +21,7 @@ export const utilizationService = {
     const consulta = montarConsulta({ pagina, limite, de, status });
     return requisitar<RespostaPaginada<Utilizacao>>(`/eu/utilizacoes?${consulta}`);
   },
+  listarAprovadas() {
+    return requisitar<Utilizacao[]>('/eu/utilizacoes?status=APROVADA');
+  },
 };

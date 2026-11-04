@@ -53,6 +53,7 @@ beforeEach(() => {
     if (url.endsWith('/auth/login')) return json({ token: 'teste', usuario: usuario() });
     if (url.endsWith('/auth/eu')) return json(usuario());
     consultas.push(url);
+    if (url.includes('/eu/utilizacoes?status=APROVADA')) return json([]);
     if (url.includes('/eu/utilizacoes?')) return pagina([]);
     return json([]);
   };
@@ -66,7 +67,7 @@ async function entrar() {
   await act(async () => app.auth.login('teste@example.com', 'senha'));
 }
 
-test('Carteira e Histórico recuperam filtros reais sem refazer a consulta com período padrão', async () => {
+test('Histórico recupera o período salvo e a aba da Carteira volta para Todos', async () => {
   app = await montar({ Conteudo });
   await entrar();
   await act(async () => {
@@ -77,16 +78,16 @@ test('Carteira e Histórico recuperam filtros reais sem refazer a consulta com p
   app = null;
   consultas = [];
   app = await montar({ Conteudo });
-  assert.equal(carteira.filtro, 'DISPONIVEIS');
+  assert.equal(carteira.filtro, 'TODOS');
   assert.equal(historico.periodo, 'MES');
-  assert.equal(consultas.filter((url) => url.includes('/eu/utilizacoes?')).length, 1);
+  const doHistorico = consultas.filter(
+    (url) => url.includes('/eu/utilizacoes?') && url.includes('pagina='),
+  );
+  assert.equal(doHistorico.length, 1);
   const inicio = new Date();
   inicio.setMonth(inicio.getMonth() - 1);
   const esperado = fonte('utils/format.ts').dataParaApi(inicio);
-  assert.equal(
-    new URL(consultas.find((url) => url.includes('/eu/utilizacoes?'))).searchParams.get('de'),
-    esperado,
-  );
+  assert.equal(new URL(doHistorico[0]).searchParams.get('de'), esperado);
 });
 
 test('resposta antiga do Histórico não substitui a lista do período atual', async () => {
@@ -94,7 +95,9 @@ test('resposta antiga do Histórico não substitui a lista do período atual', a
   const espera = adiar();
   let primeiraConsulta = true;
   globalThis.fetch = async (url, opcoes) => {
-    if (!url.includes('/eu/utilizacoes?')) return anterior(url, opcoes);
+    if (!url.includes('/eu/utilizacoes?') || url.includes('status=APROVADA')) {
+      return anterior(url, opcoes);
+    }
     if (primeiraConsulta) {
       primeiraConsulta = false;
       return espera.promessa;
