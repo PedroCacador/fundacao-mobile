@@ -1,15 +1,15 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
 import { Screen } from '../../components/common/Screen';
-import { SeeAllLink } from '../../components/common/SeeAllLink';
+import { SectionHeader } from '../../components/common/SectionHeader';
 import { ShortcutCard } from '../../components/common/ShortcutCard';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
 import { UserGreeting } from '../../components/common/UserGreeting';
 import { TabScreenProps } from '../../navigation/types';
-import { cores, espaco, familia, fonte } from '../../theme';
+import { espaco } from '../../theme';
 import { formatarData } from '../../utils/format';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 
@@ -72,10 +72,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
         />
       </View>
 
-      <View style={styles.secaoTopo}>
-        <Text style={styles.secaoTitulo}>Seus benefícios</Text>
-        <SeeAllLink aoPressionar={() => navigation.navigate('Wallet')} />
-      </View>
+      <SectionHeader titulo="Seus benefícios" aoVerTodos={() => navigation.navigate('Wallet')} />
 
       {carregando ? (
         <Loading texto="Carregando benefícios..." />
@@ -104,16 +101,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: espaco.sm,
     marginBottom: espaco.xl,
-  },
-  secaoTopo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: espaco.md,
-  },
-  secaoTitulo: {
-    fontFamily: familia.titulo,
-    fontSize: fonte.xxl,
-    color: cores.texto,
   },
 });
