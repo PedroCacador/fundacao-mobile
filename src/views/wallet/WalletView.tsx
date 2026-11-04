@@ -1,5 +1,8 @@
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
+import { CampaignItemCard } from '../../components/campaign/CampaignItemCard';
+import { Button } from '../../components/common/Button';
 import { FilterTabs, TabOption } from '../../components/common/FilterTabs';
 import { Header } from '../../components/common/Header';
 import { Screen } from '../../components/common/Screen';
@@ -7,14 +10,15 @@ import { EmptyState, ErrorMessage, Loading } from '../../components/common/State
 import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
 import { TabScreenProps } from '../../navigation/types';
-import { coresCategoria } from '../../theme';
+import { coresCategoria, espaco } from '../../theme';
 import { formatarData } from '../../utils/format';
 import { FiltroCarteira, useWalletViewModel } from '../../viewmodels/useWalletViewModel';
 
 const abas: TabOption<FiltroCarteira>[] = [
   { id: 'TODOS', label: 'Todos' },
   { id: 'DISPONIVEIS', label: 'Disponíveis' },
-  { id: 'INDISPONIVEIS', label: 'Indisponíveis' },
+  { id: 'UTILIZADOS', label: 'Utilizados' },
+  { id: 'EXPIRADOS', label: 'Expirados' },
 ];
 
 export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
@@ -23,10 +27,15 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
     filtro,
     setFiltro,
     resumo,
+    textoVazio,
     carregando,
     atualizando,
     erro,
     recarregar,
+    erroCampanhas,
+    tentarCampanhas,
+    erroUtilizacoes,
+    tentarUtilizacoes,
     carregandoPreferencias,
     erroPreferencias,
     tentarPreferencias,
@@ -66,7 +75,9 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
       />
 
       {erroPreferencias ? (
-        <ErrorMessage mensagem={erroPreferencias} aoTentarDeNovo={tentarPreferencias} />
+        <View style={styles.aviso}>
+          <ErrorMessage mensagem={erroPreferencias} aoTentarDeNovo={tentarPreferencias} />
+        </View>
       ) : null}
       <FilterTabs
         tabs={abas}
@@ -75,33 +86,70 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
         desabilitado={carregandoPreferencias}
       />
 
+      {erroCampanhas ? (
+        <View style={styles.aviso}>
+          <ErrorMessage mensagem={erroCampanhas} aoTentarDeNovo={tentarCampanhas} />
+        </View>
+      ) : null}
+      {erroUtilizacoes && filtro === 'UTILIZADOS' ? (
+        <View style={styles.aviso}>
+          <ErrorMessage mensagem={erroUtilizacoes} aoTentarDeNovo={tentarUtilizacoes} />
+        </View>
+      ) : null}
+
       {carregando ? (
         <Loading texto="Carregando benefícios..." />
       ) : erro ? (
         <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
       ) : lista.length === 0 ? (
-        <EmptyState
-          icone="wallet"
-          titulo="Nenhum benefício encontrado"
-          texto="Não há benefícios neste filtro."
-        />
+        <EmptyState icone="wallet" titulo="Nada por aqui" texto={textoVazio} />
       ) : (
-        lista.map((item) => (
-          <BenefitCard
-            key={item.beneficio.id}
-            item={item}
-            aoPressionar={() =>
-              navigation.navigate('BenefitDetails', { beneficioId: item.beneficio.id })
-            }
-            aoVerRegras={() =>
-              navigation.navigate('BenefitDetails', {
-                beneficioId: item.beneficio.id,
-                aba: 'REGRAS',
-              })
-            }
-          />
-        ))
+        lista.map((entrada) =>
+          entrada.tipo === 'BENEFICIO' ? (
+            <BenefitCard
+              key={entrada.chave}
+              item={entrada.catalogo}
+              ultimaUtilizacao={entrada.ultimaUtilizacao}
+              aoPressionar={() =>
+                navigation.navigate('BenefitDetails', {
+                  beneficioId: entrada.catalogo.beneficio.id,
+                })
+              }
+              aoVerRegras={() =>
+                navigation.navigate('BenefitDetails', {
+                  beneficioId: entrada.catalogo.beneficio.id,
+                  aba: 'REGRAS',
+                })
+              }
+            />
+          ) : (
+            <CampaignItemCard
+              key={entrada.chave}
+              dados={entrada.dados}
+              status={entrada.status}
+              ultimaUtilizacao={entrada.ultimaUtilizacao}
+              acao={
+                entrada.podeResgatar ? (
+                  <Button
+                    titulo="Resgatar"
+                    variante="secundaria"
+                    icone="scan-qr-code"
+                    aoPressionar={() =>
+                      navigation.navigate('GerarQrCode', { itemCampanhaId: entrada.dados.item.id })
+                    }
+                  />
+                ) : null
+              }
+            />
+          ),
+        )
       )}
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  aviso: {
+    marginBottom: espaco.md,
+  },
+});

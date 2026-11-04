@@ -4,7 +4,7 @@ import { formatarMoeda, lerData, plural } from './format';
 
 const NOME_CICLO = { ANO: 'ano', MES: 'mês', SEMANA: 'semana' } as const;
 
-export function descreverValor(beneficio: Beneficio) {
+export function descreverValor(beneficio: Pick<Beneficio, 'tipo_beneficio' | 'valor'>) {
   if (beneficio.tipo_beneficio === 'PERCENTUAL') {
     return `${beneficio.valor}% de desconto`;
   }

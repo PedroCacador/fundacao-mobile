@@ -14,11 +14,15 @@ import {
 const abas: TabOption<FiltroNotificacao>[] = [
   { id: 'TODAS', label: 'Todas' },
   { id: 'RENOVACAO', label: 'Renovação', icone: 'calendar' },
+  { id: 'UTILIZACAO', label: 'Utilização', icone: 'circle-check' },
+  { id: 'BENEFICIO', label: 'Benefícios', icone: 'gift' },
   { id: 'CAMPANHA', label: 'Campanhas', icone: 'megaphone' },
 ];
 
 export default function NotificationsView() {
-  const { lista, filtro, setFiltro, carregando, erro, tentarDeNovo } = useNotificationsViewModel();
+  const { lista, filtro, setFiltro, carregando, falhas, tentarFonte, textoVazio, indisponivel } =
+    useNotificationsViewModel();
+
   return (
     <Screen>
       <PageHeader
@@ -26,19 +30,23 @@ export default function NotificationsView() {
         subtitulo="Fique por dentro de tudo que acontece com seus benefícios e com a FCV."
       />
       <FilterTabs tabs={abas} selectedTab={filtro} onSelectTab={setFiltro} />
-      {erro ? (
-        <View style={styles.erro}>
-          <ErrorMessage mensagem={erro} aoTentarDeNovo={tentarDeNovo} />
+
+      {falhas.map((falha) => (
+        <View key={falha.fonte} style={styles.erro}>
+          <ErrorMessage mensagem={falha.mensagem} aoTentarDeNovo={() => tentarFonte(falha.fonte)} />
         </View>
-      ) : null}
+      ))}
+
       {carregando ? (
         <Loading texto="Carregando notificações..." />
-      ) : lista.length === 0 ? (
+      ) : indisponivel ? (
         <EmptyState
-          icone="bell"
-          titulo="Nenhuma notificação por aqui"
-          texto="Avisos de renovação e campanhas da FCV aparecem nesta tela."
+          icone="circle-alert"
+          titulo="Avisos indisponíveis"
+          texto="Não conseguimos consultar estes avisos agora. Tente de novo em instantes."
         />
+      ) : lista.length === 0 ? (
+        <EmptyState icone="bell" titulo="Nenhuma notificação por aqui" texto={textoVazio} />
       ) : (
         lista.map((notificacao) => (
           <NotificationCard key={notificacao.id} notificacao={notificacao} />

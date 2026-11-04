@@ -2,10 +2,12 @@ import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/n
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AbaDetalhe } from '../models/Catalog';
+import type { ParametrosQr } from '../models/QrCode';
 
 export type TabParamList = {
   Home: undefined;
   Wallet: undefined;
+  QrCode: ParametrosQr | undefined;
   History: undefined;
   Profile: undefined;
 };
@@ -25,7 +27,9 @@ export type RootStackParamList = {
   BenefitDetails: { beneficioId: number; aba?: AbaDetalhe };
   Notifications: undefined;
   Locations: undefined;
+  GerarQrCode: ParametrosQr | undefined;
   PartnerProfile: undefined;
+
 };
 
 export type RootScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
@@ -46,6 +50,6 @@ export type PartnerTabScreenProps<T extends keyof PartnerTabParamList> = Composi
 declare global {
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }

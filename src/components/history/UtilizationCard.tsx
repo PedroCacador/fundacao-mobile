@@ -1,27 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { StatusUtilizacao, Utilizacao } from '../../models/Utilization';
+import { Utilizacao } from '../../models/Utilization';
 import { cores, espaco, familia, fonte } from '../../theme';
 import { estiloCategoria } from '../../utils/category';
 import { formatarData, formatarHora, lerData } from '../../utils/format';
+import { aparenciaStatusUtilizacao } from '../../utils/utilization';
 import { Card } from '../common/Card';
 import { Chip } from '../common/Chip';
-import { IconBox, Icone, NomeIcone } from '../common/Icon';
-
-const aparencia: Record<
-  StatusUtilizacao,
-  { rotulo: string; icone: NomeIcone; cor: string; fundo: string }
-> = {
-  APROVADA: { rotulo: 'Utilizado', icone: 'check', cor: cores.sucesso, fundo: cores.sucessoFundo },
-  PENDENTE: {
-    rotulo: 'Pendente',
-    icone: 'chevron-right',
-    cor: cores.primaria,
-    fundo: cores.primariaClara,
-  },
-  REPROVADA: { rotulo: 'Reprovado', icone: 'x', cor: cores.erro, fundo: cores.erroFundo },
-  ESTORNADA: { rotulo: 'Estornado', icone: 'x', cor: cores.textoSecundario, fundo: cores.borda },
-};
+import { IconBox, Icone } from '../common/Icon';
 
 interface UtilizationCardProps {
   utilizacao: Utilizacao;
@@ -30,7 +16,7 @@ interface UtilizationCardProps {
 
 export function UtilizationCard({ utilizacao, aoPressionar }: UtilizationCardProps) {
   const estilo = estiloCategoria(utilizacao.conveniado_categoria);
-  const status = aparencia[utilizacao.status];
+  const status = aparenciaStatusUtilizacao[utilizacao.status];
   return (
     <Card
       estilo={styles.card}

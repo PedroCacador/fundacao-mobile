@@ -23,6 +23,13 @@ let carteira;
 let historico;
 let consultas;
 
+function pagina(dados) {
+  return json({
+    dados,
+    paginacao: { pagina: 1, limite: 10, total: dados.length, totalPaginas: dados.length ? 1 : 0 },
+  });
+}
+
 function Filtros() {
   const atualCarteira = useWalletViewModel();
   const atualHistorico = useHistoryViewModel();
@@ -46,6 +53,8 @@ beforeEach(() => {
     if (url.endsWith('/auth/login')) return json({ token: 'teste', usuario: usuario() });
     if (url.endsWith('/auth/eu')) return json(usuario());
     consultas.push(url);
+    if (url.includes('/eu/utilizacoes?status=APROVADA')) return json([]);
+    if (url.includes('/eu/utilizacoes?')) return pagina([]);
     return json([]);
   };
 });
@@ -62,23 +71,23 @@ test('Carteira e Histórico recuperam filtros reais sem refazer a consulta com p
   app = await montar({ Conteudo });
   await entrar();
   await act(async () => {
-    carteira.setFiltro('DISPONIVEIS');
+    carteira.setFiltro('UTILIZADOS');
     historico.setPeriodo('MES');
   });
   await app.desmontar();
   app = null;
   consultas = [];
   app = await montar({ Conteudo });
-  assert.equal(carteira.filtro, 'DISPONIVEIS');
+  assert.equal(carteira.filtro, 'UTILIZADOS');
   assert.equal(historico.periodo, 'MES');
-  assert.equal(consultas.filter((url) => url.includes('/eu/utilizacoes?')).length, 1);
+  const doHistorico = consultas.filter(
+    (url) => url.includes('/eu/utilizacoes?') && url.includes('pagina='),
+  );
+  assert.equal(doHistorico.length, 1);
   const inicio = new Date();
   inicio.setMonth(inicio.getMonth() - 1);
   const esperado = fonte('utils/format.ts').dataParaApi(inicio);
-  assert.equal(
-    new URL(consultas.find((url) => url.includes('/eu/utilizacoes?'))).searchParams.get('de'),
-    esperado,
-  );
+  assert.equal(new URL(doHistorico[0]).searchParams.get('de'), esperado);
 });
 
 test('resposta antiga do Histórico não substitui a lista do período atual', async () => {
@@ -86,18 +95,40 @@ test('resposta antiga do Histórico não substitui a lista do período atual', a
   const espera = adiar();
   let primeiraConsulta = true;
   globalThis.fetch = async (url, opcoes) => {
-    if (!url.includes('/eu/utilizacoes?')) return anterior(url, opcoes);
+    if (!url.includes('/eu/utilizacoes?') || url.includes('status=APROVADA')) {
+      return anterior(url, opcoes);
+    }
     if (primeiraConsulta) {
       primeiraConsulta = false;
       return espera.promessa;
     }
-    return json([{ id: 2 }]);
+    return pagina([{ id: 2 }]);
   };
   app = await montar({ Conteudo });
   await entrar();
   await act(async () => historico.setPeriodo('MES'));
   assert.equal(historico.lista[0].id, 2);
-  await act(async () => espera.resolver(json([{ id: 1 }])));
+  await act(async () => espera.resolver(pagina([{ id: 1 }])));
   assert.equal(historico.periodo, 'MES');
   assert.equal(historico.lista[0].id, 2);
+});
+
+test('aba antiga ou inválida da Carteira salva no aparelho cai em Todos', async () => {
+  const chave = '@fcv:v1:conta:COLABORADOR:3:preferencias';
+  app = await montar({ Conteudo });
+  await entrar();
+  await app.desmontar();
+  app = null;
+  for (const antigo of ['INDISPONIVEIS', 'OUTRA']) {
+    preferenciasGuardadas.set(
+      chave,
+      JSON.stringify({ filtroCarteira: antigo, periodoHistorico: 'SEMESTRE' }),
+    );
+    app = await montar({ Conteudo });
+    assert.equal(carteira.filtro, 'TODOS');
+    assert.equal(historico.periodo, 'SEMESTRE');
+    assert.equal(JSON.parse(preferenciasGuardadas.get(chave)).filtroCarteira, 'TODOS');
+    await app.desmontar();
+    app = null;
+  }
 });

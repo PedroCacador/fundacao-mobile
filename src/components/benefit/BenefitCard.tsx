@@ -15,6 +15,7 @@ interface BenefitCardProps {
   aoPressionar: () => void;
   aoVerRegras?: () => void;
   resumido?: boolean;
+  ultimaUtilizacao?: string | null;
 }
 
 export function BenefitCard({
@@ -22,6 +23,7 @@ export function BenefitCard({
   aoPressionar,
   aoVerRegras,
   resumido = false,
+  ultimaUtilizacao,
 }: BenefitCardProps) {
   const { beneficio, categoria, disponivel } = item;
   const estilo = estiloCategoria(categoria);
@@ -64,12 +66,20 @@ export function BenefitCard({
         <View style={styles.lateral}>
           <StatusBadge status={disponivel ? 'DISPONIVEL' : 'INDISPONIVEL'} />
           <Text style={styles.limite}>{descreverLimite(beneficio)}</Text>
-          <View style={styles.renovacao}>
-            <Icone nome="calendar" tamanho={14} cor={cores.textoSecundario} />
-            <Text style={styles.renovacaoTexto}>
-              {renovacao ? `Renovação em\n${formatarData(renovacao)}` : 'Renova após\no uso'}
-            </Text>
-          </View>
+          {renovacao ? (
+            <View style={styles.renovacao}>
+              <Icone nome="calendar" tamanho={14} cor={cores.textoSecundario} />
+              <Text style={styles.renovacaoTexto}>
+                {`Renovação em\n${formatarData(renovacao)}`}
+              </Text>
+            </View>
+          ) : null}
+          {ultimaUtilizacao ? (
+            <View style={styles.renovacao}>
+              <Icone nome="circle-check" tamanho={14} cor={cores.primaria} />
+              <Text style={styles.renovacaoTexto}>{`Último uso em\n${ultimaUtilizacao}`}</Text>
+            </View>
+          ) : null}
         </View>
       )}
       <Icone nome="chevron-right" tamanho={20} cor={cores.textoSecundario} />

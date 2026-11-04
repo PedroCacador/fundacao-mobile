@@ -1,4 +1,14 @@
 import { Beneficio, Conveniado } from './Benefit';
+import { Campanha, ItemCampanha } from './Campaign';
+
+export type SituacaoCampanha = 'VIGENTE' | 'EXPIRADA' | 'FORA_DO_AR';
+
+export interface ItemCampanhaCatalogo {
+  item: ItemCampanha;
+  campanha: Campanha;
+  conveniados: Conveniado[];
+  situacao: SituacaoCampanha;
+}
 
 export interface BeneficioCatalogo {
   beneficio: Beneficio;
