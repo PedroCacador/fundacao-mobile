@@ -43,6 +43,7 @@ export default function QrCodeView({ route }: QrCodeViewProps) {
             {emissao && situacao && opcao && local ? (
                 <>
                     <QrCodeCard
+                        id={emissao.id}
                         token={emissao.token_qrcode}
                         titulo={opcao.nome}
                         local={local.conveniado.nome_fantasia}

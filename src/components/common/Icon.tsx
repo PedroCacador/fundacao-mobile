@@ -45,6 +45,7 @@ import {
   Pill,
   RefreshCw,
   ScanQrCode,
+  QrCode,
   Search,
   Settings,
   ShieldCheck,
@@ -105,6 +106,7 @@ const icones: Record<NomeIcone, LucideIcon> = {
   pill: Pill,
   'refresh-cw': RefreshCw,
   'scan-qr-code': ScanQrCode,
+  'qr-code': QrCode,
   search: Search,
 
   settings: Settings,
@@ -172,4 +174,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+  });
