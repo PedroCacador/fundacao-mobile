@@ -5,6 +5,7 @@ import { Utilizacao } from '../models/Utilization';
 import { ApiError } from '../services/api';
 import { utilizationService } from '../services/utilizationService';
 import { resumirCatalogo } from '../utils/benefit';
+import { podeResgatar } from '../utils/campaign';
 import { formatarData, lerData } from '../utils/format';
 import { useCampaignCatalog } from './useCampaignCatalog';
 
@@ -22,6 +23,7 @@ export type EntradaCarteira =
       chave: string;
       dados: ItemCampanhaCatalogo;
       status: 'DISPONIVEL' | 'UTILIZADO' | 'EXPIRADO';
+      podeResgatar: boolean;
       ultimaUtilizacao: string | null;
     };
 
@@ -114,6 +116,7 @@ export function useWalletViewModel() {
         dados,
         status: dados.situacao === 'EXPIRADA' ? 'EXPIRADO' : ultima ? 'UTILIZADO' : 'DISPONIVEL',
         ultimaUtilizacao: ultima,
+        podeResgatar: podeResgatar(dados),
       };
     });
     return [...deBeneficios, ...deCampanhas];

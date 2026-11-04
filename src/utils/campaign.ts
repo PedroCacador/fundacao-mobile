@@ -50,3 +50,7 @@ export function montarItensCampanha(
     return [{ item, campanha, conveniados: locais, situacao }];
   });
 }
+
+export function podeResgatar(dados: ItemCampanhaCatalogo) {
+  return dados.situacao === 'VIGENTE' && dados.conveniados.length > 0;
+}

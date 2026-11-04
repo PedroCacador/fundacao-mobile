@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
 import { CampaignItemCard } from '../../components/campaign/CampaignItemCard';
+import { Button } from '../../components/common/Button';
 import { FilterTabs, TabOption } from '../../components/common/FilterTabs';
 import { Header } from '../../components/common/Header';
 import { Screen } from '../../components/common/Screen';
@@ -114,6 +115,18 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
               dados={entrada.dados}
               status={entrada.status}
               ultimaUtilizacao={entrada.ultimaUtilizacao}
+              acao={
+                entrada.podeResgatar ? (
+                  <Button
+                    titulo="Resgatar"
+                    variante="secundaria"
+                    icone="scan-qr-code"
+                    aoPressionar={() =>
+                      navigation.navigate('GerarQrCode', { itemCampanhaId: entrada.dados.item.id })
+                    }
+                  />
+                ) : null
+              }
             />
           ),
         )

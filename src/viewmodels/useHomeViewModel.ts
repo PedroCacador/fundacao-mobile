@@ -4,6 +4,7 @@ import { useCatalog } from '../context/CatalogContext';
 import { Campanha } from '../models/Campaign';
 import { ItemCampanhaCatalogo } from '../models/Catalog';
 import { resumirCatalogo } from '../utils/benefit';
+import { podeResgatar } from '../utils/campaign';
 import { useCampaignCatalog } from './useCampaignCatalog';
 
 const LIMITE_DESTAQUES = 3;
@@ -55,5 +56,6 @@ export function useHomeViewModel() {
     carregandoCampanhas: campanhas.carregando,
     erroCampanhas: campanhas.erro,
     tentarCampanhas: campanhas.tentarDeNovo,
+    podeResgatar,
   };
 }

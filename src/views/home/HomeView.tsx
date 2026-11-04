@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
 import { CampaignCard } from '../../components/campaign/CampaignCard';
+import { Button } from '../../components/common/Button';
 import { Screen } from '../../components/common/Screen';
 import { SectionHeader } from '../../components/common/SectionHeader';
 import { ShortcutCard } from '../../components/common/ShortcutCard';
@@ -28,6 +29,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
     carregandoCampanhas,
     erroCampanhas,
     tentarCampanhas,
+    podeResgatar,
   } = useHomeViewModel();
 
   return (
@@ -70,6 +72,12 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           titulo="Minha Carteira"
           subtitulo="Veja seus benefícios"
           aoPressionar={() => navigation.navigate('Wallet')}
+        />
+        <ShortcutCard
+          icone="scan-qr-code"
+          titulo="QR Code"
+          subtitulo="Apresente no conveniado"
+          aoPressionar={() => navigation.navigate('QrCode')}
         />
         <ShortcutCard
           icone="history"
@@ -120,7 +128,23 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           />
         ) : (
           campanhasVigentes.map(({ campanha, itens }) => (
-            <CampaignCard key={campanha.id} campanha={campanha} itens={itens} />
+            <CampaignCard
+              key={campanha.id}
+              campanha={campanha}
+              itens={itens}
+              acaoDoItem={(dados) =>
+                podeResgatar(dados) ? (
+                  <Button
+                    titulo="Resgatar"
+                    variante="secundaria"
+                    icone="scan-qr-code"
+                    aoPressionar={() =>
+                      navigation.navigate('GerarQrCode', { itemCampanhaId: dados.item.id })
+                    }
+                  />
+                ) : null
+              }
+            />
           ))
         )}
       </View>
