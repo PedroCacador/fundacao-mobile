@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { CameraView } from 'expo-camera';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
@@ -20,6 +21,8 @@ export default function PartnerScannerView() {
     cameraAberta,
     abrirCamera,
     fecharCamera,
+    aoEscanearCodigo,
+    escaneado,
     resgate,
     carregando,
     processando,
@@ -156,22 +159,36 @@ export default function PartnerScannerView() {
 
             {cameraAberta ? (
               <View style={styles.visorContainer}>
-                <View style={styles.moldura}>
-                  <View style={[styles.canto, styles.cantoTopoEsquerda]} />
-                  <View style={[styles.canto, styles.cantoTopoDireita]} />
-                  <View style={[styles.canto, styles.cantoBaseEsquerda]} />
-                  <View style={[styles.canto, styles.cantoBaseDireita]} />
-                  <View style={styles.visorCentro}>
-                    <Icone nome="scan-qr-code" tamanho={44} cor={cores.primaria} />
-                    <Text style={styles.visorTexto}>
-                      Posicione o QR Code dentro da moldura
-                    </Text>
+                <View style={styles.cameraWrapper}>
+                  <CameraView
+                    style={StyleSheet.absoluteFill}
+                    facing="back"
+                    barcodeScannerSettings={{
+                      barcodeTypes: ['qr'],
+                    }}
+                    onBarcodeScanned={escaneado ? undefined : aoEscanearCodigo}
+                  />
+                  <View style={styles.molduraOverlay} pointerEvents="none">
+                    <View style={[styles.canto, styles.cantoTopoEsquerda]} />
+                    <View style={[styles.canto, styles.cantoTopoDireita]} />
+                    <View style={[styles.canto, styles.cantoBaseEsquerda]} />
+                    <View style={[styles.canto, styles.cantoBaseDireita]} />
                   </View>
                 </View>
+
+                <Text style={styles.visorInstrucao}>
+                  {carregando
+                    ? 'Consultando resgate...'
+                    : 'Aponte para o QR Code na tela do colaborador'}
+                </Text>
+
                 <Button
                   titulo="Fechar Câmera"
                   variante="secundaria"
+                  icone="circle-x"
                   aoPressionar={fecharCamera}
+                  desabilitado={carregando}
+                  estilo={styles.botaoAcao}
                 />
               </View>
             ) : (
@@ -285,25 +302,24 @@ const styles = StyleSheet.create({
     gap: espaco.md,
     alignItems: 'center',
   },
-  moldura: {
-    width: 220,
-    height: 220,
+  cameraWrapper: {
+    width: 240,
+    height: 240,
+    borderRadius: raio.lg,
+    overflow: 'hidden',
+    backgroundColor: '#000000',
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: cores.azulSuave,
-    borderRadius: raio.lg,
-    padding: espaco.lg,
   },
-  visorCentro: {
-    alignItems: 'center',
-    gap: espaco.sm,
+  molduraOverlay: {
+    ...StyleSheet.absoluteFill,
   },
-  visorTexto: {
+  visorInstrucao: {
     fontFamily: familia.medio,
-    fontSize: fonte.xs,
-    color: cores.primaria,
+    fontSize: fonte.sm,
+    color: cores.textoSecundario,
     textAlign: 'center',
-    maxWidth: 160,
   },
   canto: {
     position: 'absolute',
