@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCatalog } from '../context/CatalogContext';
+import { usePreferences } from '../context/PreferencesContext';
 import { BeneficioCatalogo, ItemCampanhaCatalogo } from '../models/Catalog';
+import type { FiltroCarteira } from '../models/Preferences';
 import { Utilizacao } from '../models/Utilization';
 import { ApiError } from '../services/api';
 import { utilizationService } from '../services/utilizationService';
@@ -9,7 +11,7 @@ import { podeResgatar } from '../utils/campaign';
 import { formatarData, lerData } from '../utils/format';
 import { useCampaignCatalog } from './useCampaignCatalog';
 
-export type FiltroCarteira = 'TODOS' | 'DISPONIVEIS' | 'UTILIZADOS' | 'EXPIRADOS';
+export type { FiltroCarteira } from '../models/Preferences';
 
 export type EntradaCarteira =
   | {
@@ -68,7 +70,14 @@ function formatar(data: string | undefined) {
 export function useWalletViewModel() {
   const { itens, carregando, atualizando, erro, recarregar: recarregarCatalogo } = useCatalog();
   const campanhas = useCampaignCatalog();
-  const [filtro, setFiltro] = useState<FiltroCarteira>('TODOS');
+  const {
+    preferencias,
+    definirFiltroCarteira: setFiltro,
+    carregando: carregandoPreferencias,
+    erro: erroPreferencias,
+    tentarDeNovo: tentarPreferencias,
+  } = usePreferences();
+  const filtro = preferencias.filtroCarteira;
   const [utilizacoes, setUtilizacoes] = useState<ResultadoUtilizacoes | null>(null);
   const versao = useRef(0);
 
@@ -147,7 +156,14 @@ export function useWalletViewModel() {
     setFiltro,
     resumo,
     textoVazio: mensagemVazia[filtro],
-    carregando: carregando || campanhas.carregando || (filtro === 'UTILIZADOS' && !utilizacoes),
+    carregando:
+      carregando ||
+      carregandoPreferencias ||
+      campanhas.carregando ||
+      (filtro === 'UTILIZADOS' && !utilizacoes),
+    carregandoPreferencias,
+    erroPreferencias,
+    tentarPreferencias,
     atualizando,
     erro,
     recarregar,

@@ -1,6 +1,6 @@
 import type { UsuarioMobile } from './Auth';
 
-export const filtrosCarteira = ['TODOS', 'DISPONIVEIS', 'INDISPONIVEIS'] as const;
+export const filtrosCarteira = ['TODOS', 'DISPONIVEIS', 'UTILIZADOS', 'EXPIRADOS'] as const;
 export const periodosHistorico = ['MES', 'TRIMESTRE', 'SEMESTRE'] as const;
 export type FiltroCarteira = (typeof filtrosCarteira)[number];
 export type PeriodoHistorico = (typeof periodosHistorico)[number];

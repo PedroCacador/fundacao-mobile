@@ -67,18 +67,18 @@ async function entrar() {
   await act(async () => app.auth.login('teste@example.com', 'senha'));
 }
 
-test('Histórico recupera o período salvo e a aba da Carteira volta para Todos', async () => {
+test('Carteira e Histórico recuperam filtros reais sem refazer a consulta com período padrão', async () => {
   app = await montar({ Conteudo });
   await entrar();
   await act(async () => {
-    carteira.setFiltro('DISPONIVEIS');
+    carteira.setFiltro('UTILIZADOS');
     historico.setPeriodo('MES');
   });
   await app.desmontar();
   app = null;
   consultas = [];
   app = await montar({ Conteudo });
-  assert.equal(carteira.filtro, 'TODOS');
+  assert.equal(carteira.filtro, 'UTILIZADOS');
   assert.equal(historico.periodo, 'MES');
   const doHistorico = consultas.filter(
     (url) => url.includes('/eu/utilizacoes?') && url.includes('pagina='),
@@ -111,4 +111,24 @@ test('resposta antiga do Histórico não substitui a lista do período atual', a
   await act(async () => espera.resolver(pagina([{ id: 1 }])));
   assert.equal(historico.periodo, 'MES');
   assert.equal(historico.lista[0].id, 2);
+});
+
+test('aba antiga ou inválida da Carteira salva no aparelho cai em Todos', async () => {
+  const chave = '@fcv:v1:conta:COLABORADOR:3:preferencias';
+  app = await montar({ Conteudo });
+  await entrar();
+  await app.desmontar();
+  app = null;
+  for (const antigo of ['INDISPONIVEIS', 'OUTRA']) {
+    preferenciasGuardadas.set(
+      chave,
+      JSON.stringify({ filtroCarteira: antigo, periodoHistorico: 'SEMESTRE' }),
+    );
+    app = await montar({ Conteudo });
+    assert.equal(carteira.filtro, 'TODOS');
+    assert.equal(historico.periodo, 'SEMESTRE');
+    assert.equal(JSON.parse(preferenciasGuardadas.get(chave)).filtroCarteira, 'TODOS');
+    await app.desmontar();
+    app = null;
+  }
 });

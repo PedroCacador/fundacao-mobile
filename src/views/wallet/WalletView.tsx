@@ -36,6 +36,9 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
     tentarCampanhas,
     erroUtilizacoes,
     tentarUtilizacoes,
+    carregandoPreferencias,
+    erroPreferencias,
+    tentarPreferencias,
   } = useWalletViewModel();
 
   return (
@@ -71,7 +74,17 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
         ]}
       />
 
-      <FilterTabs tabs={abas} selectedTab={filtro} onSelectTab={setFiltro} />
+      {erroPreferencias ? (
+        <View style={styles.aviso}>
+          <ErrorMessage mensagem={erroPreferencias} aoTentarDeNovo={tentarPreferencias} />
+        </View>
+      ) : null}
+      <FilterTabs
+        tabs={abas}
+        selectedTab={filtro}
+        onSelectTab={setFiltro}
+        desabilitado={carregandoPreferencias}
+      />
 
       {erroCampanhas ? (
         <View style={styles.aviso}>
