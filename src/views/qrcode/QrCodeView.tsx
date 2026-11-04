@@ -9,11 +9,14 @@ import { UserGreeting } from '../../components/common/UserGreeting';
 import { ChoiceChip } from '../../components/qrcode/ChoiceChip';
 import { QrCodeCard } from '../../components/qrcode/QrCodeCard';
 import { QrTips } from '../../components/qrcode/QrTips';
-import { TabScreenProps } from '../../navigation/types';
+import { RootScreenProps, TabScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte } from '../../theme';
+
 import { useQrCodeViewModel } from '../../viewmodels/useQrCodeViewModel';
-export default function QrCodeView({ route }: TabScreenProps<'QrCode'>) {
+type QrCodeViewProps = TabScreenProps<'QrCode'> | RootScreenProps<'GerarQrCode'>;
+export default function QrCodeView({ route }: QrCodeViewProps) {
     const {
+
         nome,
         cargo,
         opcoes,

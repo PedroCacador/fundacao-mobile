@@ -103,6 +103,7 @@ export default function AppNavigator() {
           <Stack.Screen name="BenefitDetails" component={BenefitDetailsView} />
           <Stack.Screen name="Notifications" component={NotificationsView} />
           <Stack.Screen name="Locations" component={LocationsView} />
+          <Stack.Screen name="GerarQrCode" component={QrCodeView} />
         </>
       ) : (
         <>
