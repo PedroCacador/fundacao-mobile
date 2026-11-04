@@ -70,10 +70,9 @@ O [relatório de contexto e autenticação](docs/sprint-5/relatorio-contexto-aut
 documenta os estados de `useAuth()`, isolamento do catálogo, arquivos alterados,
 testes realizados e pendências de integração.
 
-O período do Histórico usa AsyncStorage por conta/escopo. Ele persiste quando o
-app é reaberto com a sessão válida e é removido no logout ou na troca de conta.
-A aba da Carteira fica só na tela e volta para Todos ao reabrir. O token nativo
-continua no SecureStore. Veja o [relatório de persistência](docs/sprint-5/relatorio-persistencia.md)
+A aba da Carteira e o período do Histórico usam AsyncStorage por conta/escopo.
+Eles persistem quando o app é reaberto com a sessão válida e são removidos no
+logout ou na troca de conta. O token nativo continua no SecureStore. Veja o [relatório de persistência](docs/sprint-5/relatorio-persistencia.md)
 e o [roteiro de teste em aparelho](docs/sprint-5/validacao-persistencia-aparelho.md).
 
 As regras das telas Início, Carteira, Histórico, Locais e Notificações, e o que

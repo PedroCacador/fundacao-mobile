@@ -7,7 +7,7 @@ Thales · Grupo 3 · Sprint 5.
 | Tela         | O que mudou                                                                                                       |
 | ------------ | ----------------------------------------------------------------------------------------------------------------- |
 | Início       | Atalho para o QR Code e seção "Campanhas e eventos" com os itens de cada campanha vigente e o botão Resgatar      |
-| Carteira     | Abas Todos, Disponíveis, Utilizados e Expirados, com benefícios e itens de campanha                               |
+| Carteira     | Abas Todos, Disponíveis, Utilizados e Expirados, com benefícios e itens de campanha; a aba é salva por conta      |
 | Detalhe      | Próxima renovação só aparece para benefício de calendário fixo                                                    |
 | Histórico    | Cabeçalho padrão, filtro de período e de status, total e paginação vindos da API                                  |
 | Locais       | Cabeçalho padrão e abas comuns, busca por nome, endereço ou categoria                                             |
@@ -53,5 +53,4 @@ Não há notificação push.
 - **Saldo de utilizações (RF07)**: a API não informa quantas utilizações restam. A tela não mostra saldo.
 - **Próxima renovação de janela móvel (RF08)**: depende do último uso/admissão e a API não devolve a data. A tela esconde.
 - **Aviso de "novo benefício" do protótipo**: a API não tem data de criação do benefício.
-- **Persistir a aba da Carteira**: exige atualizar `filtrosCarteira` em `models/Preferences.ts` (Samuel C.).
 - **Gerar QR (`POST /eu/utilizacoes`)**: ainda não existe na develop (ver [QR Code e navegação](qrcode-e-navegacao.md)).
