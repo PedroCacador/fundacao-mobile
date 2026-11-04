@@ -119,13 +119,13 @@ test('falha de gravação informa que a escolha só está em memória e permite 
     if (item === chave) throw new Error('gravação bloqueada');
     return originais.setItem(item, valor);
   };
-  await act(async () => preferencias.definirFiltroCarteira('INDISPONIVEIS'));
-  assert.equal(preferencias.preferencias.filtroCarteira, 'INDISPONIVEIS');
+  await act(async () => preferencias.definirFiltroCarteira('UTILIZADOS'));
+  assert.equal(preferencias.preferencias.filtroCarteira, 'UTILIZADOS');
   assert.match(preferencias.erro, /não pôde ser salvo/);
   Object.assign(asyncStorage, originais);
   await act(async () => preferencias.tentarDeNovo());
   assert.equal(preferencias.erro, null);
-  assert.equal(JSON.parse(preferenciasGuardadas.get(chave)).filtroCarteira, 'INDISPONIVEIS');
+  assert.equal(JSON.parse(preferenciasGuardadas.get(chave)).filtroCarteira, 'UTILIZADOS');
 });
 
 test('logout limpa só os dados pertinentes e reentrada usa os padrões', async () => {
@@ -135,7 +135,7 @@ test('logout limpa só os dados pertinentes e reentrada usa os padrões', async 
   await act(async () => preferencias.definirFiltroCarteira('DISPONIVEIS'));
   const escolherAntigo = preferencias.definirFiltroCarteira;
   await act(async () => app.auth.logout());
-  await act(async () => escolherAntigo('INDISPONIVEIS'));
+  await act(async () => escolherAntigo('EXPIRADOS'));
   assert.deepEqual([...preferenciasGuardadas.entries()], [['@outro-modulo', 'preservar']]);
   await entrar();
   assert.equal(preferencias.preferencias.filtroCarteira, 'TODOS');

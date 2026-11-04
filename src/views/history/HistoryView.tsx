@@ -1,25 +1,50 @@
-import React from 'react';
-
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-
+import React, { useEffect, useRef } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '../../components/common/Card';
-import { Icone } from '../../components/common/Icon';
+import { FilterTabs, TabOption } from '../../components/common/FilterTabs';
+import { PageHeader } from '../../components/common/PageHeader';
+import { Pagination } from '../../components/common/Pagination';
 import { Screen } from '../../components/common/Screen';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { UtilizationCard } from '../../components/history/UtilizationCard';
-
 import { TabScreenProps } from '../../navigation/types';
+import { cores, espaco, familia, fonte } from '../../theme';
+import { aparenciaStatusUtilizacao, statusUtilizacao } from '../../utils/utilization';
+import {
+  FiltroStatusHistorico,
+  PeriodoHistorico,
+  periodos,
+  useHistoryViewModel,
+} from '../../viewmodels/useHistoryViewModel';
 
-import { cores, espaco, fonte, familia, raio } from '../../theme';
+const abasPeriodo: TabOption<PeriodoHistorico>[] = periodos.map((opcao) => ({
+  id: opcao.id,
+  label: opcao.label,
+  icone: 'calendar',
+}));
 
-import { periodos, useHistoryViewModel } from '../../viewmodels/useHistoryViewModel';
+const abasStatus: TabOption<FiltroStatusHistorico>[] = [
+  { id: 'TODOS', label: 'Todos' },
+  ...statusUtilizacao.map((status) => ({
+    id: status,
+    label: aparenciaStatusUtilizacao[status].rotulo,
+    icone: aparenciaStatusUtilizacao[status].icone,
+  })),
+];
 
 export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
   const {
     periodo,
     setPeriodo,
     frasePeriodo,
+    status,
+    setStatus,
     lista,
+    pagina,
+    totalPaginas,
+    resumoTotal,
+    paginaAnterior,
+    proximaPagina,
     carregando,
     erro,
     atualizando,
@@ -29,74 +54,32 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
     erroPreferencias,
     tentarPreferencias,
   } = useHistoryViewModel();
+  const rolagem = useRef<React.ComponentRef<typeof ScrollView>>(null);
+
+  useEffect(() => {
+    rolagem.current?.scrollTo({ y: 0, animated: true });
+  }, [pagina]);
 
   return (
-    <Screen atualizando={atualizando} aoAtualizar={recarregar}>
-      <View style={styles.cabecalho}>
-        <Pressable
-          style={styles.botaoVoltar}
-          onPress={() => navigation.navigate('Home')}
-          accessibilityRole="button"
-          accessibilityLabel="Voltar ao Início"
-          hitSlop={10}
-        >
-          <Icone nome="chevron-left" tamanho={28} cor={cores.texto} />
-        </Pressable>
-
-        <View style={styles.cabecalhoTexto}>
-          <Text style={styles.titulo}>Histórico de Utilizações</Text>
-
-          <Text style={styles.subtitulo}>
-            Acompanhe todas as utilizações dos seus benefícios em um só lugar.
-          </Text>
-        </View>
-
-        <View style={styles.marca}>
-          <Icone nome="user" tamanho={21} cor={cores.primaria} />
-
-          <View>
-            <Text style={styles.marcaSigla}>FCV</Text>
-
-            <Text style={styles.marcaTexto}>
-              Fundação
-              {'\n'}
-              Cristiano Varella
-            </Text>
-          </View>
-        </View>
-      </View>
+    <Screen atualizando={atualizando} aoAtualizar={recarregar} refRolagem={rolagem}>
+      <PageHeader
+        titulo="Histórico de Utilizações"
+        subtitulo="Acompanhe todas as utilizações dos seus benefícios em um só lugar."
+      />
 
       {erroPreferencias ? (
-        <ErrorMessage mensagem={erroPreferencias} aoTentarDeNovo={tentarPreferencias} />
+        <View style={styles.erro}>
+          <ErrorMessage mensagem={erroPreferencias} aoTentarDeNovo={tentarPreferencias} />
+        </View>
       ) : null}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.rolagemAbas}
-        contentContainerStyle={styles.abas}
-      >
-        {periodos.map((opcao) => {
-          const ativa = periodo === opcao.id;
 
-          return (
-            <Pressable
-              key={opcao.id}
-              onPress={() => setPeriodo(opcao.id)}
-              disabled={carregandoPreferencias}
-              accessibilityRole="tab"
-              accessibilityState={{
-                selected: ativa,
-                disabled: carregandoPreferencias,
-              }}
-              style={[styles.aba, ativa && styles.abaAtiva]}
-            >
-              <Icone nome="calendar" tamanho={16} cor={ativa ? cores.branco : cores.primaria} />
-
-              <Text style={[styles.abaTexto, ativa && styles.abaTextoAtivo]}>{opcao.label}</Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      <FilterTabs
+        tabs={abasPeriodo}
+        selectedTab={periodo}
+        onSelectTab={setPeriodo}
+        desabilitado={carregandoPreferencias}
+      />
+      <FilterTabs tabs={abasStatus} selectedTab={status} onSelectTab={setStatus} />
 
       {erro ? (
         <View style={styles.erro}>
@@ -109,118 +92,53 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
           <EmptyState
             icone="history"
             titulo={`Nenhuma utilização ${frasePeriodo}`}
-            texto="Quando você usar um benefício em um estabelecimento conveniado, ele aparece aqui."
+            texto={
+              status === 'TODOS'
+                ? 'Quando você usar um benefício em um estabelecimento conveniado, ele aparece aqui.'
+                : 'Não há utilizações com este status no período escolhido.'
+            }
           />
         </Card>
       ) : (
-        lista.map((utilizacao) => {
-          const beneficioId = utilizacao.beneficio_id;
-          return (
-            <UtilizationCard
-              key={utilizacao.id}
-              utilizacao={utilizacao}
-              aoPressionar={
-                beneficioId
-                  ? () => navigation.navigate('BenefitDetails', { beneficioId })
-                  : undefined
-              }
-            />
-          );
-        })
+        <>
+          <Text style={styles.total}>{resumoTotal}</Text>
+          {lista.map((utilizacao) => {
+            const beneficioId = utilizacao.beneficio_id;
+            return (
+              <UtilizationCard
+                key={utilizacao.id}
+                utilizacao={utilizacao}
+                aoPressionar={
+                  beneficioId
+                    ? () => navigation.navigate('BenefitDetails', { beneficioId })
+                    : undefined
+                }
+              />
+            );
+          })}
+          <Pagination
+            pagina={pagina}
+            totalPaginas={totalPaginas}
+            aoAnterior={paginaAnterior}
+            aoProxima={proximaPagina}
+            desabilitado={atualizando}
+          />
+        </>
       )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  cabecalho: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: espaco.sm,
-    marginBottom: espaco.lg,
-  },
-
-  botaoVoltar: {
-    width: 28,
-    alignItems: 'flex-start',
-    marginTop: 2,
-  },
-
-  cabecalhoTexto: {
-    flex: 1,
-  },
-
-  titulo: {
-    fontSize: 20,
-    fontFamily: familia.negrito,
-    color: cores.texto,
-  },
-
-  subtitulo: {
-    marginTop: espaco.xs,
-    fontSize: fonte.sm,
-    lineHeight: 18,
-    color: cores.textoSecundario,
-  },
-
-  marca: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    marginTop: 3,
-  },
-
-  marcaSigla: {
-    fontSize: fonte.md,
-    fontFamily: familia.negrito,
-    color: cores.primaria,
-  },
-
-  marcaTexto: {
-    fontSize: 5,
-    fontFamily: familia.semi,
-    lineHeight: 6,
-    color: cores.primaria,
-  },
-
-  rolagemAbas: {
-    flexGrow: 0,
-    marginBottom: espaco.lg,
-  },
-
-  abas: {
-    flexDirection: 'row',
-    gap: espaco.sm,
-  },
-
-  aba: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: espaco.xs,
-    paddingHorizontal: espaco.md,
-    paddingVertical: espaco.sm,
-    borderRadius: raio.pilula,
-    backgroundColor: cores.primariaClara,
-  },
-
-  abaAtiva: {
-    backgroundColor: cores.primaria,
-  },
-
-  abaTexto: {
-    fontSize: fonte.sm,
-    fontFamily: familia.semi,
-    color: cores.primaria,
-  },
-
-  abaTextoAtivo: {
-    color: cores.branco,
-  },
-
   erro: {
     marginBottom: espaco.md,
   },
-
+  total: {
+    fontFamily: familia.medio,
+    fontSize: fonte.md,
+    color: cores.textoSecundario,
+    marginBottom: espaco.md,
+  },
   cardVazio: {
     marginBottom: espaco.md,
     paddingVertical: espaco.sm,

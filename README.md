@@ -29,17 +29,17 @@ Se o celular não conectar, confira se o firewall do Windows libera a porta 3333
 
 ## Telas
 
-| Tela                 | O que mostra                                                   |
-| -------------------- | -------------------------------------------------------------- |
-| Login                | Entrada com e-mail e senha                                     |
-| Esqueci senha        | Pede o código pelo e-mail e cria uma nova senha                |
-| Início               | Saudação, resumo e atalhos                                     |
-| Carteira             | Benefícios do colaborador, com filtro por disponibilidade      |
-| Detalhe do benefício | Valor, limite, renovação e onde usar                           |
-| Locais               | Estabelecimentos conveniados, com busca e filtro por categoria |
-| Histórico            | Utilizações, com filtro de período                             |
-| Notificações         | Renovações próximas e campanhas ativas                         |
-| Perfil               | Dados da conta e sair                                          |
+| Tela                 | O que mostra                                                                    |
+| -------------------- | ------------------------------------------------------------------------------- |
+| Login                | Entrada com e-mail e senha                                                      |
+| Esqueci senha        | Pede o código pelo e-mail e cria uma nova senha                                 |
+| Início               | Saudação, resumo, atalhos (inclusive QR Code) e campanhas vigentes              |
+| Carteira             | Benefícios e itens de campanha: todos, disponíveis, utilizados e expirados      |
+| Detalhe do benefício | Valor, limite, renovação e onde usar                                            |
+| Locais               | Estabelecimentos conveniados, com busca e filtro por categoria                  |
+| Histórico            | Utilizações paginadas, com filtro de período e de status                        |
+| Notificações         | Avisos de renovação, utilização, benefícios e campanhas, com a fonte de cada um |
+| Perfil               | Dados da conta e sair                                                           |
 
 O código da recuperação de senha não volta mais na resposta da API. Enquanto ela não envia e-mail, o código aparece no terminal onde a API está rodando.
 
@@ -70,11 +70,13 @@ O [relatório de contexto e autenticação](docs/sprint-5/relatorio-contexto-aut
 documenta os estados de `useAuth()`, isolamento do catálogo, arquivos alterados,
 testes realizados e pendências de integração.
 
-Os filtros da Carteira e do Histórico agora usam AsyncStorage por conta/escopo.
+A aba da Carteira e o período do Histórico usam AsyncStorage por conta/escopo.
 Eles persistem quando o app é reaberto com a sessão válida e são removidos no
-logout ou na troca de conta. O token nativo continua no SecureStore.
-Veja o [relatório de persistência](docs/sprint-5/relatorio-persistencia.md) e o
-[roteiro de teste em aparelho](docs/sprint-5/validacao-persistencia-aparelho.md).
+logout ou na troca de conta. O token nativo continua no SecureStore. Veja o [relatório de persistência](docs/sprint-5/relatorio-persistencia.md)
+e o [roteiro de teste em aparelho](docs/sprint-5/validacao-persistencia-aparelho.md).
+
+As regras das telas Início, Carteira, Histórico, Locais e Notificações, e o que
+ainda depende da API, estão em [telas do colaborador](docs/sprint-5/telas-colaborador.md).
 
 ## Estrutura
 
@@ -84,6 +86,8 @@ src/
 ├── components/
 │   ├── common/      componentes reaproveitados em todas as telas (Screen, Card, Button, SectionCard, Icone...)
 │   ├── benefit/     componentes ligados a benefício (BenefitCard, BenefitHero, EstablishmentCard)
+│   ├── campaign/    cards de campanha e de item de campanha (CampaignCard, CampaignItemCard)
+│   ├── history/     card de utilização do Histórico (UtilizationCard)
 │   ├── location/    card de estabelecimento da tela Locais (LocationCard)
 │   └── notification/ card de notificação (NotificationCard)
 ├── config/          endereço da API

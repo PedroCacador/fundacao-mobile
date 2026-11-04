@@ -101,16 +101,18 @@ export default function BenefitDetailsView({
             <Text style={styles.valor}>{detalhes.limite}</Text>
             <Text style={styles.extra}>({detalhes.valor})</Text>
           </View>
-          <View style={styles.quantidadeDireita}>
-            <IconBox nome="calendar" tamanho={28} redondo />
-            <View style={styles.quantidadeColuna}>
-              <Text style={styles.rotulo}>Próxima renovação</Text>
-              <Text style={styles.valor}>{detalhes.renovacao}</Text>
-              {detalhes.emQuantosDias ? (
-                <Text style={styles.extra}>{detalhes.emQuantosDias}</Text>
-              ) : null}
+          {detalhes.renovacao ? (
+            <View style={styles.quantidadeDireita}>
+              <IconBox nome="calendar" tamanho={28} redondo />
+              <View style={styles.quantidadeColuna}>
+                <Text style={styles.rotulo}>Próxima renovação</Text>
+                <Text style={styles.valor}>{detalhes.renovacao}</Text>
+                {detalhes.emQuantosDias ? (
+                  <Text style={styles.extra}>{detalhes.emQuantosDias}</Text>
+                ) : null}
+              </View>
             </View>
-          </View>
+          ) : null}
         </View>
       </SectionCard>
 

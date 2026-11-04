@@ -1,21 +1,36 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
+import { CampaignCard } from '../../components/campaign/CampaignCard';
+import { Button } from '../../components/common/Button';
 import { Screen } from '../../components/common/Screen';
-import { SeeAllLink } from '../../components/common/SeeAllLink';
+import { SectionHeader } from '../../components/common/SectionHeader';
 import { ShortcutCard } from '../../components/common/ShortcutCard';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
 import { UserGreeting } from '../../components/common/UserGreeting';
 import { TabScreenProps } from '../../navigation/types';
-import { cores, espaco, familia, fonte } from '../../theme';
+import { espaco } from '../../theme';
 import { formatarData } from '../../utils/format';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 
 export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
-  const { nome, cargo, resumo, destaques, carregando, atualizando, erro, recarregar } =
-    useHomeViewModel();
+  const {
+    nome,
+    cargo,
+    resumo,
+    destaques,
+    carregando,
+    atualizando,
+    erro,
+    recarregar,
+    campanhasVigentes,
+    carregandoCampanhas,
+    erroCampanhas,
+    tentarCampanhas,
+    podeResgatar,
+  } = useHomeViewModel();
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
@@ -59,6 +74,12 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           aoPressionar={() => navigation.navigate('Wallet')}
         />
         <ShortcutCard
+          icone="scan-qr-code"
+          titulo="QR Code"
+          subtitulo="Apresente no conveniado"
+          aoPressionar={() => navigation.navigate('QrCode')}
+        />
+        <ShortcutCard
           icone="history"
           titulo="Histórico"
           subtitulo="Suas utilizações"
@@ -72,10 +93,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
         />
       </View>
 
-      <View style={styles.secaoTopo}>
-        <Text style={styles.secaoTitulo}>Seus benefícios</Text>
-        <SeeAllLink aoPressionar={() => navigation.navigate('Wallet')} />
-      </View>
+      <SectionHeader titulo="Seus benefícios" aoVerTodos={() => navigation.navigate('Wallet')} />
 
       {carregando ? (
         <Loading texto="Carregando benefícios..." />
@@ -95,6 +113,41 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           />
         ))
       )}
+
+      <View style={styles.secao}>
+        <SectionHeader titulo="Campanhas e eventos" />
+        {carregandoCampanhas ? (
+          <Loading texto="Carregando campanhas..." />
+        ) : erroCampanhas ? (
+          <ErrorMessage mensagem={erroCampanhas} aoTentarDeNovo={tentarCampanhas} />
+        ) : campanhasVigentes.length === 0 ? (
+          <EmptyState
+            icone="megaphone"
+            titulo="Nenhuma campanha ou evento vigente no momento"
+            texto="Quando a FCV abrir uma campanha, ela aparece aqui com os itens disponíveis."
+          />
+        ) : (
+          campanhasVigentes.map(({ campanha, itens }) => (
+            <CampaignCard
+              key={campanha.id}
+              campanha={campanha}
+              itens={itens}
+              acaoDoItem={(dados) =>
+                podeResgatar(dados) ? (
+                  <Button
+                    titulo="Resgatar"
+                    variante="secundaria"
+                    icone="scan-qr-code"
+                    aoPressionar={() =>
+                      navigation.navigate('GerarQrCode', { itemCampanhaId: dados.item.id })
+                    }
+                  />
+                ) : null
+              }
+            />
+          ))
+        )}
+      </View>
     </Screen>
   );
 }
@@ -105,15 +158,7 @@ const styles = StyleSheet.create({
     gap: espaco.sm,
     marginBottom: espaco.xl,
   },
-  secaoTopo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: espaco.md,
-  },
-  secaoTitulo: {
-    fontFamily: familia.titulo,
-    fontSize: fonte.xxl,
-    color: cores.texto,
+  secao: {
+    marginTop: espaco.lg,
   },
 });

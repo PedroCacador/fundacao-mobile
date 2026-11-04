@@ -31,7 +31,7 @@ export function useBenefitDetailsViewModel(
     return {
       valor: descreverValor(beneficio),
       limite: descreverLimite(beneficio),
-      renovacao: renovacao ? formatarData(renovacao) : 'Após o último uso',
+      renovacao: renovacao ? formatarData(renovacao) : null,
       emQuantosDias: dias !== null ? `(em ${dias} ${plural(dias, 'dia', 'dias')})` : null,
       ondeUsar:
         categorias.length > 0
