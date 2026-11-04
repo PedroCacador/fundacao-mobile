@@ -9,7 +9,7 @@ import { StatusBadge } from '../common/StatusBadge';
 
 interface BenefitHeroProps {
   item: BeneficioCatalogo;
-  renovacao: string;
+  renovacao: string | null;
   emQuantosDias: string | null;
   limite: string;
   valor: string;
@@ -30,14 +30,21 @@ export function BenefitHero({ item, renovacao, emQuantosDias, limite, valor }: B
         </View>
       </View>
       <View style={styles.metricas}>
+        {renovacao ? (
+          <Metrica
+            largo
+            icone="calendar"
+            rotulo="Próxima renovação"
+            valor={renovacao}
+            extra={emQuantosDias}
+          />
+        ) : null}
         <Metrica
-          largo
-          icone="calendar"
-          rotulo="Próxima renovação"
-          valor={renovacao}
-          extra={emQuantosDias}
+          divisor={renovacao !== null}
+          icone="ticket"
+          rotulo="Usos permitidos"
+          valor={limite}
         />
-        <Metrica divisor icone="ticket" rotulo="Usos permitidos" valor={limite} />
         <Metrica divisor icone="badge-percent" rotulo="Benefício" valor={valor} />
       </View>
     </Card>
