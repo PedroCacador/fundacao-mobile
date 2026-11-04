@@ -2,10 +2,12 @@ import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/n
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AbaDetalhe } from '../models/Catalog';
+import type { ParametrosQr } from '../models/QrCode';
 
 export type TabParamList = {
   Home: undefined;
   Wallet: undefined;
+  QrCode: ParametrosQr | undefined;
   History: undefined;
   Profile: undefined;
 };
@@ -33,6 +35,6 @@ export type TabScreenProps<T extends keyof TabParamList> = CompositeScreenProps<
 declare global {
   namespace ReactNavigation {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }
