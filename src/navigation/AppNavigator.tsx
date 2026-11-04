@@ -18,7 +18,7 @@ import ProfileView from '../views/profile/ProfileView';
 import BenefitDetailsView from '../views/benefit/BenefitDetailsView';
 import NotificationsView from '../views/notifications/NotificationsView';
 import LocationsView from '../views/locations/LocationsView';
-
+import QrCodeView from '../views/qrcode/QrCodeView';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
