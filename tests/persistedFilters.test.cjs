@@ -23,6 +23,13 @@ let carteira;
 let historico;
 let consultas;
 
+function pagina(dados) {
+  return json({
+    dados,
+    paginacao: { pagina: 1, limite: 10, total: dados.length, totalPaginas: dados.length ? 1 : 0 },
+  });
+}
+
 function Filtros() {
   const atualCarteira = useWalletViewModel();
   const atualHistorico = useHistoryViewModel();
@@ -46,6 +53,7 @@ beforeEach(() => {
     if (url.endsWith('/auth/login')) return json({ token: 'teste', usuario: usuario() });
     if (url.endsWith('/auth/eu')) return json(usuario());
     consultas.push(url);
+    if (url.includes('/eu/utilizacoes?')) return pagina([]);
     return json([]);
   };
 });
@@ -91,13 +99,13 @@ test('resposta antiga do Histórico não substitui a lista do período atual', a
       primeiraConsulta = false;
       return espera.promessa;
     }
-    return json([{ id: 2 }]);
+    return pagina([{ id: 2 }]);
   };
   app = await montar({ Conteudo });
   await entrar();
   await act(async () => historico.setPeriodo('MES'));
   assert.equal(historico.lista[0].id, 2);
-  await act(async () => espera.resolver(json([{ id: 1 }])));
+  await act(async () => espera.resolver(pagina([{ id: 1 }])));
   assert.equal(historico.periodo, 'MES');
   assert.equal(historico.lista[0].id, 2);
 });
