@@ -3,9 +3,6 @@ import { Campanha, ItemCampanha, OfertaCampanha } from '../models/Campaign';
 import { requisitar } from './api';
 
 export const campaignService = {
-  listar() {
-    return requisitar<Campanha[]>('/campanhas');
-  },
   async listarCatalogo() {
     const [campanhas, itens, ofertas, conveniados] = await Promise.all([
       requisitar<Campanha[]>('/campanhas'),
