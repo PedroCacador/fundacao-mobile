@@ -12,7 +12,9 @@ export type NomeIcone =
   | 'chevron-right'
   | 'circle-alert'
   | 'circle-check'
+  | 'circle-x'
   | 'clock'
+
   | 'coins'
   | 'construction'
   | 'credit-card'
@@ -38,9 +40,13 @@ export type NomeIcone =
   | 'megaphone'
   | 'phone'
   | 'pill'
+  | 'refresh-cw'
+  | 'scan-qr-code'
   | 'search'
   | 'settings'
+  | 'shield-check'
   | 'store'
+
   | 'tag'
   | 'ticket'
   | 'user'

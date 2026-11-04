@@ -14,7 +14,9 @@ import {
   ChevronRight,
   CircleAlert,
   CircleCheck,
+  CircleX,
   Clock,
+
   Coins,
   Construction,
   CreditCard,
@@ -41,8 +43,11 @@ import {
   Megaphone,
   Phone,
   Pill,
+  RefreshCw,
+  ScanQrCode,
   Search,
   Settings,
+  ShieldCheck,
   Store,
   Tag,
   Ticket,
@@ -70,7 +75,9 @@ const icones: Record<NomeIcone, LucideIcon> = {
   'chevron-right': ChevronRight,
   'circle-alert': CircleAlert,
   'circle-check': CircleCheck,
+  'circle-x': CircleX,
   clock: Clock,
+
   coins: Coins,
   construction: Construction,
   'credit-card': CreditCard,
@@ -96,9 +103,15 @@ const icones: Record<NomeIcone, LucideIcon> = {
   megaphone: Megaphone,
   phone: Phone,
   pill: Pill,
+  'refresh-cw': RefreshCw,
+  'scan-qr-code': ScanQrCode,
   search: Search,
+
   settings: Settings,
+  'shield-check': ShieldCheck,
   store: Store,
+
+
   tag: Tag,
   ticket: Ticket,
   user: User,
