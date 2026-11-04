@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
+import { CampaignCard } from '../../components/campaign/CampaignCard';
 import { Screen } from '../../components/common/Screen';
 import { SectionHeader } from '../../components/common/SectionHeader';
 import { ShortcutCard } from '../../components/common/ShortcutCard';
@@ -14,8 +15,20 @@ import { formatarData } from '../../utils/format';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 
 export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
-  const { nome, cargo, resumo, destaques, carregando, atualizando, erro, recarregar } =
-    useHomeViewModel();
+  const {
+    nome,
+    cargo,
+    resumo,
+    destaques,
+    carregando,
+    atualizando,
+    erro,
+    recarregar,
+    campanhasVigentes,
+    carregandoCampanhas,
+    erroCampanhas,
+    tentarCampanhas,
+  } = useHomeViewModel();
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
@@ -92,6 +105,25 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           />
         ))
       )}
+
+      <View style={styles.secao}>
+        <SectionHeader titulo="Campanhas e eventos" />
+        {carregandoCampanhas ? (
+          <Loading texto="Carregando campanhas..." />
+        ) : erroCampanhas ? (
+          <ErrorMessage mensagem={erroCampanhas} aoTentarDeNovo={tentarCampanhas} />
+        ) : campanhasVigentes.length === 0 ? (
+          <EmptyState
+            icone="megaphone"
+            titulo="Nenhuma campanha ou evento vigente no momento"
+            texto="Quando a FCV abrir uma campanha, ela aparece aqui com os itens disponíveis."
+          />
+        ) : (
+          campanhasVigentes.map(({ campanha, itens }) => (
+            <CampaignCard key={campanha.id} campanha={campanha} itens={itens} />
+          ))
+        )}
+      </View>
     </Screen>
   );
 }
@@ -101,5 +133,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: espaco.sm,
     marginBottom: espaco.xl,
+  },
+  secao: {
+    marginTop: espaco.lg,
   },
 });
