@@ -8,6 +8,7 @@ interface ConfirmationModalProps {
   titulo: string;
   mensagem: string;
   textoConfirmar?: string;
+  varianteConfirmar?: 'primaria' | 'secundaria' | 'perigo';
   aoConfirmar: () => void;
   aoCancelar: () => void;
 }
@@ -17,6 +18,7 @@ export function ConfirmationModal({
   titulo,
   mensagem,
   textoConfirmar = 'Confirmar',
+  varianteConfirmar = 'perigo',
   aoConfirmar,
   aoCancelar,
 }: ConfirmationModalProps) {
@@ -29,7 +31,7 @@ export function ConfirmationModal({
           </Text>
           <Text style={styles.mensagem}>{mensagem}</Text>
           <Button titulo="Cancelar" variante="secundaria" aoPressionar={aoCancelar} />
-          <Button titulo={textoConfirmar} variante="perigo" aoPressionar={aoConfirmar} />
+          <Button titulo={textoConfirmar} variante={varianteConfirmar} aoPressionar={aoConfirmar} />
         </View>
       </View>
     </Modal>
