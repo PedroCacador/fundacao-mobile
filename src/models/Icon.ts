@@ -38,6 +38,7 @@ export type NomeIcone =
   | 'megaphone'
   | 'phone'
   | 'pill'
+  | 'qr-code'
   | 'search'
   | 'settings'
   | 'store'

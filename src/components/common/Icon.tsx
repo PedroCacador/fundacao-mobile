@@ -41,6 +41,7 @@ import {
   Megaphone,
   Phone,
   Pill,
+  QrCode,
   Search,
   Settings,
   Store,
@@ -96,6 +97,7 @@ const icones: Record<NomeIcone, LucideIcon> = {
   megaphone: Megaphone,
   phone: Phone,
   pill: Pill,
+  'qr-code': QrCode,
   search: Search,
   settings: Settings,
   store: Store,
@@ -159,4 +161,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+  });

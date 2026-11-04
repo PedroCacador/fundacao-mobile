@@ -10,10 +10,18 @@ export type TabParamList = {
   Profile: undefined;
 };
 
+export type PartnerTabParamList = {
+  PartnerScanner: undefined;
+  PartnerPending: undefined;
+  PartnerHistory: undefined;
+  PartnerProfile: undefined;
+};
+
 export type RootStackParamList = {
   Login: undefined;
   ForgotPassword: undefined;
   Main: NavigatorScreenParams<TabParamList> | undefined;
+  PartnerMain: NavigatorScreenParams<PartnerTabParamList> | undefined;
   BenefitDetails: { beneficioId: number; aba?: AbaDetalhe };
   Notifications: undefined;
   Locations: undefined;
@@ -27,6 +35,11 @@ export type RootScreenProps<T extends keyof RootStackParamList> = NativeStackScr
 
 export type TabScreenProps<T extends keyof TabParamList> = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, T>,
+  NativeStackScreenProps<RootStackParamList>
+>;
+
+export type PartnerTabScreenProps<T extends keyof PartnerTabParamList> = CompositeScreenProps<
+  BottomTabScreenProps<PartnerTabParamList, T>,
   NativeStackScreenProps<RootStackParamList>
 >;
 

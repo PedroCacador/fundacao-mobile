@@ -18,6 +18,7 @@ import ProfileView from '../views/profile/ProfileView';
 import BenefitDetailsView from '../views/benefit/BenefitDetailsView';
 import NotificationsView from '../views/notifications/NotificationsView';
 import LocationsView from '../views/locations/LocationsView';
+import PartnerTabNavigator from './PartnerTabNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -93,7 +94,7 @@ export default function AppNavigator() {
       screenOptions={{ headerShown: false }}
     >
       {usuario?.escopo === 'CONVENIADO' ? (
-        <Stack.Screen name="PartnerProfile" component={ProfileView} />
+        <Stack.Screen name="PartnerMain" component={PartnerTabNavigator} />
       ) : usuario ? (
         <>
           <Stack.Screen name="Main" component={TabNavigator} />
