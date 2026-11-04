@@ -25,6 +25,9 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
     atualizando,
     tentarDeNovo,
     recarregar,
+    carregandoPreferencias,
+    erroPreferencias,
+    tentarPreferencias,
   } = useHistoryViewModel();
 
   return (
@@ -63,6 +66,9 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
         </View>
       </View>
 
+      {erroPreferencias ? (
+        <ErrorMessage mensagem={erroPreferencias} aoTentarDeNovo={tentarPreferencias} />
+      ) : null}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -76,9 +82,11 @@ export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
             <Pressable
               key={opcao.id}
               onPress={() => setPeriodo(opcao.id)}
+              disabled={carregandoPreferencias}
               accessibilityRole="tab"
               accessibilityState={{
                 selected: ativa,
+                disabled: carregandoPreferencias,
               }}
               style={[styles.aba, ativa && styles.abaAtiva]}
             >

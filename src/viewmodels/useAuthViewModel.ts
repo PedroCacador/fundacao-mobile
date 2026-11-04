@@ -1,13 +1,15 @@
 import { useCallback, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { precisaLimparSessao } from '../context/authState';
 import { ApiError } from '../services/api';
 
 export function useAuthViewModel() {
-  const { login: entrar } = useAuth();
+  const { login: entrar, autenticando, saindo, avisoSessao, tratarAviso } = useAuth();
   const [email, setEmailState] = useState('');
   const [senha, setSenhaState] = useState('');
-  const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const carregando = autenticando || saindo;
+  const limpezaPendente = precisaLimparSessao(avisoSessao);
 
   const setEmail = useCallback((texto: string) => {
     setEmailState(texto);
@@ -20,21 +22,31 @@ export function useAuthViewModel() {
   }, []);
 
   const login = useCallback(async () => {
-    if (carregando) return;
+    if (carregando || limpezaPendente) return;
     if (!email.trim() || !senha) {
       setErro('Informe seu e-mail e sua senha.');
       return;
     }
 
     setErro(null);
-    setCarregando(true);
     try {
       await entrar(email, senha);
     } catch (e) {
       setErro(e instanceof ApiError ? e.message : 'Não foi possível entrar. Tente novamente.');
-      setCarregando(false);
     }
-  }, [carregando, email, senha, entrar]);
+  }, [carregando, limpezaPendente, email, senha, entrar]);
 
-  return { email, setEmail, senha, setSenha, login, carregando, erro };
+  return {
+    email,
+    setEmail,
+    senha,
+    setSenha,
+    login,
+    carregando,
+    limpezaPendente,
+    erro: limpezaPendente
+      ? (avisoSessao?.mensagem ?? null)
+      : (erro ?? avisoSessao?.mensagem ?? null),
+    tentarDeNovo: avisoSessao?.acao ? tratarAviso : undefined,
+  };
 }

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Alert, Platform } from 'react-native';
 import { Button } from '../../components/common/Button';
+import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { DecorativeCircles } from '../../components/common/DecorativeCircles';
 import { NomeIcone } from '../../components/common/Icon';
 import { ListItem } from '../../components/common/ListItem';
@@ -11,30 +11,32 @@ import { UserGreeting } from '../../components/common/UserGreeting';
 import { CampoPerfil, useProfileViewModel } from '../../viewmodels/useProfileViewModel';
 
 export default function ProfileView() {
-  const { nome, cargo, matricula, dadosColaborador, dadosConta, configuracoes, logout } =
-    useProfileViewModel();
-
-  const confirmarSaida = () => {
-    if (Platform.OS === 'web') {
-      if (window.confirm('Deseja realmente sair da sua conta?')) logout();
-      return;
-    }
-    Alert.alert('Sair da conta', 'Deseja realmente sair da sua conta?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: () => logout() },
-    ]);
-  };
+  const {
+    nome,
+    cargo,
+    matricula,
+    dadosPerfil,
+    tituloPerfil,
+    subtituloPerfil,
+    ehColaborador,
+    dadosConta,
+    configuracoes,
+    confirmacaoSaidaAberta,
+    solicitarSaida,
+    cancelarSaida,
+    confirmarSaida,
+  } = useProfileViewModel();
 
   return (
     <Screen fundo={<DecorativeCircles posicoes={['topoDireita']} />}>
-      <TopBar voltar />
+      <TopBar voltar={ehColaborador} notificacoes={ehColaborador} />
       <UserGreeting nome={nome} cargo={cargo} matricula={matricula} tamanhoFoto={92} />
 
       <SecaoCampos
         icone="user"
-        titulo="Dados do colaborador"
-        subtitulo="Seus dados pessoais e profissionais."
-        campos={dadosColaborador}
+        titulo={tituloPerfil}
+        subtitulo={subtituloPerfil}
+        campos={dadosPerfil}
       />
       <SecaoCampos
         icone="credit-card"
@@ -54,7 +56,15 @@ export default function ProfileView() {
         titulo="Sair da conta"
         icone="log-out"
         variante="perigo"
-        aoPressionar={confirmarSaida}
+        aoPressionar={solicitarSaida}
+      />
+      <ConfirmationModal
+        aberto={confirmacaoSaidaAberta}
+        titulo="Sair da conta"
+        mensagem="Deseja realmente sair da sua conta?"
+        textoConfirmar="Sair"
+        aoCancelar={cancelarSaida}
+        aoConfirmar={confirmarSaida}
       />
     </Screen>
   );

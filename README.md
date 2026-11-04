@@ -45,7 +45,10 @@ O código da recuperação de senha não volta mais na resposta da API. Enquanto
 
 ## Usuário de teste
 
-O app é para colaboradores. Use `carla@fcv.org.br` com a senha `123456` (dados do seed da API).
+A autenticação aceita colaboradores e conveniados ativos. No seed da API, use
+`carla@fcv.org.br` ou `farmacia@parceiro.com`, ambos com senha `123456`. Contas FCV
+usam o portal web. O conveniado tem acesso inicial ao perfil e à saída da conta;
+suas telas operacionais ainda precisam ser integradas pelo responsável.
 
 ## Scripts
 
@@ -58,6 +61,20 @@ O app é para colaboradores. Use `carla@fcv.org.br` com a senha `123456` (dados 
 | `npm run typecheck` | Confere os tipos (TypeScript)        |
 
 Rode `lint` e `typecheck` antes de cada commit.
+
+Execute também `npm test` para validar serviços e providers de sessão. A suíte
+usa Node 22, React DOM e jsdom, com transporte/armazenamento nativo simulados.
+Ela não substitui a validação de SecureStore e navegação em Android/iOS.
+
+O [relatório de contexto e autenticação](docs/sprint-5/relatorio-contexto-autenticacao.md)
+documenta os estados de `useAuth()`, isolamento do catálogo, arquivos alterados,
+testes realizados e pendências de integração.
+
+Os filtros da Carteira e do Histórico agora usam AsyncStorage por conta/escopo.
+Eles persistem quando o app é reaberto com a sessão válida e são removidos no
+logout ou na troca de conta. O token nativo continua no SecureStore.
+Veja o [relatório de persistência](docs/sprint-5/relatorio-persistencia.md) e o
+[roteiro de teste em aparelho](docs/sprint-5/validacao-persistencia-aparelho.md).
 
 ## Estrutura
 

@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Constants from 'expo-constants';
 import { NomeIcone } from '../models/Icon';
 import { useAuth, useUsuario } from '../context/AuthContext';
@@ -17,24 +17,43 @@ function semVazios(campos: (CampoPerfil | null)[]) {
 export function useProfileViewModel() {
   const usuario = useUsuario();
   const { logout } = useAuth();
+  const [confirmacaoSaidaAberta, setConfirmacaoSaidaAberta] = useState(false);
+  const solicitarSaida = useCallback(() => setConfirmacaoSaidaAberta(true), []);
+  const cancelarSaida = useCallback(() => setConfirmacaoSaidaAberta(false), []);
+  const confirmarSaida = useCallback(async () => {
+    setConfirmacaoSaidaAberta(false);
+    await logout();
+  }, [logout]);
   const colaborador = usuario.colaborador;
+  const conveniado = usuario.conveniado;
+  const ehColaborador = usuario.escopo === 'COLABORADOR';
 
-  const dadosColaborador = useMemo(
+  const dadosPerfil = useMemo(
     () =>
-      semVazios([
-        { icone: 'user', rotulo: 'Nome completo', valor: usuario.nome },
-        colaborador ? { icone: 'briefcase', rotulo: 'Cargo', valor: colaborador.cargo } : null,
-        colaborador ? { icone: 'building', rotulo: 'Setor', valor: colaborador.setor } : null,
-        colaborador
-          ? {
-              icone: 'calendar',
-              rotulo: 'Admissão',
-              valor: formatarData(lerData(colaborador.data_admissao)),
-            }
-          : null,
-        { icone: 'mail', rotulo: 'E-mail', valor: usuario.email },
-      ]),
-    [usuario, colaborador],
+      conveniado
+        ? ([
+            { icone: 'store', rotulo: 'Nome fantasia', valor: conveniado.nome_fantasia },
+            { icone: 'building', rotulo: 'Razão social', valor: conveniado.razao_social },
+            { icone: 'id-card', rotulo: 'CNPJ', valor: conveniado.cnpj },
+            { icone: 'tag', rotulo: 'Categoria', valor: conveniado.categoria },
+            { icone: 'map-pin', rotulo: 'Endereço', valor: conveniado.endereco },
+            { icone: 'user', rotulo: 'Responsável', valor: usuario.nome },
+            { icone: 'mail', rotulo: 'E-mail', valor: usuario.email },
+          ] satisfies CampoPerfil[])
+        : semVazios([
+            { icone: 'user', rotulo: 'Nome completo', valor: usuario.nome },
+            colaborador ? { icone: 'briefcase', rotulo: 'Cargo', valor: colaborador.cargo } : null,
+            colaborador ? { icone: 'building', rotulo: 'Setor', valor: colaborador.setor } : null,
+            colaborador
+              ? {
+                  icone: 'calendar',
+                  rotulo: 'Admissão',
+                  valor: formatarData(lerData(colaborador.data_admissao)),
+                }
+              : null,
+            { icone: 'mail', rotulo: 'E-mail', valor: usuario.email },
+          ]),
+    [usuario, colaborador, conveniado],
   );
 
   const dadosConta = useMemo(
@@ -64,12 +83,22 @@ export function useProfileViewModel() {
   ];
 
   return {
-    nome: usuario.nome,
-    cargo: colaborador?.cargo ?? 'Colaborador(a) da FCV',
+    nome: conveniado?.nome_fantasia ?? usuario.nome,
+    cargo: conveniado
+      ? 'Estabelecimento conveniado'
+      : (colaborador?.cargo ?? 'Colaborador(a) da FCV'),
     matricula: colaborador?.matricula ?? null,
-    dadosColaborador,
+    dadosPerfil,
+    ehColaborador,
+    tituloPerfil: ehColaborador ? 'Dados do colaborador' : 'Dados do conveniado',
+    subtituloPerfil: ehColaborador
+      ? 'Seus dados pessoais e profissionais.'
+      : 'Dados cadastrais do seu estabelecimento.',
     dadosConta,
     configuracoes,
-    logout,
+    confirmacaoSaidaAberta,
+    solicitarSaida,
+    cancelarSaida,
+    confirmarSaida,
   };
 }

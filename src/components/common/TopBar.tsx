@@ -8,9 +8,10 @@ import { Logo } from './Logo';
 interface TopBarProps {
   voltar?: boolean;
   perfil?: boolean;
+  notificacoes?: boolean;
 }
 
-export function TopBar({ voltar = false, perfil = false }: TopBarProps) {
+export function TopBar({ voltar = false, perfil = false, notificacoes = true }: TopBarProps) {
   const navigation = useNavigation();
 
   return (
@@ -29,15 +30,17 @@ export function TopBar({ voltar = false, perfil = false }: TopBarProps) {
         <Logo largura={voltar ? 128 : 140} />
       </View>
       <View style={styles.direita}>
-        <Pressable
-          onPress={() => navigation.navigate('Notifications')}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="Notificações"
-          style={({ pressed }) => [styles.sino, pressed && styles.pressionado]}
-        >
-          <Icone nome="bell" tamanho={24} cor={cores.texto} />
-        </Pressable>
+        {notificacoes ? (
+          <Pressable
+            onPress={() => navigation.navigate('Notifications')}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Notificações"
+            style={({ pressed }) => [styles.sino, pressed && styles.pressionado]}
+          >
+            <Icone nome="bell" tamanho={24} cor={cores.texto} />
+          </Pressable>
+        ) : null}
         {perfil ? (
           <Pressable
             onPress={() => navigation.navigate('Main', { screen: 'Profile' })}

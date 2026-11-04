@@ -11,7 +11,17 @@ import { cores, espaco, familia, fonte } from '../../theme';
 import { useAuthViewModel } from '../../viewmodels/useAuthViewModel';
 
 export default function LoginView({ navigation }: RootScreenProps<'Login'>) {
-  const { email, setEmail, senha, setSenha, login, carregando, erro } = useAuthViewModel();
+  const {
+    email,
+    setEmail,
+    senha,
+    setSenha,
+    login,
+    carregando,
+    limpezaPendente,
+    erro,
+    tentarDeNovo,
+  } = useAuthViewModel();
 
   return (
     <KeyboardAvoidingView
@@ -67,10 +77,16 @@ export default function LoginView({ navigation }: RootScreenProps<'Login'>) {
           >
             <Text style={styles.esqueciTexto}>Esqueceu sua senha?</Text>
           </Pressable>
-          {erro ? <ErrorMessage mensagem={erro} /> : null}
+          {erro ? <ErrorMessage mensagem={erro} aoTentarDeNovo={tentarDeNovo} /> : null}
         </View>
 
-        <Button titulo="Entrar" icone="arrow-right" aoPressionar={login} carregando={carregando} />
+        <Button
+          titulo="Entrar"
+          icone="arrow-right"
+          aoPressionar={login}
+          carregando={carregando}
+          desabilitado={limpezaPendente}
+        />
 
         <Text style={styles.rodape}>Fundação Cristiano Varella</Text>
       </Screen>

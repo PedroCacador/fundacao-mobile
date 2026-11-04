@@ -5,6 +5,7 @@ export const authService = {
   login(email: string, senha: string) {
     return requisitar<RespostaLogin>('/auth/login', {
       metodo: 'POST',
+      token: null,
       corpo: { email, senha },
     });
   },
@@ -16,6 +17,7 @@ export const authService = {
   solicitarCodigo(email: string) {
     return requisitar<RespostaCodigo>('/auth/esqueci-senha', {
       metodo: 'POST',
+      token: null,
       corpo: { email },
     });
   },
@@ -23,6 +25,7 @@ export const authService = {
   redefinirSenha(email: string, codigo: string, novaSenha: string) {
     return requisitar<{ mensagem: string }>('/auth/redefinir-senha', {
       metodo: 'POST',
+      token: null,
       corpo: { email, codigo, nova_senha: novaSenha },
     });
   },

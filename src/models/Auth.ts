@@ -1,3 +1,5 @@
+import type { Conveniado } from './Benefit';
+
 export interface Colaborador {
   id: number;
   usuario_id: number;
@@ -18,12 +20,24 @@ export interface UsuarioAutenticado {
   escopo: 'FCV' | 'COLABORADOR' | 'CONVENIADO';
   status: 'ATIVO' | 'INATIVO';
   data_criacao: string;
-  colaborador?: Colaborador | null;
+  colaborador: Colaborador | null;
+  conveniado: Conveniado | null;
 }
 
 export interface RespostaLogin {
   token: string;
   usuario: UsuarioAutenticado;
+}
+
+export type UsuarioMobile = UsuarioAutenticado &
+  (
+    | { escopo: 'COLABORADOR'; colaborador: Colaborador; conveniado: null }
+    | { escopo: 'CONVENIADO'; colaborador: null; conveniado: Conveniado }
+  );
+
+export interface SessaoMobile {
+  token: string;
+  usuario: UsuarioMobile;
 }
 
 export interface RespostaCodigo {

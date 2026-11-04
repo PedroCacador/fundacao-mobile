@@ -13,12 +13,14 @@ interface FilterTabsProps<T extends string = string> {
   tabs: TabOption<T>[];
   selectedTab: T;
   onSelectTab: (tabId: T) => void;
+  desabilitado?: boolean;
 }
 
 export function FilterTabs<T extends string = string>({
   tabs,
   selectedTab,
   onSelectTab,
+  desabilitado = false,
 }: FilterTabsProps<T>) {
   return (
     <ScrollView
@@ -34,8 +36,9 @@ export function FilterTabs<T extends string = string>({
           <Pressable
             key={tab.id}
             onPress={() => onSelectTab(tab.id)}
+            disabled={desabilitado}
             accessibilityRole="tab"
-            accessibilityState={{ selected: ativo }}
+            accessibilityState={{ selected: ativo, disabled: desabilitado }}
             style={[styles.aba, ativo && styles.abaAtiva]}
           >
             {tab.icone ? <Icone nome={tab.icone} tamanho={16} cor={cor} /> : null}
