@@ -113,6 +113,32 @@ test('resposta antiga do Histórico não substitui a lista do período atual', a
   assert.equal(historico.lista[0].id, 2);
 });
 
+test('tocar no período ou status já selecionado mantém o Histórico carregado', async () => {
+  app = await montar({ Conteudo });
+  await entrar();
+  const quantidade = consultas.length;
+  assert.equal(historico.carregando, false);
+
+  await act(async () => historico.setPeriodo(historico.periodo));
+  assert.equal(historico.carregando, false);
+  await act(async () => historico.setStatus(historico.status));
+  assert.equal(historico.carregando, false);
+  assert.equal(consultas.length, quantidade);
+});
+
+test('Histórico avisa quando a versão da API não devolve paginação', async () => {
+  const anterior = globalThis.fetch;
+  globalThis.fetch = async (url, opcoes) => {
+    if (url.includes('/eu/utilizacoes?pagina=')) return json([{ id: 1 }]);
+    return anterior(url, opcoes);
+  };
+  app = await montar({ Conteudo });
+  await entrar();
+
+  assert.equal(historico.carregando, false);
+  assert.match(historico.erro, /histórico paginado/i);
+});
+
 test('aba antiga ou inválida da Carteira salva no aparelho cai em Todos', async () => {
   const chave = '@fcv:v1:conta:COLABORADOR:3:preferencias';
   app = await montar({ Conteudo });

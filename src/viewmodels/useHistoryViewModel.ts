@@ -131,26 +131,35 @@ export function useHistoryViewModel() {
 
   const escolherPeriodo = useCallback(
     (novo: PeriodoHistorico) => {
+      if (novo === periodo) return;
       setResultado(null);
       setChaveAtualizando(null);
       setPagina(1);
       definirPeriodoHistorico(novo);
     },
-    [definirPeriodoHistorico],
+    [definirPeriodoHistorico, periodo],
   );
 
-  const escolherStatus = useCallback((novo: FiltroStatusHistorico) => {
-    setResultado(null);
-    setChaveAtualizando(null);
-    setPagina(1);
-    setStatusLocal(novo);
-  }, []);
+  const escolherStatus = useCallback(
+    (novo: FiltroStatusHistorico) => {
+      if (novo === status) return;
+      setResultado(null);
+      setChaveAtualizando(null);
+      setPagina(1);
+      setStatusLocal(novo);
+    },
+    [status],
+  );
 
-  const irParaPagina = useCallback((nova: number) => {
-    setResultado(null);
-    setChaveAtualizando(null);
-    setPagina(Math.max(1, nova));
-  }, []);
+  const irParaPagina = useCallback(
+    (nova: number) => {
+      if (nova < 1 || nova === pagina) return;
+      setResultado(null);
+      setChaveAtualizando(null);
+      setPagina(nova);
+    },
+    [pagina],
+  );
 
   const repetir = useCallback(
     async (mostrarAtualizando: boolean) => {

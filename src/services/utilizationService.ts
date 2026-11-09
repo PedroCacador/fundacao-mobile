@@ -1,6 +1,6 @@
 import { RespostaPaginada } from '../models/Pagination';
 import { StatusUtilizacao, Utilizacao } from '../models/Utilization';
-import { requisitar } from './api';
+import { ApiError, requisitar } from './api';
 
 export interface FiltroUtilizacoes {
   pagina: number;
@@ -17,9 +17,21 @@ function montarConsulta(parametros: Record<string, string | number | undefined>)
 }
 
 export const utilizationService = {
-  listarMinhas({ pagina, limite, de, status }: FiltroUtilizacoes) {
+  async listarMinhas({ pagina, limite, de, status }: FiltroUtilizacoes) {
     const consulta = montarConsulta({ pagina, limite, de, status });
-    return requisitar<RespostaPaginada<Utilizacao>>(`/eu/utilizacoes?${consulta}`);
+    const resposta = await requisitar<RespostaPaginada<Utilizacao> | Utilizacao[]>(
+      `/eu/utilizacoes?${consulta}`,
+    );
+    if (Array.isArray(resposta)) {
+      throw new ApiError(
+        'Esta versão do servidor ainda não disponibiliza o histórico paginado.',
+        502,
+      );
+    }
+    if (!Array.isArray(resposta?.dados) || !resposta.paginacao) {
+      throw new ApiError('O servidor retornou um histórico em formato inválido.', 502);
+    }
+    return resposta;
   },
   listarAprovadas() {
     return requisitar<Utilizacao[]>('/eu/utilizacoes?status=APROVADA');
