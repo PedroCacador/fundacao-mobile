@@ -17,4 +17,13 @@ export interface Utilizacao {
   conveniado_categoria: string;
   conveniado_endereco: string;
   colaborador_nome: string;
+  token_qrcode?: string | null;
+}
+
+export type DecisaoStatus = 'APROVADA' | 'REPROVADA';
+
+export interface DecisaoUtilizacaoPayload {
+  status: DecisaoStatus;
+  canal_validacao: 'APP_CONVENIADO';
+  observacoes?: string | null;
 }

@@ -42,6 +42,7 @@ export type NomeIcone =
   | 'pill'
   | 'refresh-cw'
   | 'scan-qr-code'
+  | 'qr-code'
   | 'search'
   | 'settings'
   | 'shield-check'
