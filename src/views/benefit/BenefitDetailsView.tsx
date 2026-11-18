@@ -121,7 +121,11 @@ export default function BenefitDetailsView({
         icone="store"
         titulo="Estabelecimentos conveniados"
         subtitulo="Confira os estabelecimentos onde você pode utilizar seu benefício."
-        acao={<SeeAllLink aoPressionar={() => navigation.navigate('Locations')} />}
+        acao={
+          <SeeAllLink
+            aoPressionar={() => navigation.navigate('Main', { screen: 'Locations' })}
+          />
+        }
         onLayout={(evento) => posicionar('ESTABELECIMENTOS', evento.nativeEvent.layout.y)}
       >
         {item.conveniados.length === 0 ? (

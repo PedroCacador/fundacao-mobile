@@ -7,8 +7,7 @@ import type { ParametrosQr } from '../models/QrCode';
 export type TabParamList = {
   Home: undefined;
   Wallet: undefined;
-  QrCode: ParametrosQr | undefined;
-  History: undefined;
+  Locations: undefined;
   Profile: undefined;
 };
 
@@ -26,7 +25,7 @@ export type RootStackParamList = {
   PartnerMain: NavigatorScreenParams<PartnerTabParamList> | undefined;
   BenefitDetails: { beneficioId: number; aba?: AbaDetalhe };
   Notifications: undefined;
-  Locations: undefined;
+  History: undefined;
   GerarQrCode: ParametrosQr | undefined;
   PartnerProfile: undefined;
 

@@ -7,7 +7,7 @@ import { Pagination } from '../../components/common/Pagination';
 import { Screen } from '../../components/common/Screen';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { UtilizationCard } from '../../components/history/UtilizationCard';
-import { TabScreenProps } from '../../navigation/types';
+import { RootScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte } from '../../theme';
 import { aparenciaStatusUtilizacao, statusUtilizacao } from '../../utils/utilization';
 import {
@@ -32,7 +32,7 @@ const abasStatus: TabOption<FiltroStatusHistorico>[] = [
   })),
 ];
 
-export default function HistoryView({ navigation }: TabScreenProps<'History'>) {
+export default function HistoryView({ navigation }: RootScreenProps<'History'>) {
   const {
     periodo,
     setPeriodo,

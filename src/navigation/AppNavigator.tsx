@@ -13,10 +13,10 @@ import LoginView from '../views/auth/LoginView';
 import ForgotPasswordView from '../views/auth/ForgotPasswordView';
 import HomeView from '../views/home/HomeView';
 import WalletView from '../views/wallet/WalletView';
-import HistoryView from '../views/history/HistoryView';
 import ProfileView from '../views/profile/ProfileView';
 import BenefitDetailsView from '../views/benefit/BenefitDetailsView';
 import NotificationsView from '../views/notifications/NotificationsView';
+import HistoryView from '../views/history/HistoryView';
 import LocationsView from '../views/locations/LocationsView';
 import QrCodeView from '../views/qrcode/QrCodeView';
 import PartnerTabNavigator from './PartnerTabNavigator';
@@ -26,9 +26,8 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 const abas: Record<keyof TabParamList, { icone: NomeIcone; titulo: string }> = {
   Home: { icone: 'house', titulo: 'Início' },
-  Wallet: { icone: 'wallet', titulo: 'Carteira' },
-  QrCode: { icone: 'scan-qr-code', titulo: 'QR Code' },
-  History: { icone: 'history', titulo: 'Histórico' },
+  Wallet: { icone: 'wallet', titulo: 'Benefícios' },
+  Locations: { icone: 'map-pin', titulo: 'Locais' },
   Profile: { icone: 'user', titulo: 'Perfil' },
 };
 
@@ -73,8 +72,7 @@ function TabNavigator() {
     >
       <Tab.Screen name="Home" component={HomeView} />
       <Tab.Screen name="Wallet" component={WalletView} />
-      <Tab.Screen name="QrCode" component={QrCodeView} />
-      <Tab.Screen name="History" component={HistoryView} />
+      <Tab.Screen name="Locations" component={LocationsView} />
       <Tab.Screen name="Profile" component={ProfileView} />
     </Tab.Navigator>
   );
@@ -103,7 +101,7 @@ export default function AppNavigator() {
           <Stack.Screen name="Main" component={TabNavigator} />
           <Stack.Screen name="BenefitDetails" component={BenefitDetailsView} />
           <Stack.Screen name="Notifications" component={NotificationsView} />
-          <Stack.Screen name="Locations" component={LocationsView} />
+          <Stack.Screen name="History" component={HistoryView} />
           <Stack.Screen name="GerarQrCode" component={QrCodeView} />
         </>
       ) : (
