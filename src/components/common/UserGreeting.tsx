@@ -11,6 +11,7 @@ interface UserGreetingProps {
   tamanhoFoto: number;
   matricula?: string | null;
   aoPressionar?: () => void;
+  compacto?: boolean;
 }
 
 export function UserGreeting({
@@ -19,7 +20,18 @@ export function UserGreeting({
   tamanhoFoto,
   matricula,
   aoPressionar,
+  compacto = false,
 }: UserGreetingProps) {
+  if (compacto) {
+    return (
+      <View style={styles.compacto}>
+        <Text style={styles.olaCompacto} accessibilityRole="header">
+          Olá, {nome}
+        </Text>
+      </View>
+    );
+  }
+
   const conteudo = (
     <>
       <Avatar nome={nome} tamanho={tamanhoFoto} />
@@ -53,6 +65,15 @@ export function UserGreeting({
 }
 
 const styles = StyleSheet.create({
+  compacto: {
+    marginBottom: espaco.xl,
+  },
+  olaCompacto: {
+    fontFamily: familia.titulo,
+    fontSize: fonte.xl,
+    lineHeight: 22,
+    color: cores.texto,
+  },
   linha: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -5,20 +5,17 @@ import { CampaignCard } from '../../components/campaign/CampaignCard';
 import { Button } from '../../components/common/Button';
 import { Screen } from '../../components/common/Screen';
 import { SectionHeader } from '../../components/common/SectionHeader';
-import { ShortcutCard } from '../../components/common/ShortcutCard';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
 import { UserGreeting } from '../../components/common/UserGreeting';
 import { TabScreenProps } from '../../navigation/types';
 import { espaco } from '../../theme';
-import { formatarData } from '../../utils/format';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 
 export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
   const {
     nome,
-    cargo,
     resumo,
     destaques,
     carregando,
@@ -38,60 +35,27 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
 
       <UserGreeting
         nome={nome}
-        cargo={cargo}
-        tamanhoFoto={68}
-        aoPressionar={() => navigation.navigate('Profile')}
+        cargo=""
+        tamanhoFoto={0}
+        compacto
       />
 
       <SummaryCard
         titulo="Resumo dos seus benefícios"
+        slogan="nenhum"
         itens={[
           {
             icone: 'gift',
             valor: carregando ? '-' : resumo.disponiveis,
-            rotulo: 'Benefícios disponíveis',
+            rotulo: 'Quantidade de benefícios disponíveis',
           },
           {
             icone: 'store',
             valor: carregando ? '-' : resumo.locais,
-            rotulo: 'Locais conveniados',
-          },
-          {
-            largo: true,
-            icone: 'calendar',
-            valor: resumo.proximaRenovacao ? formatarData(resumo.proximaRenovacao) : '-',
-            rotulo: 'Próxima renovação',
+            rotulo: 'Quantidade de conveniados',
           },
         ]}
       />
-
-      <View style={styles.atalhos}>
-        <ShortcutCard
-          destaque
-          icone="wallet"
-          titulo="Minha Carteira"
-          subtitulo="Veja seus benefícios"
-          aoPressionar={() => navigation.navigate('Wallet')}
-        />
-        <ShortcutCard
-          icone="scan-qr-code"
-          titulo="QR Code"
-          subtitulo="Apresente no conveniado"
-          aoPressionar={() => navigation.navigate('QrCode')}
-        />
-        <ShortcutCard
-          icone="history"
-          titulo="Histórico"
-          subtitulo="Suas utilizações"
-          aoPressionar={() => navigation.navigate('History')}
-        />
-        <ShortcutCard
-          icone="map-pin"
-          titulo="Locais de utilização"
-          subtitulo="Encontre estabelecimentos perto de você"
-          aoPressionar={() => navigation.navigate('Locations')}
-        />
-      </View>
 
       <SectionHeader titulo="Seus benefícios" aoVerTodos={() => navigation.navigate('Wallet')} />
 
@@ -153,11 +117,6 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
 }
 
 const styles = StyleSheet.create({
-  atalhos: {
-    flexDirection: 'row',
-    gap: espaco.sm,
-    marginBottom: espaco.xl,
-  },
   secao: {
     marginTop: espaco.lg,
   },

@@ -15,7 +15,7 @@ export interface ItemResumo {
 interface SummaryCardProps {
   titulo?: string;
   itens: ItemResumo[];
-  slogan?: 'texto' | 'caixa';
+  slogan?: 'texto' | 'caixa' | 'nenhum';
 }
 
 export function SummaryCard({ titulo, itens, slogan = 'texto' }: SummaryCardProps) {
@@ -43,15 +43,17 @@ export function SummaryCard({ titulo, itens, slogan = 'texto' }: SummaryCardProp
             <Text style={styles.rotulo}>{item.rotulo}</Text>
           </View>
         ))}
-        <View style={[styles.slogan, slogan === 'caixa' ? styles.sloganCaixa : styles.divisor]}>
-          {slogan === 'caixa' ? (
-            <View style={styles.sloganIcone}>
-              <Icone nome="heart" tamanho={14} cor={cores.primaria} />
-            </View>
-          ) : null}
-          <Text style={styles.sloganTexto}>Mais benefícios, mais para você.</Text>
-          <View style={styles.sloganTraco} />
-        </View>
+        {slogan !== 'nenhum' ? (
+          <View style={[styles.slogan, slogan === 'caixa' ? styles.sloganCaixa : styles.divisor]}>
+            {slogan === 'caixa' ? (
+              <View style={styles.sloganIcone}>
+                <Icone nome="heart" tamanho={14} cor={cores.primaria} />
+              </View>
+            ) : null}
+            <Text style={styles.sloganTexto}>Mais benefícios, mais para você.</Text>
+            <View style={styles.sloganTraco} />
+          </View>
+        ) : null}
       </View>
     </View>
   );
