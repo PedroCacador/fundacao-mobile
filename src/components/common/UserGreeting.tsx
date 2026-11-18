@@ -66,12 +66,12 @@ export function UserGreeting({
 
 const styles = StyleSheet.create({
   compacto: {
-    marginBottom: espaco.xl,
+    marginBottom: espaco.lg,
   },
   olaCompacto: {
-    fontFamily: familia.titulo,
-    fontSize: fonte.xl,
-    lineHeight: 22,
+    fontFamily: familia.tituloMedio,
+    fontSize: fonte.lg,
+    lineHeight: 20,
     color: cores.texto,
   },
   linha: {

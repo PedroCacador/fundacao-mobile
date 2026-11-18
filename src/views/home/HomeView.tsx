@@ -9,10 +9,11 @@ import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
 import { UserGreeting } from '../../components/common/UserGreeting';
 import { TabScreenProps } from '../../navigation/types';
-import { cores, espaco, familia, fonte } from '../../theme';
+import { cores, coresCategoria, espaco, familia, fonte, raio, sombra } from '../../theme';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 import { Card } from '../../components/common/Card';
 import { lerDataHoraApi } from '../../utils/qrcode';
+import { IconBox, Icone } from '../../components/common/Icon';
 
 export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
   const {
@@ -51,11 +52,15 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
             icone: 'gift',
             valor: carregando ? '-' : resumo.disponiveis,
             rotulo: 'Quantidade de benefícios disponíveis',
+            cor: cores.primaria,
+            fundo: cores.primariaClara,
           },
           {
             icone: 'store',
             valor: carregando ? '-' : resumo.locais,
             rotulo: 'Quantidade de conveniados',
+            cor: coresCategoria.verde.cor,
+            fundo: coresCategoria.verde.fundo,
           },
         ]}
       />
@@ -102,11 +107,52 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
                 rotuloAcessivel={`Abrir QR Code de ${item.beneficio_nome}`}
               >
                 <View style={styles.pendenteTopo}>
+                  <IconBox
+                    nome="scan-qr-code"
+                    tamanho={48}
+                    cor={cores.primaria}
+                    fundo={cores.primariaClara}
+                    redondo
+                  />
                   <View style={styles.pendenteInfo}>
                     <Text style={styles.pendenteTitulo}>{item.beneficio_nome}</Text>
                     <Text style={styles.pendenteLocal}>{item.conveniado_nome_fantasia}</Text>
                   </View>
-                  <Text style={styles.pendentePrazo}>{textoExpiracao}</Text>
+                  <View style={styles.pendenteAcao}>
+                    <View
+                      style={[
+                        styles.pendenteEstado,
+                        restantesMs !== null && restantesMs <= 0
+                          ? styles.pendenteEstadoExpirado
+                          : null,
+                      ]}
+                    >
+                      <Icone
+                        nome={
+                          restantesMs !== null && restantesMs <= 0
+                            ? 'circle-alert'
+                            : 'clock'
+                        }
+                        tamanho={14}
+                        cor={
+                          restantesMs !== null && restantesMs <= 0
+                            ? cores.erro
+                            : cores.alerta
+                        }
+                      />
+                      <Text
+                        style={[
+                          styles.pendentePrazo,
+                          restantesMs !== null && restantesMs <= 0
+                            ? styles.pendentePrazoExpirado
+                            : null,
+                        ]}
+                      >
+                        {textoExpiracao}
+                      </Text>
+                    </View>
+                    <Icone nome="chevron-right" tamanho={18} cor={cores.textoSecundario} />
+                  </View>
                 </View>
               </Card>
             );
@@ -155,13 +201,19 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
 const styles = StyleSheet.create({
   secao: {
     marginTop: espaco.lg,
+    marginBottom: espaco.sm,
   },
   pendente: {
     marginBottom: espaco.md,
+    padding: espaco.md,
+    borderColor: cores.bordaAzul,
+    borderRadius: raio.lg,
+    ...sombra.card,
   },
   pendenteTopo: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: espaco.md,
   },
   pendenteInfo: {
     flex: 1,
@@ -169,18 +221,40 @@ const styles = StyleSheet.create({
   pendenteTitulo: {
     fontFamily: familia.semi,
     fontSize: fonte.base,
+    lineHeight: 18,
     color: cores.texto,
   },
   pendenteLocal: {
     marginTop: 2,
     fontFamily: familia.regular,
     fontSize: fonte.md,
+    lineHeight: 16,
     color: cores.textoSecundario,
   },
+  pendenteAcao: {
+    alignItems: 'flex-end',
+    gap: espaco.sm,
+  },
+  pendenteEstado: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: espaco.xs,
+    maxWidth: 118,
+    paddingHorizontal: espaco.sm,
+    paddingVertical: espaco.xs,
+    borderRadius: raio.pilula,
+    backgroundColor: cores.alertaFundo,
+  },
+  pendenteEstadoExpirado: {
+    backgroundColor: cores.erroFundo,
+  },
   pendentePrazo: {
-    marginLeft: espaco.md,
     fontFamily: familia.medio,
     fontSize: fonte.xs,
     color: cores.alerta,
+    flexShrink: 1,
+  },
+  pendentePrazoExpirado: {
+    color: cores.erro,
   },
 });

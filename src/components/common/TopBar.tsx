@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: espaco.lg,
+    marginBottom: espaco.md,
     minHeight: 44,
   },
   esquerda: {

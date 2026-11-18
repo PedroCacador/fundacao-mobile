@@ -23,9 +23,9 @@ export function CampaignCard({ campanha, itens, acaoDoItem }: CampaignCardProps)
   return (
     <Card estilo={styles.card}>
       <View style={styles.topo}>
-        <IconBox nome="megaphone" tamanho={48} redondo {...coresCategoria.rosa} />
+        <IconBox nome="megaphone" tamanho={48} redondo {...coresCategoria.azul} />
         <View style={styles.info}>
-          <Chip pequeno texto={NOME_TIPO_CAMPANHA[campanha.tipo]} {...coresCategoria.rosa} />
+          <Chip pequeno texto={NOME_TIPO_CAMPANHA[campanha.tipo]} {...coresCategoria.azul} />
           <Text style={styles.titulo}>{campanha.nome}</Text>
           {campanha.descricao ? <Text style={styles.texto}>{campanha.descricao}</Text> : null}
         </View>

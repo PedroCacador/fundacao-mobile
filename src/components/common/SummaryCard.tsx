@@ -21,8 +21,6 @@ interface SummaryCardProps {
 export function SummaryCard({ titulo, itens, slogan = 'texto' }: SummaryCardProps) {
   return (
     <View style={styles.card}>
-      <View style={styles.arcoMaior} />
-      <View style={styles.arcoMenor} />
       {titulo ? <Text style={styles.titulo}>{titulo}</Text> : null}
       <View style={styles.linha}>
         {itens.map((item, indice) => (
@@ -65,29 +63,11 @@ const styles = StyleSheet.create({
     borderRadius: raio.lg,
     borderWidth: 1,
     borderColor: cores.bordaAzul,
-    paddingVertical: espaco.lg,
-    paddingHorizontal: espaco.md,
+    paddingTop: espaco.lg,
+    paddingBottom: espaco.lg,
+    paddingHorizontal: espaco.sm,
     marginBottom: espaco.lg,
     overflow: 'hidden',
-  },
-  arcoMaior: {
-    position: 'absolute',
-    top: -40,
-    right: -40,
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    borderWidth: 16,
-    borderColor: cores.decoracao,
-  },
-  arcoMenor: {
-    position: 'absolute',
-    top: 40,
-    right: -24,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: cores.decoracao,
   },
   titulo: {
     fontFamily: familia.semi,
