@@ -5,8 +5,10 @@ import { useUsuario } from '../context/AuthContext';
 import type { EmissaoQr, OpcaoQr, ParametrosQr } from '../models/QrCode';
 import { ApiError } from '../services/api';
 import { qrCodeService } from '../services/qrCodeService';
+import { utilizationService } from '../services/utilizationService';
 import {
     calcularPrazo,
+    lerDataHoraApi,
     montarOpcoesQr,
     pedidoDoQr,
     segundosRestantes,
@@ -92,6 +94,35 @@ export function useQrCodeViewModel(parametros?: ParametrosQr) {
             montado.current = false;
         };
     }, [carregarOpcoes]);
+    useEffect(() => {
+        if (!parametros?.utilizacaoId) return;
+        void utilizationService.buscarPorId(parametros.utilizacaoId).then((utilizacao) => {
+            if (!montado.current || !utilizacao.token_qrcode) return;
+            const emissao = {
+                id: utilizacao.id,
+                token_qrcode: utilizacao.token_qrcode,
+                status: utilizacao.status,
+                data_solicitacao: utilizacao.data_solicitacao,
+                expira_em: utilizacao.expira_em,
+            };
+            const recebidoEm = Date.now();
+            const prazo = utilizacao.expira_em
+                ? lerDataHoraApi(utilizacao.expira_em)
+                : calcularPrazo(emissao, recebidoEm);
+            setChave(
+                utilizacao.origem === 'CAMPANHA' && utilizacao.item_campanha_id
+                    ? `CAMPANHA-${utilizacao.item_campanha_id}`
+                    : utilizacao.beneficio_id
+                      ? `BENEFICIO-${utilizacao.beneficio_id}`
+                      : null,
+            );
+            setConveniadoId(utilizacao.conveniado_id);
+            setQr({ emissao, prazo });
+            setAgora(recebidoEm);
+        }).catch((falha) => {
+            if (montado.current) setErroEmissao(mensagemDe(falha, 'Não foi possível recuperar o QR Code.'));
+        });
+    }, [parametros?.utilizacaoId]);
     const opcao = estadoOpcoes.opcoes.find((item) => item.chave === chave) ?? null;
     const local = opcao
         ? (opcao.locais.find((item) => item.conveniado.id === conveniadoId) ??

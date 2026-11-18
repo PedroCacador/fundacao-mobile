@@ -1,13 +1,13 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useUsuario } from '../context/AuthContext';
 import { useCatalog } from '../context/CatalogContext';
 import { Campanha } from '../models/Campaign';
 import { ItemCampanhaCatalogo } from '../models/Catalog';
 import { resumirCatalogo } from '../utils/benefit';
 import { podeResgatar } from '../utils/campaign';
+import { Utilizacao } from '../models/Utilization';
+import { utilizationService } from '../services/utilizationService';
 import { useCampaignCatalog } from './useCampaignCatalog';
-
-const LIMITE_DESTAQUES = 3;
 
 export interface CampanhaVigente {
   campanha: Campanha;
@@ -18,12 +18,29 @@ export function useHomeViewModel() {
   const usuario = useUsuario();
   const { itens, carregando, atualizando, erro, recarregar: recarregarCatalogo } = useCatalog();
   const campanhas = useCampaignCatalog();
+  const [pendentes, setPendentes] = useState<Utilizacao[]>([]);
+  const [carregandoPendentes, setCarregandoPendentes] = useState(true);
+  const [erroPendentes, setErroPendentes] = useState<string | null>(null);
+
+  const carregarPendentes = useCallback(async () => {
+    setCarregandoPendentes(true);
+    setErroPendentes(null);
+    try {
+      setPendentes(await utilizationService.listarPendentes());
+    } catch (falha) {
+      setErroPendentes(
+        falha instanceof Error ? falha.message : 'Não foi possível carregar os benefícios pendentes.',
+      );
+    } finally {
+      setCarregandoPendentes(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void carregarPendentes();
+  }, [carregarPendentes]);
 
   const resumo = useMemo(() => resumirCatalogo(itens), [itens]);
-  const destaques = useMemo(
-    () => itens.filter((item) => item.disponivel).slice(0, LIMITE_DESTAQUES),
-    [itens],
-  );
 
   const vigentes = useMemo<CampanhaVigente[]>(() => {
     const porCampanha = new Map<number, CampanhaVigente>();
@@ -40,14 +57,13 @@ export function useHomeViewModel() {
 
   const recarregarCampanhas = campanhas.recarregar;
   const recarregar = useCallback(async () => {
-    await Promise.all([recarregarCatalogo(), recarregarCampanhas()]);
-  }, [recarregarCatalogo, recarregarCampanhas]);
+    await Promise.all([recarregarCatalogo(), recarregarCampanhas(), carregarPendentes()]);
+  }, [recarregarCatalogo, recarregarCampanhas, carregarPendentes]);
 
   return {
     nome: usuario.nome,
     cargo: usuario.colaborador?.cargo ?? 'Colaborador(a) da FCV',
     resumo,
-    destaques,
     carregando,
     atualizando,
     erro,
@@ -57,5 +73,9 @@ export function useHomeViewModel() {
     erroCampanhas: campanhas.erro,
     tentarCampanhas: campanhas.tentarDeNovo,
     podeResgatar,
+    pendentes,
+    carregandoPendentes,
+    erroPendentes,
+    tentarPendentes: carregarPendentes,
   };
 }

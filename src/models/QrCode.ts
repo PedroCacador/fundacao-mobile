@@ -27,4 +27,5 @@ export interface ParametrosQr {
     beneficioId?: number;
     itemCampanhaId?: number;
     conveniadoId?: number;
+    utilizacaoId?: number;
 }

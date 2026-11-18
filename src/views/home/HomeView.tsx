@@ -1,6 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
-import { BenefitCard } from '../../components/benefit/BenefitCard';
+import { StyleSheet, Text, View } from 'react-native';
 import { CampaignCard } from '../../components/campaign/CampaignCard';
 import { Button } from '../../components/common/Button';
 import { Screen } from '../../components/common/Screen';
@@ -10,23 +9,27 @@ import { SummaryCard } from '../../components/common/SummaryCard';
 import { TopBar } from '../../components/common/TopBar';
 import { UserGreeting } from '../../components/common/UserGreeting';
 import { TabScreenProps } from '../../navigation/types';
-import { espaco } from '../../theme';
+import { cores, espaco, familia, fonte } from '../../theme';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
+import { Card } from '../../components/common/Card';
+import { lerDataHoraApi } from '../../utils/qrcode';
 
 export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
   const {
     nome,
     resumo,
-    destaques,
     carregando,
     atualizando,
-    erro,
     recarregar,
     campanhasVigentes,
     carregandoCampanhas,
     erroCampanhas,
     tentarCampanhas,
     podeResgatar,
+    pendentes,
+    carregandoPendentes,
+    erroPendentes,
+    tentarPendentes,
   } = useHomeViewModel();
 
   return (
@@ -57,26 +60,59 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
         ]}
       />
 
-      <SectionHeader titulo="Seus benefícios" aoVerTodos={() => navigation.navigate('Wallet')} />
-
-      {carregando ? (
-        <Loading texto="Carregando benefícios..." />
-      ) : erro ? (
-        <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
-      ) : destaques.length === 0 ? (
-        <EmptyState icone="gift" titulo="Nenhum benefício disponível no momento" />
-      ) : (
-        destaques.map((item) => (
-          <BenefitCard
-            key={item.beneficio.id}
-            item={item}
-            resumido
-            aoPressionar={() =>
-              navigation.navigate('BenefitDetails', { beneficioId: item.beneficio.id })
-            }
+      <View style={styles.secao}>
+        <SectionHeader titulo="Benefícios aguardando validação" />
+        {carregandoPendentes ? (
+          <Loading texto="Carregando solicitações..." />
+        ) : erroPendentes ? (
+          <ErrorMessage mensagem={erroPendentes} aoTentarDeNovo={tentarPendentes} />
+        ) : pendentes.length === 0 ? (
+          <EmptyState
+            icone="scan-qr-code"
+            titulo="Nenhum benefício aguardando validação"
           />
-        ))
-      )}
+        ) : (
+          pendentes.map((item) => {
+            const expiraEm = item.expira_em ? lerDataHoraApi(item.expira_em) : null;
+            const restantesMs = expiraEm === null ? null : expiraEm - Date.now();
+            const textoExpiracao =
+              restantesMs === null
+                ? 'Aguardando validação'
+                : restantesMs <= 0
+                  ? 'QR Code expirado'
+                  : `Expira em ${Math.ceil(restantesMs / 60000)} min`;
+            const parametros =
+              item.origem === 'CAMPANHA'
+                ? {
+                    itemCampanhaId: item.item_campanha_id ?? undefined,
+                    conveniadoId: item.conveniado_id,
+                    utilizacaoId: item.id,
+                  }
+                : {
+                    beneficioId: item.beneficio_id ?? undefined,
+                    conveniadoId: item.conveniado_id,
+                    utilizacaoId: item.id,
+                  };
+
+            return (
+              <Card
+                key={item.id}
+                estilo={styles.pendente}
+                aoPressionar={() => navigation.navigate('GerarQrCode', parametros)}
+                rotuloAcessivel={`Abrir QR Code de ${item.beneficio_nome}`}
+              >
+                <View style={styles.pendenteTopo}>
+                  <View style={styles.pendenteInfo}>
+                    <Text style={styles.pendenteTitulo}>{item.beneficio_nome}</Text>
+                    <Text style={styles.pendenteLocal}>{item.conveniado_nome_fantasia}</Text>
+                  </View>
+                  <Text style={styles.pendentePrazo}>{textoExpiracao}</Text>
+                </View>
+              </Card>
+            );
+          })
+        )}
+      </View>
 
       <View style={styles.secao}>
         <SectionHeader titulo="Campanhas e eventos" />
@@ -119,5 +155,32 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
 const styles = StyleSheet.create({
   secao: {
     marginTop: espaco.lg,
+  },
+  pendente: {
+    marginBottom: espaco.md,
+  },
+  pendenteTopo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  pendenteInfo: {
+    flex: 1,
+  },
+  pendenteTitulo: {
+    fontFamily: familia.semi,
+    fontSize: fonte.base,
+    color: cores.texto,
+  },
+  pendenteLocal: {
+    marginTop: 2,
+    fontFamily: familia.regular,
+    fontSize: fonte.md,
+    color: cores.textoSecundario,
+  },
+  pendentePrazo: {
+    marginLeft: espaco.md,
+    fontFamily: familia.medio,
+    fontSize: fonte.xs,
+    color: cores.alerta,
   },
 });
