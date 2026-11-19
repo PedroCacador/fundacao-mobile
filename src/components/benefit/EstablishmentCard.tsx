@@ -1,15 +1,20 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Conveniado } from '../../models/Benefit';
 import { cores, espaco, familia, fonte, raio } from '../../theme';
 import { estiloCategoria } from '../../utils/category';
 import { Chip } from '../common/Chip';
 import { Icone, IconBox } from '../common/Icon';
 
-export function EstablishmentCard({ conveniado }: { conveniado: Conveniado }) {
+interface EstablishmentCardProps {
+  conveniado: Conveniado;
+  aoPressionar?: () => void;
+}
+
+export function EstablishmentCard({ conveniado, aoPressionar }: EstablishmentCardProps) {
   const estilo = estiloCategoria(conveniado.categoria);
 
-  return (
+  const conteudo = (
     <View style={styles.card}>
       <IconBox nome={estilo.icone} cor={estilo.cor} fundo={estilo.fundo} tamanho={56} />
       <View style={styles.info}>
@@ -26,6 +31,16 @@ export function EstablishmentCard({ conveniado }: { conveniado: Conveniado }) {
       </View>
     </View>
   );
+
+  if (aoPressionar) {
+    return (
+      <Pressable onPress={aoPressionar} style={({ pressed }) => pressed && styles.pressionado}>
+        {conteudo}
+      </Pressable>
+    );
+  }
+
+  return conteudo;
 }
 
 const styles = StyleSheet.create({
@@ -59,5 +74,8 @@ const styles = StyleSheet.create({
     fontFamily: familia.regular,
     fontSize: fonte.xxs,
     color: cores.textoSecundario,
+  },
+  pressionado: {
+    opacity: 0.8,
   },
 });

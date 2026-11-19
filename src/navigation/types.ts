@@ -13,7 +13,6 @@ export type TabParamList = {
 
 export type PartnerTabParamList = {
   PartnerScanner: undefined;
-  PartnerPending: undefined;
   PartnerHistory: undefined;
   PartnerProfile: undefined;
 };
@@ -24,11 +23,11 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<TabParamList> | undefined;
   PartnerMain: NavigatorScreenParams<PartnerTabParamList> | undefined;
   BenefitDetails: { beneficioId: number; aba?: AbaDetalhe };
+  LocationDetails: { conveniadoId: number };
   Notifications: undefined;
   History: undefined;
   GerarQrCode: ParametrosQr | undefined;
   PartnerProfile: undefined;
-
 };
 
 export type RootScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<

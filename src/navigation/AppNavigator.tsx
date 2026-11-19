@@ -18,6 +18,7 @@ import BenefitDetailsView from '../views/benefit/BenefitDetailsView';
 import NotificationsView from '../views/notifications/NotificationsView';
 import HistoryView from '../views/history/HistoryView';
 import LocationsView from '../views/locations/LocationsView';
+import LocationDetailsView from '../views/locations/LocationDetailsView';
 import QrCodeView from '../views/qrcode/QrCodeView';
 import PartnerTabNavigator from './PartnerTabNavigator';
 
@@ -100,6 +101,7 @@ export default function AppNavigator() {
         <>
           <Stack.Screen name="Main" component={TabNavigator} />
           <Stack.Screen name="BenefitDetails" component={BenefitDetailsView} />
+          <Stack.Screen name="LocationDetails" component={LocationDetailsView} />
           <Stack.Screen name="Notifications" component={NotificationsView} />
           <Stack.Screen name="History" component={HistoryView} />
           <Stack.Screen name="GerarQrCode" component={QrCodeView} />

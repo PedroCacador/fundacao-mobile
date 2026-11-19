@@ -138,7 +138,13 @@ export default function BenefitDetailsView({
             contentContainerStyle={styles.locais}
           >
             {item.conveniados.map((conveniado) => (
-              <EstablishmentCard key={conveniado.id} conveniado={conveniado} />
+              <EstablishmentCard
+                key={conveniado.id}
+                conveniado={conveniado}
+                aoPressionar={() =>
+                  navigation.navigate('LocationDetails', { conveniadoId: conveniado.id })
+                }
+              />
             ))}
           </ScrollView>
         )}
