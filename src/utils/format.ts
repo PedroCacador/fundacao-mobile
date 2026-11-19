@@ -32,6 +32,14 @@ export function formatarTelefone(telefone: string) {
   return telefone;
 }
 
+export function formatarCnpj(cnpj: string) {
+  const digitos = cnpj.replace(/\D/g, '');
+  if (digitos.length === 14) {
+    return `${digitos.slice(0, 2)}.${digitos.slice(2, 5)}.${digitos.slice(5, 8)}/${digitos.slice(8, 12)}-${digitos.slice(12)}`;
+  }
+  return cnpj;
+}
+
 export function diasAte(data: Date, hoje = new Date()) {
   const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
   return Math.round((data.getTime() - inicio.getTime()) / 86400000);
