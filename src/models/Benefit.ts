@@ -27,9 +27,12 @@ export interface Conveniado {
   nome_fantasia: string;
   razao_social: string;
   categoria: string;
+  categorias?: string[];
   cnpj: string;
   endereco: string;
   status: 'ATIVO' | 'INATIVO' | 'EM_ANALISE';
+  telefone?: string | null;
+  email?: string | null;
 }
 
 export interface Oferta {

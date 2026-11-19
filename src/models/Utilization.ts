@@ -1,4 +1,10 @@
-export type StatusUtilizacao = 'PENDENTE' | 'APROVADA' | 'REPROVADA' | 'ESTORNADA';
+export type StatusUtilizacao =
+  | 'PENDENTE'
+  | 'APROVADA'
+  | 'REPROVADA'
+  | 'ESTORNADA'
+  | 'EXPIRADA'
+  | 'CANCELADA';
 
 export interface Utilizacao {
   id: number;

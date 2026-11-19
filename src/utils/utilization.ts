@@ -14,6 +14,8 @@ export const statusUtilizacao: StatusUtilizacao[] = [
   'PENDENTE',
   'REPROVADA',
   'ESTORNADA',
+  'EXPIRADA',
+  'CANCELADA',
 ];
 
 export const aparenciaStatusUtilizacao: Record<StatusUtilizacao, AparenciaStatus> = {
@@ -26,4 +28,6 @@ export const aparenciaStatusUtilizacao: Record<StatusUtilizacao, AparenciaStatus
   },
   REPROVADA: { rotulo: 'Reprovado', icone: 'x', cor: cores.erro, fundo: cores.erroFundo },
   ESTORNADA: { rotulo: 'Estornado', icone: 'x', cor: cores.textoSecundario, fundo: cores.borda },
+  EXPIRADA: { rotulo: 'Expirado', icone: 'clock', cor: cores.erro, fundo: cores.erroFundo },
+  CANCELADA: { rotulo: 'Cancelado', icone: 'x', cor: cores.textoSecundario, fundo: cores.borda },
 };
