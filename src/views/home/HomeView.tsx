@@ -33,6 +33,8 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
     tentarPendentes,
   } = useHomeViewModel();
 
+  const [agora] = React.useState(() => Date.now());
+
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
       <TopBar perfil />
@@ -79,7 +81,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
         ) : (
           pendentes.map((item) => {
             const expiraEm = item.expira_em ? lerDataHoraApi(item.expira_em) : null;
-            const restantesMs = expiraEm === null ? null : expiraEm - Date.now();
+            const restantesMs = expiraEm === null ? null : expiraEm - agora;
             const textoExpiracao =
               restantesMs === null
                 ? 'Aguardando validação'

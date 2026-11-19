@@ -37,8 +37,27 @@ export function useHomeViewModel() {
   }, []);
 
   useEffect(() => {
-    void carregarPendentes();
-  }, [carregarPendentes]);
+    let ativo = true;
+    utilizationService
+      .listarPendentes()
+      .then((resultado) => {
+        if (ativo) {
+          setPendentes(resultado);
+          setCarregandoPendentes(false);
+        }
+      })
+      .catch((falha) => {
+        if (ativo) {
+          setErroPendentes(
+            falha instanceof Error ? falha.message : 'Não foi possível carregar os benefícios pendentes.',
+          );
+          setCarregandoPendentes(false);
+        }
+      });
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   const resumo = useMemo(() => resumirCatalogo(itens), [itens]);
 

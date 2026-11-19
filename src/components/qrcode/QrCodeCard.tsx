@@ -55,6 +55,20 @@ function aparencia(situacao: SituacaoQr, restantes: number | null): Aparencia {
         cor: cores.textoSecundario,
         fundo: cores.borda,
       };
+    case 'CANCELADA':
+      return {
+        texto: 'Utilização cancelada',
+        icone: 'circle-x',
+        cor: cores.textoSecundario,
+        fundo: cores.borda,
+      };
+    default:
+      return {
+        texto: 'QR Code expirado',
+        icone: 'circle-alert',
+        cor: cores.alerta,
+        fundo: cores.alertaFundo,
+      };
   }
 }
 

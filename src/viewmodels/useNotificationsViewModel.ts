@@ -90,6 +90,16 @@ const textoUtilizacao: Record<
         u.observacoes ? ` Observação: ${u.observacoes}` : ''
       }`,
   },
+  EXPIRADA: {
+    titulo: 'Resgate expirado',
+    mensagem: (u) =>
+      `O prazo para validação do resgate de ${u.beneficio_nome} expirou.`,
+  },
+  CANCELADA: {
+    titulo: 'Resgate cancelado',
+    mensagem: (u) =>
+      `A solicitação de resgate de ${u.beneficio_nome} foi cancelada.`,
+  },
 };
 
 export function useNotificationsViewModel() {
