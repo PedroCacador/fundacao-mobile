@@ -12,15 +12,16 @@ import { IconBox, Icone } from '../common/Icon';
 
 interface LocationCardProps {
   local: LocalConveniado;
+  aoPressionar?: () => void;
 }
 
-export function LocationCard({ local }: LocationCardProps) {
+export function LocationCard({ local, aoPressionar }: LocationCardProps) {
   const { conveniado, beneficios } = local;
 
   const estilo = estiloCategoria(conveniado.categoria);
 
   return (
-    <Card estilo={styles.card}>
+    <Card estilo={styles.card} aoPressionar={aoPressionar}>
       <View style={styles.topo}>
         <IconBox nome={estilo.icone} cor={estilo.cor} fundo={estilo.fundo} tamanho={64} />
 
@@ -39,6 +40,10 @@ export function LocationCard({ local }: LocationCardProps) {
             <Text style={styles.categoria}>{conveniado.categoria}</Text>
           </View>
         </View>
+
+        {aoPressionar ? (
+          <Icone nome="chevron-right" tamanho={22} cor={cores.textoFraco} />
+        ) : null}
       </View>
 
       <View style={styles.aceita}>
