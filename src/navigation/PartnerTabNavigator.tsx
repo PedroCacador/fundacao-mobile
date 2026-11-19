@@ -7,7 +7,6 @@ import { cores, familia, fonte } from '../theme';
 import { PartnerTabParamList } from './types';
 
 import PartnerScannerView from '../views/partner/PartnerScannerView';
-import PartnerPendingView from '../views/partner/PartnerPendingView';
 import PartnerHistoryView from '../views/partner/PartnerHistoryView';
 import ProfileView from '../views/profile/ProfileView';
 
@@ -15,7 +14,6 @@ const Tab = createBottomTabNavigator<PartnerTabParamList>();
 
 const abasParceiro: Record<keyof PartnerTabParamList, { icone: NomeIcone; titulo: string }> = {
   PartnerScanner: { icone: 'qr-code', titulo: 'Validar' },
-  PartnerPending: { icone: 'clock', titulo: 'Pendentes' },
   PartnerHistory: { icone: 'history', titulo: 'Histórico' },
   PartnerProfile: { icone: 'store', titulo: 'Perfil' },
 };
@@ -60,7 +58,6 @@ export default function PartnerTabNavigator() {
       })}
     >
       <Tab.Screen name="PartnerScanner" component={PartnerScannerView} />
-      <Tab.Screen name="PartnerPending" component={PartnerPendingView} />
       <Tab.Screen name="PartnerHistory" component={PartnerHistoryView} />
       <Tab.Screen name="PartnerProfile" component={ProfileView} />
     </Tab.Navigator>
