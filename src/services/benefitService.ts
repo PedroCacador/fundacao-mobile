@@ -10,4 +10,17 @@ export const benefitService = {
     ]);
     return { beneficios, ofertas, conveniados };
   },
+
+  async buscarConveniadoPorId(id: number): Promise<Conveniado> {
+    try {
+      return await requisitar<Conveniado>(`/conveniados/${id}`);
+    } catch {
+      const todos = await requisitar<Conveniado[]>('/conveniados');
+      const encontrado = todos.find((c) => c.id === id);
+      if (!encontrado) {
+        throw new Error(`Conveniado #${id} não encontrado.`);
+      }
+      return encontrado;
+    }
+  },
 };
