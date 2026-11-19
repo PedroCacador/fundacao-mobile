@@ -21,6 +21,7 @@ const abasFiltro: TabOption<FiltroStatusHistorico>[] = [
   { id: 'TODOS', label: 'Todos' },
   { id: 'APROVADA', label: 'Aprovados', icone: 'check' },
   { id: 'REPROVADA', label: 'Reprovados', icone: 'x' },
+  { id: 'PENDENTE', label: 'Pendentes', icone: 'clock' },
 ];
 
 export default function PartnerHistoryView() {

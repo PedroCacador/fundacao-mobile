@@ -1,11 +1,15 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Utilizacao } from '../models/Utilization';
+import { useAuth } from '../context/AuthContext';
+import { StatusUtilizacao, Utilizacao } from '../models/Utilization';
 import { utilizationService } from '../services/utilizationService';
 
-export type FiltroStatusHistorico = 'TODOS' | 'APROVADA' | 'REPROVADA';
+export type FiltroStatusHistorico = 'TODOS' | StatusUtilizacao;
 
 export function usePartnerHistoryViewModel() {
+  const { usuario } = useAuth();
+  const conveniadoId = usuario?.conveniado?.id;
+
   const [historico, setHistorico] = useState<Utilizacao[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
@@ -22,7 +26,11 @@ export function usePartnerHistoryViewModel() {
 
     try {
       const lista = await utilizationService.listarHistoricoConveniado();
-      setHistorico(lista);
+      // Garante exibição somente dos resgates vinculados a este conveniado específico
+      const listaVinculada = conveniadoId
+        ? lista.filter((item) => item.conveniado_id === conveniadoId)
+        : lista;
+      setHistorico(listaVinculada);
     } catch (err: unknown) {
       const mensagem =
         err instanceof Error
@@ -33,7 +41,7 @@ export function usePartnerHistoryViewModel() {
       setCarregando(false);
       setAtualizando(false);
     }
-  }, []);
+  }, [conveniadoId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -44,12 +52,16 @@ export function usePartnerHistoryViewModel() {
   const resumo = useMemo(() => {
     const aprovadas = historico.filter((item) => item.status === 'APROVADA');
     const reprovadas = historico.filter((item) => item.status === 'REPROVADA');
+    const pendentes = historico.filter((item) => item.status === 'PENDENTE');
+    const expiradas = historico.filter((item) => item.status === 'EXPIRADA');
     const valorTotal = aprovadas.reduce((total, item) => total + (Number(item.valor_aplicado) || 0), 0);
 
     return {
       total: historico.length,
       aprovadas: aprovadas.length,
       reprovadas: reprovadas.length,
+      pendentes: pendentes.length,
+      expiradas: expiradas.length,
       valorTotal,
     };
   }, [historico]);
@@ -61,6 +73,7 @@ export function usePartnerHistoryViewModel() {
 
   return {
     historico: itensFiltrados,
+    historicoTotal: historico.length,
     carregando,
     atualizando,
     erro,
