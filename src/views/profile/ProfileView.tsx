@@ -1,4 +1,6 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Button } from '../../components/common/Button';
 import { ConfirmationModal } from '../../components/common/ConfirmationModal';
 import { DecorativeCircles } from '../../components/common/DecorativeCircles';
@@ -8,6 +10,7 @@ import { Screen } from '../../components/common/Screen';
 import { SectionCard } from '../../components/common/SectionCard';
 import { TopBar } from '../../components/common/TopBar';
 import { UserGreeting } from '../../components/common/UserGreeting';
+import { espaco } from '../../theme';
 import { CampoPerfil, useProfileViewModel } from '../../viewmodels/useProfileViewModel';
 
 export default function ProfileView() {
@@ -26,6 +29,7 @@ export default function ProfileView() {
     cancelarSaida,
     confirmarSaida,
   } = useProfileViewModel();
+  const navigation = useNavigation();
 
   return (
     <Screen fundo={<DecorativeCircles posicoes={['topoDireita']} />}>
@@ -52,6 +56,15 @@ export default function ProfileView() {
         valoresADireita
       />
 
+      {ehColaborador ? (
+        <Button
+          titulo="Histórico de resgates"
+          icone="history"
+          variante="secundaria"
+          estilo={styles.botaoHistorico}
+          aoPressionar={() => navigation.navigate('History')}
+        />
+      ) : null}
       <Button
         titulo="Sair da conta"
         icone="log-out"
@@ -94,3 +107,9 @@ function SecaoCampos({ icone, titulo, subtitulo, campos, valoresADireita }: Seca
     </SectionCard>
   );
 }
+
+const styles = StyleSheet.create({
+  botaoHistorico: {
+    marginBottom: espaco.md,
+  },
+});
