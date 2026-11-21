@@ -114,7 +114,7 @@ export const utilizationService = {
   },
 };
 
-const LIMITE_PAGINA_HISTORICO = 50;
+const LIMITE_PAGINA_HISTORICO = 20;
 const MAXIMO_PAGINAS_HISTORICO = 50;
 
 // TODO(grupo-2): trocar por um unico GET do historico dos ultimos 6 meses com busca no servidor.

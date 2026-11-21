@@ -108,13 +108,18 @@ test('inicioDoPeriodo usa 6 meses de calendário e respeita meses mais curtos', 
   assert.equal(dataParaApi(inicioDoPeriodo(new Date(2026, 0, 15))), '2025-07-15');
 });
 
-test('filtrarUltimosMeses usa data_solicitacao e inclui o dia de corte', () => {
+test('filtrarUltimosMeses usa data_solicitacao, inclui o dia de corte e descarta datas futuras, inválidas ou ausentes', () => {
   const agora = new Date(2026, 10, 21, 15, 0);
   const lista = [
     utilizacao(1, { data_solicitacao: '2026-05-21T00:00:00' }),
     utilizacao(2, { data_solicitacao: '2026-05-20T23:59:59' }),
     utilizacao(3, { data_solicitacao: '2026-11-20T09:00:00' }),
     utilizacao(4, { data_solicitacao: '2025-01-10T09:00:00' }),
+    utilizacao(5, { data_solicitacao: '2026-11-22T00:00:00' }),
+    utilizacao(6, { data_solicitacao: 'data-invalida' }),
+    utilizacao(7, { data_solicitacao: '2026-02-31T10:00:00' }),
+    utilizacao(8, { data_solicitacao: undefined }),
+    utilizacao(9, { data_solicitacao: null }),
   ];
   assert.deepEqual(
     filtrarUltimosMeses(lista, agora).map((item) => item.id),

@@ -45,15 +45,36 @@ export function inicioDoPeriodo(agora: Date, meses = MESES_HISTORICO) {
   );
 }
 
+const DATA_ISO = /^\d{4}-\d{2}-\d{2}/;
+
+function lerDataValida(texto: string | null | undefined): Date | null {
+  if (typeof texto !== 'string' || !DATA_ISO.test(texto)) return null;
+  const [ano, mes, dia] = texto.slice(0, 10).split('-').map(Number);
+  const data = lerData(texto);
+  if (
+    Number.isNaN(data.getTime()) ||
+    data.getFullYear() !== ano ||
+    data.getMonth() !== mes - 1 ||
+    data.getDate() !== dia
+  ) {
+    return null;
+  }
+  return data;
+}
+
 export function filtrarUltimosMeses(
   utilizacoes: Utilizacao[],
   agora: Date,
   meses = MESES_HISTORICO,
 ) {
   const inicio = inicioDoPeriodo(agora, meses).getTime();
-  return utilizacoes.filter(
-    (utilizacao) => lerData(utilizacao.data_solicitacao).getTime() >= inicio,
-  );
+  const fim = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).getTime();
+  return utilizacoes.filter((utilizacao) => {
+    const data = lerDataValida(utilizacao.data_solicitacao);
+    if (!data) return false;
+    const tempo = data.getTime();
+    return tempo >= inicio && tempo <= fim;
+  });
 }
 
 export function buscarUtilizacoes(
@@ -83,6 +104,6 @@ export function consultarHistorico({
 }) {
   const recentes = filtrarUltimosMeses(utilizacoes, agora);
   return [...buscarUtilizacoes(recentes, termo, descricoes)].sort((a, b) =>
-    b.data_solicitacao.localeCompare(a.data_solicitacao),
+    (b.data_solicitacao ?? '').localeCompare(a.data_solicitacao ?? ''),
   );
 }
