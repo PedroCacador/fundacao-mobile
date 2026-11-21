@@ -29,6 +29,9 @@ export function UtilizationCard({ utilizacao, aoPressionar }: UtilizationCardPro
           <Text style={styles.titulo}>{utilizacao.beneficio_nome}</Text>
           <Text style={styles.conveniado}>{utilizacao.conveniado_nome_fantasia}</Text>
           <Text style={styles.endereco}>{utilizacao.conveniado_endereco}</Text>
+          <View style={styles.status}>
+            <Chip texto={status.rotulo} icone={status.icone} cor={status.cor} fundo={status.fundo} />
+          </View>
         </View>
         {aoPressionar ? <Icone nome="chevron-right" tamanho={20} cor={cores.textoFraco} /> : null}
       </View>
@@ -44,13 +47,6 @@ export function UtilizationCard({ utilizacao, aoPressionar }: UtilizationCardPro
           <Icone nome="coins" tamanho={15} cor={cores.primaria} />
           <Text style={styles.detalhe}>- 1 utilização</Text>
         </View>
-        <Chip
-          pequeno
-          texto={status.rotulo}
-          icone={status.icone}
-          cor={status.cor}
-          fundo={status.fundo}
-        />
       </View>
       {utilizacao.status === 'REPROVADA' && utilizacao.observacoes ? (
         <Text style={styles.observacao}>{utilizacao.observacoes}</Text>
@@ -87,6 +83,10 @@ const styles = StyleSheet.create({
     fontFamily: familia.regular,
     fontSize: fonte.xs,
     color: cores.textoSecundario,
+  },
+  status: {
+    alignSelf: 'flex-start',
+    marginTop: espaco.xs,
   },
   rodape: {
     flexDirection: 'row',

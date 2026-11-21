@@ -1,85 +1,41 @@
-import React, { useEffect, useRef } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '../../components/common/Card';
-import { FilterTabs, TabOption } from '../../components/common/FilterTabs';
 import { PageHeader } from '../../components/common/PageHeader';
-import { Pagination } from '../../components/common/Pagination';
 import { Screen } from '../../components/common/Screen';
+import { SearchBar } from '../../components/common/SearchBar';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { UtilizationCard } from '../../components/history/UtilizationCard';
 import { RootScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte } from '../../theme';
-import { aparenciaStatusUtilizacao, statusUtilizacao } from '../../utils/utilization';
-import {
-  FiltroStatusHistorico,
-  PeriodoHistorico,
-  periodos,
-  useHistoryViewModel,
-} from '../../viewmodels/useHistoryViewModel';
-
-const abasPeriodo: TabOption<PeriodoHistorico>[] = periodos.map((opcao) => ({
-  id: opcao.id,
-  label: opcao.label,
-  icone: 'calendar',
-}));
-
-const abasStatus: TabOption<FiltroStatusHistorico>[] = [
-  { id: 'TODOS', label: 'Todos' },
-  ...statusUtilizacao.map((status) => ({
-    id: status,
-    label: aparenciaStatusUtilizacao[status].rotulo,
-    icone: aparenciaStatusUtilizacao[status].icone,
-  })),
-];
+import { useHistoryViewModel } from '../../viewmodels/useHistoryViewModel';
 
 export default function HistoryView({ navigation }: RootScreenProps<'History'>) {
   const {
-    periodo,
-    setPeriodo,
-    frasePeriodo,
-    status,
-    setStatus,
+    busca,
+    setBusca,
+    buscaAtiva,
     lista,
-    pagina,
-    totalPaginas,
     resumoTotal,
-    paginaAnterior,
-    proximaPagina,
     carregando,
     erro,
     atualizando,
     tentarDeNovo,
     recarregar,
-    carregandoPreferencias,
-    erroPreferencias,
-    tentarPreferencias,
   } = useHistoryViewModel();
-  const rolagem = useRef<React.ComponentRef<typeof ScrollView>>(null);
-
-  useEffect(() => {
-    rolagem.current?.scrollTo({ y: 0, animated: true });
-  }, [pagina]);
 
   return (
-    <Screen atualizando={atualizando} aoAtualizar={recarregar} refRolagem={rolagem}>
+    <Screen atualizando={atualizando} aoAtualizar={recarregar}>
       <PageHeader
-        titulo="Histórico de Utilizações"
-        subtitulo="Acompanhe todas as utilizações dos seus benefícios em um só lugar."
+        titulo="Histórico de Resgates"
+        subtitulo="Todos os seus resgates dos últimos 6 meses, em qualquer status."
       />
 
-      {erroPreferencias ? (
-        <View style={styles.erro}>
-          <ErrorMessage mensagem={erroPreferencias} aoTentarDeNovo={tentarPreferencias} />
-        </View>
-      ) : null}
-
-      <FilterTabs
-        tabs={abasPeriodo}
-        selectedTab={periodo}
-        onSelectTab={setPeriodo}
-        desabilitado={carregandoPreferencias}
+      <SearchBar
+        value={busca}
+        onChangeText={setBusca}
+        placeholder="Buscar por nome ou descrição do benefício..."
       />
-      <FilterTabs tabs={abasStatus} selectedTab={status} onSelectTab={setStatus} />
 
       {erro ? (
         <View style={styles.erro}>
@@ -91,11 +47,11 @@ export default function HistoryView({ navigation }: RootScreenProps<'History'>) 
         <Card estilo={styles.cardVazio}>
           <EmptyState
             icone="history"
-            titulo={`Nenhuma utilização ${frasePeriodo}`}
+            titulo="Nenhum resgate encontrado"
             texto={
-              status === 'TODOS'
-                ? 'Quando você usar um benefício em um estabelecimento conveniado, ele aparece aqui.'
-                : 'Não há utilizações com este status no período escolhido.'
+              buscaAtiva
+                ? 'Tente buscar por outro nome ou descrição de benefício.'
+                : 'Quando você resgatar um benefício, ele aparece aqui.'
             }
           />
         </Card>
@@ -116,13 +72,6 @@ export default function HistoryView({ navigation }: RootScreenProps<'History'>) 
               />
             );
           })}
-          <Pagination
-            pagina={pagina}
-            totalPaginas={totalPaginas}
-            aoAnterior={paginaAnterior}
-            aoProxima={proximaPagina}
-            desabilitado={atualizando}
-          />
         </>
       )}
     </Screen>

@@ -113,3 +113,24 @@ export const utilizationService = {
     });
   },
 };
+
+const LIMITE_PAGINA_HISTORICO = 50;
+const MAXIMO_PAGINAS_HISTORICO = 50;
+
+// TODO(grupo-2): trocar por um unico GET do historico dos ultimos 6 meses com busca no servidor.
+export async function listarUtilizacoesDesde(de: string) {
+  const todas: Utilizacao[] = [];
+  let pagina = 1;
+  let totalPaginas = 1;
+  while (pagina <= totalPaginas && pagina <= MAXIMO_PAGINAS_HISTORICO) {
+    const resposta = await utilizationService.listarMinhas({
+      pagina,
+      limite: LIMITE_PAGINA_HISTORICO,
+      de,
+    });
+    todas.push(...resposta.dados);
+    totalPaginas = resposta.paginacao.totalPaginas;
+    pagina += 1;
+  }
+  return todas;
+}
