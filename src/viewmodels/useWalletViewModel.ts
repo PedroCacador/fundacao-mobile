@@ -1,33 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCatalog } from '../context/CatalogContext';
-import { usePreferences } from '../context/PreferencesContext';
-import { BeneficioCatalogo, ItemCampanhaCatalogo } from '../models/Catalog';
-import type { FiltroCarteira } from '../models/Preferences';
+import { BeneficioCatalogo } from '../models/Catalog';
 import { Utilizacao } from '../models/Utilization';
 import { ApiError } from '../services/api';
 import { utilizationService } from '../services/utilizationService';
-import { resumirCatalogo } from '../utils/benefit';
-import { podeResgatar } from '../utils/campaign';
+import { beneficiosAtivos } from '../utils/benefit';
 import { formatarData, lerData } from '../utils/format';
-import { useCampaignCatalog } from './useCampaignCatalog';
 
-export type { FiltroCarteira } from '../models/Preferences';
-
-export type EntradaCarteira =
-  | {
-      tipo: 'BENEFICIO';
-      chave: string;
-      catalogo: BeneficioCatalogo;
-      ultimaUtilizacao: string | null;
-    }
-  | {
-      tipo: 'CAMPANHA';
-      chave: string;
-      dados: ItemCampanhaCatalogo;
-      status: 'DISPONIVEL' | 'UTILIZADO' | 'EXPIRADO';
-      podeResgatar: boolean;
-      ultimaUtilizacao: string | null;
-    };
+export interface EntradaBeneficio {
+  chave: string;
+  catalogo: BeneficioCatalogo;
+  ultimaUtilizacao: string | null;
+}
 
 interface ResultadoUtilizacoes {
   lista: Utilizacao[];
@@ -44,23 +28,15 @@ async function buscarAprovadas(): Promise<ResultadoUtilizacoes> {
   }
 }
 
-function ultimasPorOrigem(lista: Utilizacao[]) {
+function ultimasPorBeneficio(lista: Utilizacao[]) {
   const beneficios = new Map<number, string>();
-  const itens = new Map<number, string>();
   for (const utilizacao of lista) {
-    if (utilizacao.status !== 'APROVADA') continue;
+    if (utilizacao.status !== 'APROVADA' || utilizacao.beneficio_id === null) continue;
     const data = utilizacao.data_confirmacao ?? utilizacao.data_solicitacao;
-    const destino =
-      utilizacao.beneficio_id !== null
-        ? { mapa: beneficios, id: utilizacao.beneficio_id }
-        : utilizacao.item_campanha_id !== null
-          ? { mapa: itens, id: utilizacao.item_campanha_id }
-          : null;
-    if (!destino) continue;
-    const anterior = destino.mapa.get(destino.id);
-    if (!anterior || data > anterior) destino.mapa.set(destino.id, data);
+    const anterior = beneficios.get(utilizacao.beneficio_id);
+    if (!anterior || data > anterior) beneficios.set(utilizacao.beneficio_id, data);
   }
-  return { beneficios, itens };
+  return beneficios;
 }
 
 function formatar(data: string | undefined) {
@@ -69,15 +45,6 @@ function formatar(data: string | undefined) {
 
 export function useWalletViewModel() {
   const { itens, carregando, atualizando, erro, recarregar: recarregarCatalogo } = useCatalog();
-  const campanhas = useCampaignCatalog();
-  const {
-    preferencias,
-    definirFiltroCarteira: setFiltro,
-    carregando: carregandoPreferencias,
-    erro: erroPreferencias,
-    tentarDeNovo: tentarPreferencias,
-  } = usePreferences();
-  const filtro = preferencias.filtroCarteira;
   const [utilizacoes, setUtilizacoes] = useState<ResultadoUtilizacoes | null>(null);
   const versao = useRef(0);
 
@@ -102,73 +69,25 @@ export function useWalletViewModel() {
     await recarregarUtilizacoes();
   }, [recarregarUtilizacoes]);
 
-  const recarregarCampanhas = campanhas.recarregar;
   const recarregar = useCallback(async () => {
-    await Promise.all([recarregarCatalogo(), recarregarCampanhas(), recarregarUtilizacoes()]);
-  }, [recarregarCatalogo, recarregarCampanhas, recarregarUtilizacoes]);
+    await Promise.all([recarregarCatalogo(), recarregarUtilizacoes()]);
+  }, [recarregarCatalogo, recarregarUtilizacoes]);
 
-  const resumo = useMemo(() => resumirCatalogo(itens), [itens]);
-
-  const entradas = useMemo<EntradaCarteira[]>(() => {
-    const ultimas = ultimasPorOrigem(utilizacoes?.lista ?? []);
-    const deBeneficios: EntradaCarteira[] = itens.map((catalogo) => ({
-      tipo: 'BENEFICIO',
+  const lista = useMemo<EntradaBeneficio[]>(() => {
+    const ultimas = ultimasPorBeneficio(utilizacoes?.lista ?? []);
+    return beneficiosAtivos(itens).map((catalogo) => ({
       chave: `beneficio-${catalogo.beneficio.id}`,
       catalogo,
-      ultimaUtilizacao: formatar(ultimas.beneficios.get(catalogo.beneficio.id)),
+      ultimaUtilizacao: formatar(ultimas.get(catalogo.beneficio.id)),
     }));
-    const deCampanhas: EntradaCarteira[] = campanhas.itens.map((dados) => {
-      const ultima = formatar(ultimas.itens.get(dados.item.id));
-      return {
-        tipo: 'CAMPANHA',
-        chave: `campanha-${dados.item.id}`,
-        dados,
-        status: dados.situacao === 'EXPIRADA' ? 'EXPIRADO' : ultima ? 'UTILIZADO' : 'DISPONIVEL',
-        ultimaUtilizacao: ultima,
-        podeResgatar: podeResgatar(dados),
-      };
-    });
-    return [...deBeneficios, ...deCampanhas];
-  }, [itens, campanhas.itens, utilizacoes]);
-
-  const lista = useMemo(() => {
-    return entradas.filter((entrada) => {
-      if (filtro === 'TODOS') return true;
-      if (filtro === 'UTILIZADOS') return entrada.ultimaUtilizacao !== null;
-      if (entrada.tipo === 'BENEFICIO') {
-        return filtro === 'DISPONIVEIS' && entrada.catalogo.disponivel;
-      }
-      const expirado = entrada.dados.situacao === 'EXPIRADA';
-      return filtro === 'EXPIRADOS' ? expirado : !expirado && entrada.dados.conveniados.length > 0;
-    });
-  }, [entradas, filtro]);
-
-  const mensagemVazia: Record<FiltroCarteira, string> = {
-    TODOS: 'Você ainda não tem benefícios na carteira.',
-    DISPONIVEIS: 'Nenhum benefício ou item de campanha disponível agora.',
-    UTILIZADOS: 'Nenhuma utilização aprovada até agora.',
-    EXPIRADOS: 'Nenhum item de campanha encerrada.',
-  };
+  }, [itens, utilizacoes]);
 
   return {
     lista,
-    filtro,
-    setFiltro,
-    resumo,
-    textoVazio: mensagemVazia[filtro],
-    carregando:
-      carregando ||
-      carregandoPreferencias ||
-      campanhas.carregando ||
-      (filtro === 'UTILIZADOS' && !utilizacoes),
-    carregandoPreferencias,
-    erroPreferencias,
-    tentarPreferencias,
+    carregando,
     atualizando,
     erro,
     recarregar,
-    erroCampanhas: campanhas.erro,
-    tentarCampanhas: campanhas.tentarDeNovo,
     erroUtilizacoes: utilizacoes?.erro ?? null,
     tentarUtilizacoes,
   };

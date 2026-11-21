@@ -73,3 +73,7 @@ export function resumirCatalogo(itens: BeneficioCatalogo[]): ResumoCatalogo {
     proximaRenovacao: datas[0] ?? null,
   };
 }
+
+export function beneficiosAtivos(itens: BeneficioCatalogo[]) {
+  return itens.filter((item) => item.beneficio.status === 'ATIVO' && item.disponivel);
+}
