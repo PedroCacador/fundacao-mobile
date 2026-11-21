@@ -1,6 +1,7 @@
-import { Beneficio } from '../models/Benefit';
+import { Beneficio, Conveniado } from '../models/Benefit';
 import { BeneficioCatalogo, ResumoCatalogo } from '../models/Catalog';
 import { formatarMoeda, lerData, plural } from './format';
+import { contemTexto, normalizarTexto } from './search';
 
 const NOME_CICLO = { ANO: 'ano', MES: 'mês', SEMANA: 'semana' } as const;
 
@@ -76,4 +77,34 @@ export function resumirCatalogo(itens: BeneficioCatalogo[]): ResumoCatalogo {
 
 export function beneficiosAtivos(itens: BeneficioCatalogo[]) {
   return itens.filter((item) => item.beneficio.status === 'ATIVO' && item.disponivel);
+}
+
+export function categoriasDoConveniado(conveniado: Pick<Conveniado, 'categoria' | 'categorias'>) {
+  const categorias =
+    conveniado.categorias && conveniado.categorias.length > 0
+      ? conveniado.categorias
+      : [conveniado.categoria];
+  return categorias.filter((categoria) => Boolean(categoria));
+}
+
+export function listarCategorias(itens: BeneficioCatalogo[]) {
+  const conjunto = new Set(
+    itens.flatMap((item) => item.conveniados.flatMap(categoriasDoConveniado)),
+  );
+  return Array.from(conjunto).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+}
+
+export function filtrarBeneficios(
+  itens: BeneficioCatalogo[],
+  termo: string,
+  categoria: string | null,
+) {
+  const alvo = normalizarTexto(termo);
+  return itens.filter((item) => {
+    const naCategoria =
+      categoria === null ||
+      item.conveniados.some((conveniado) => categoriasDoConveniado(conveniado).includes(categoria));
+    if (!naCategoria) return false;
+    return !alvo || contemTexto(item.beneficio.nome, alvo) || contemTexto(item.beneficio.descricao, alvo);
+  });
 }

@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { TODAS_CATEGORIAS } from '../components/common/CategoryFilterModal';
 import { useCatalog } from '../context/CatalogContext';
 import { BeneficioCatalogo } from '../models/Catalog';
 import { Utilizacao } from '../models/Utilization';
 import { ApiError } from '../services/api';
 import { utilizationService } from '../services/utilizationService';
-import { beneficiosAtivos } from '../utils/benefit';
+import { beneficiosAtivos, filtrarBeneficios, listarCategorias } from '../utils/benefit';
 import { formatarData, lerData } from '../utils/format';
+
+export { TODAS_CATEGORIAS };
 
 export interface EntradaBeneficio {
   chave: string;
@@ -46,6 +49,9 @@ function formatar(data: string | undefined) {
 export function useWalletViewModel() {
   const { itens, carregando, atualizando, erro, recarregar: recarregarCatalogo } = useCatalog();
   const [utilizacoes, setUtilizacoes] = useState<ResultadoUtilizacoes | null>(null);
+  const [busca, setBusca] = useState('');
+  const [categoria, setCategoria] = useState(TODAS_CATEGORIAS);
+  const [modalFiltroAberto, setModalFiltroAberto] = useState(false);
   const versao = useRef(0);
 
   useEffect(() => {
@@ -73,17 +79,49 @@ export function useWalletViewModel() {
     await Promise.all([recarregarCatalogo(), recarregarUtilizacoes()]);
   }, [recarregarCatalogo, recarregarUtilizacoes]);
 
+  const ativos = useMemo(() => beneficiosAtivos(itens), [itens]);
+  const categorias = useMemo(() => listarCategorias(ativos), [ativos]);
+
   const lista = useMemo<EntradaBeneficio[]>(() => {
     const ultimas = ultimasPorBeneficio(utilizacoes?.lista ?? []);
-    return beneficiosAtivos(itens).map((catalogo) => ({
+    const filtrados = filtrarBeneficios(
+      ativos,
+      busca,
+      categoria === TODAS_CATEGORIAS ? null : categoria,
+    );
+    return filtrados.map((catalogo) => ({
       chave: `beneficio-${catalogo.beneficio.id}`,
       catalogo,
       ultimaUtilizacao: formatar(ultimas.get(catalogo.beneficio.id)),
     }));
-  }, [itens, utilizacoes]);
+  }, [ativos, utilizacoes, busca, categoria]);
+
+  const abrirModalFiltro = () => setModalFiltroAberto(true);
+  const fecharModalFiltro = () => setModalFiltroAberto(false);
+
+  const aplicarFiltroCategoria = (selecionada: string) => {
+    setCategoria(selecionada);
+    setModalFiltroAberto(false);
+  };
+
+  const limparFiltros = () => {
+    setCategoria(TODAS_CATEGORIAS);
+    setModalFiltroAberto(false);
+  };
 
   return {
     lista,
+    busca,
+    setBusca,
+    buscaAtiva: busca.trim().length > 0,
+    categorias,
+    categoria,
+    filtroAtivo: categoria !== TODAS_CATEGORIAS,
+    modalFiltroAberto,
+    abrirModalFiltro,
+    fecharModalFiltro,
+    aplicarFiltroCategoria,
+    limparFiltros,
     carregando,
     atualizando,
     erro,

@@ -1,8 +1,10 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
+import { CategoryFilterModal } from '../../components/common/CategoryFilterModal';
 import { Header } from '../../components/common/Header';
 import { Screen } from '../../components/common/Screen';
+import { SearchBar } from '../../components/common/SearchBar';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { TopBar } from '../../components/common/TopBar';
 import { TabScreenProps } from '../../navigation/types';
@@ -10,8 +12,26 @@ import { espaco } from '../../theme';
 import { useWalletViewModel } from '../../viewmodels/useWalletViewModel';
 
 export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
-  const { lista, carregando, atualizando, erro, recarregar, erroUtilizacoes, tentarUtilizacoes } =
-    useWalletViewModel();
+  const {
+    lista,
+    busca,
+    setBusca,
+    buscaAtiva,
+    categorias,
+    categoria,
+    filtroAtivo,
+    modalFiltroAberto,
+    abrirModalFiltro,
+    fecharModalFiltro,
+    aplicarFiltroCategoria,
+    limparFiltros,
+    carregando,
+    atualizando,
+    erro,
+    recarregar,
+    erroUtilizacoes,
+    tentarUtilizacoes,
+  } = useWalletViewModel();
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
@@ -20,6 +40,17 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
         icone="wallet"
         titulo="Carteira de Benefícios"
         subtitulo="Confira todos os seus benefícios e acompanhe a validade de cada um."
+      />
+
+      <SearchBar
+        value={busca}
+        onChangeText={setBusca}
+        placeholder="Buscar benefício por nome ou descrição..."
+        filtroCategoria={{
+          categoria: filtroAtivo ? categoria : null,
+          aoAbrir: abrirModalFiltro,
+          aoLimpar: limparFiltros,
+        }}
       />
 
       {erroUtilizacoes ? (
@@ -35,8 +66,12 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
       ) : lista.length === 0 ? (
         <EmptyState
           icone="wallet"
-          titulo="Nada por aqui"
-          texto="Não há benefícios ativos disponíveis no momento."
+          titulo="Nenhum benefício encontrado"
+          texto={
+            filtroAtivo || buscaAtiva
+              ? 'Tente buscar por outro termo ou limpar o filtro de categoria.'
+              : 'Não há benefícios ativos disponíveis no momento.'
+          }
         />
       ) : (
         lista.map((entrada) => (
@@ -58,6 +93,15 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
           />
         ))
       )}
+
+      <CategoryFilterModal
+        aberto={modalFiltroAberto}
+        categorias={categorias}
+        categoriaSelecionada={categoria}
+        aoFiltrar={aplicarFiltroCategoria}
+        aoLimpar={limparFiltros}
+        aoVoltar={fecharModalFiltro}
+      />
     </Screen>
   );
 }
