@@ -217,15 +217,34 @@ test('o Histórico descarta resgates fora dos 6 meses e filtra pela busca', asyn
   assert.equal(historico.lista.length, 0);
 });
 
-test('o Histórico avisa quando a versão da API não devolve paginação', async () => {
+test('o Histórico aceita lista simples quando a API devolve array sem paginação', async () => {
   const anterior = globalThis.fetch;
   globalThis.fetch = async (url, opcoes) => {
-    if (url.includes('/eu/utilizacoes?pagina=')) return json([{ id: 1 }]);
+    if (url.includes('/eu/utilizacoes?pagina=')) {
+      return json([utilizacao(1, { beneficio_nome: 'Vale Remédio' })]);
+    }
     return anterior(url, opcoes);
   };
   app = await montar({ Conteudo });
   await entrar();
 
   assert.equal(historico.carregando, false);
-  assert.match(historico.erro, /histórico paginado/i);
+  assert.equal(historico.erro, null);
+  assert.deepEqual(
+    historico.lista.map((item) => item.id),
+    [1],
+  );
+});
+
+test('o Histórico avisa quando a API devolve formato inválido', async () => {
+  const anterior = globalThis.fetch;
+  globalThis.fetch = async (url, opcoes) => {
+    if (url.includes('/eu/utilizacoes?pagina=')) return json({ invalido: true });
+    return anterior(url, opcoes);
+  };
+  app = await montar({ Conteudo });
+  await entrar();
+
+  assert.equal(historico.carregando, false);
+  assert.match(historico.erro, /formato inválido/i);
 });

@@ -123,11 +123,16 @@ export async function listarUtilizacoesDesde(de: string) {
   let pagina = 1;
   let totalPaginas = 1;
   while (pagina <= totalPaginas && pagina <= MAXIMO_PAGINAS_HISTORICO) {
-    const resposta = await utilizationService.listarMinhas({
-      pagina,
-      limite: LIMITE_PAGINA_HISTORICO,
-      de,
-    });
+    const consulta = montarConsulta({ pagina, limite: LIMITE_PAGINA_HISTORICO, de });
+    const resposta = await requisitar<RespostaPaginada<Utilizacao> | Utilizacao[]>(
+      `/eu/utilizacoes?${consulta}`,
+    );
+    if (Array.isArray(resposta)) {
+      return resposta;
+    }
+    if (!Array.isArray(resposta?.dados) || !resposta.paginacao) {
+      throw new ApiError('O servidor retornou um histórico em formato inválido.', 502);
+    }
     todas.push(...resposta.dados);
     totalPaginas = resposta.paginacao.totalPaginas;
     pagina += 1;
