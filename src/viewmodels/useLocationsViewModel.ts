@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useCatalog } from '../context/CatalogContext';
 import { LocalConveniado } from '../models/Catalog';
 import { TODAS_CATEGORIAS } from '../components/common/CategoryFilterModal';
+import { categoriasDoConveniado } from '../utils/benefit';
 
 export { TODAS_CATEGORIAS };
 
@@ -52,13 +53,7 @@ export function useLocationsViewModel() {
   const categorias = useMemo(() => {
     const conjunto = new Set<string>();
     for (const local of locais) {
-      if (local.conveniado.categorias && local.conveniado.categorias.length > 0) {
-        local.conveniado.categorias.forEach((cat) => {
-          if (cat) conjunto.add(cat);
-        });
-      } else if (local.conveniado.categoria) {
-        conjunto.add(local.conveniado.categoria);
-      }
+      categoriasDoConveniado(local.conveniado).forEach((cat) => conjunto.add(cat));
     }
     return Array.from(conjunto).sort();
   }, [locais]);
@@ -67,10 +62,7 @@ export function useLocationsViewModel() {
     const termo = normalizar(busca.trim());
 
     return locais.filter(({ conveniado }) => {
-      const cats =
-        conveniado.categorias && conveniado.categorias.length > 0
-          ? conveniado.categorias
-          : [conveniado.categoria];
+      const cats = categoriasDoConveniado(conveniado);
 
       const naCategoria =
         categoria === TODAS_CATEGORIAS || cats.some((c) => c === categoria);

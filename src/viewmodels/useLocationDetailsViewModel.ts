@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCatalog } from '../context/CatalogContext';
 import { Beneficio, Conveniado } from '../models/Benefit';
 import { benefitService } from '../services/benefitService';
+import { categoriasDoConveniado } from '../utils/benefit';
 
 export function useLocationDetailsViewModel(conveniadoId: number) {
   const { itens, carregando: carregandoCatalogo, erro: erroCatalogo, recarregar: recarregarCatalogo } =
@@ -38,10 +39,7 @@ export function useLocationDetailsViewModel(conveniadoId: number) {
   // Lista de categorias do conveniado (suporte a N:N e categoria única)
   const categorias = useMemo(() => {
     if (!conveniado) return [];
-    if (conveniado.categorias && conveniado.categorias.length > 0) {
-      return conveniado.categorias;
-    }
-    return conveniado.categoria ? [conveniado.categoria] : [];
+    return categoriasDoConveniado(conveniado);
   }, [conveniado]);
 
   useEffect(() => {

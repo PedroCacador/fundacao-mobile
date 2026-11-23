@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Conveniado } from '../../models/Benefit';
 import { cores, espaco, familia, fonte, raio } from '../../theme';
+import { categoriasDoConveniado } from '../../utils/benefit';
 import { estiloCategoria } from '../../utils/category';
 import { Chip } from '../common/Chip';
 import { Icone, IconBox } from '../common/Icon';
@@ -12,7 +13,8 @@ interface EstablishmentCardProps {
 }
 
 export function EstablishmentCard({ conveniado, aoPressionar }: EstablishmentCardProps) {
-  const estilo = estiloCategoria(conveniado.categoria);
+  const categoria = categoriasDoConveniado(conveniado)[0] ?? 'Outros';
+  const estilo = estiloCategoria(categoria);
 
   const conteudo = (
     <View style={styles.card}>
@@ -27,7 +29,7 @@ export function EstablishmentCard({ conveniado, aoPressionar }: EstablishmentCar
             {conveniado.endereco}
           </Text>
         </View>
-        <Chip pequeno texto={conveniado.categoria} />
+        <Chip pequeno texto={categoria} />
       </View>
     </View>
   );

@@ -35,7 +35,7 @@ export function useProfileViewModel() {
             { icone: 'store', rotulo: 'Nome fantasia', valor: conveniado.nome_fantasia },
             { icone: 'building', rotulo: 'Razão social', valor: conveniado.razao_social },
             { icone: 'id-card', rotulo: 'CNPJ', valor: conveniado.cnpj },
-            { icone: 'tag', rotulo: 'Categoria', valor: conveniado.categoria },
+            { icone: 'tag', rotulo: 'Categoria', valor: conveniado.categoria ?? 'Outros' },
             { icone: 'map-pin', rotulo: 'Endereço', valor: conveniado.endereco },
             { icone: 'user', rotulo: 'Responsável', valor: usuario.nome },
             { icone: 'mail', rotulo: 'E-mail', valor: usuario.email },

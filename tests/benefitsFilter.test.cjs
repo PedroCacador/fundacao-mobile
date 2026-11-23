@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { fonte } = require('./helpers/runtime.cjs');
+const { estiloCategoria } = fonte('utils/category.ts');
 const {
   beneficiosAtivos,
   categoriasDoConveniado,
@@ -36,6 +37,14 @@ const farmacia = conveniado(1, { categoria: 'Farmácia', categorias: ['Farmácia
 const restaurante = conveniado(2, { categoria: 'Alimentação', categorias: ['Alimentação'] });
 const legado = conveniado(3, { categoria: 'Educação' });
 const semCategoria = conveniado(4, { categoria: '', categorias: [] });
+const categoriaAusente = conveniado(6, { categoria: undefined, categorias: [null, { id: 3 }] });
+const categoriasDaApi = conveniado(5, {
+  categoria: 'Farmácia',
+  categorias: [
+    { id: 1, nome: 'Farmácia' },
+    { id: 2, nome: 'Saúde' },
+  ],
+});
 
 const itens = [
   item(1, 'Vale Remédio', 'Desconto em medicamentos', [farmacia]),
@@ -54,8 +63,16 @@ test('beneficiosAtivos remove inativos, descontinuados e indisponíveis', () => 
 
 test('categoriasDoConveniado usa categorias N:N e cai no campo legado', () => {
   assert.deepEqual(categoriasDoConveniado(farmacia), ['Farmácia', 'Saúde']);
+  assert.deepEqual(categoriasDoConveniado(categoriasDaApi), ['Farmácia', 'Saúde']);
   assert.deepEqual(categoriasDoConveniado(legado), ['Educação']);
   assert.deepEqual(categoriasDoConveniado(semCategoria), []);
+  assert.deepEqual(categoriasDoConveniado(categoriaAusente), []);
+});
+
+test('categorias ausentes ou inválidas usam estilo padrão sem interromper a tela', () => {
+  assert.deepEqual(estiloCategoria(undefined), estiloCategoria(''));
+  assert.deepEqual(estiloCategoria(null), estiloCategoria(''));
+  assert.deepEqual(estiloCategoria('Farmácia'), estiloCategoria('Farmacia'));
 });
 
 test('listarCategorias reúne categorias únicas dos conveniados em ordem alfabética', () => {
@@ -65,6 +82,13 @@ test('listarCategorias reúne categorias únicas dos conveniados em ordem alfab�
     'Farmácia',
     'Saúde',
   ]);
+});
+
+test('categorias da API em formato de objeto viram nomes filtráveis', () => {
+  const itemApi = item(7, 'Benefício para saúde', null, [categoriasDaApi]);
+
+  assert.deepEqual(listarCategorias([itemApi]), ['Farmácia', 'Saúde']);
+  assert.deepEqual(ids(filtrarBeneficios([itemApi], '', 'Saúde')), [7]);
 });
 
 test('filtrarBeneficios por categoria aceita N:N, legado e conveniados mistos', () => {

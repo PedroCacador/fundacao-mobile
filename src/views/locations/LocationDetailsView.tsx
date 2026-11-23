@@ -10,6 +10,7 @@ import { SectionCard } from '../../components/common/SectionCard';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { RootScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte, raio } from '../../theme';
+import { categoriasDoConveniado } from '../../utils/benefit';
 import { estiloCategoria } from '../../utils/category';
 import { formatarCnpj, formatarMoeda } from '../../utils/format';
 import { abrirNavegador, TipoNavegador } from '../../utils/map';
@@ -63,7 +64,8 @@ export default function LocationDetailsView({
     );
   }
 
-  const estiloPrincipal = estiloCategoria(conveniado.categoria);
+  const categoriaPrincipal = categoriasDoConveniado(conveniado)[0] ?? 'Outros';
+  const estiloPrincipal = estiloCategoria(categoriaPrincipal);
 
   return (
     <Screen>

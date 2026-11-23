@@ -102,7 +102,7 @@ export default function QrCodeView({ route }: QrCodeViewProps) {
                                     <ChoiceChip
                                         key={item.ofertaId}
                                         titulo={item.conveniado.nome_fantasia}
-                                        detalhe={item.conveniado.categoria}
+                                        detalhe={item.conveniado.categoria ?? 'Outros'}
                                         escolhido={item.conveniado.id === local?.conveniado.id}
                                         aoPressionar={() => escolherLocal(item.conveniado.id)}
                                     />

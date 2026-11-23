@@ -80,11 +80,19 @@ export function beneficiosAtivos(itens: BeneficioCatalogo[]) {
 }
 
 export function categoriasDoConveniado(conveniado: Pick<Conveniado, 'categoria' | 'categorias'>) {
-  const categorias =
-    conveniado.categorias && conveniado.categorias.length > 0
-      ? conveniado.categorias
-      : [conveniado.categoria];
-  return categorias.filter((categoria) => Boolean(categoria));
+  const categorias = Array.isArray(conveniado.categorias)
+    ? conveniado.categorias
+        .map((categoria) => {
+          if (typeof categoria === 'string') return categoria.trim();
+          if (categoria && typeof categoria.nome === 'string') return categoria.nome.trim();
+          return '';
+        })
+        .filter(Boolean)
+    : [];
+  if (categorias.length > 0) return categorias;
+  return typeof conveniado.categoria === 'string' && conveniado.categoria.trim()
+    ? [conveniado.categoria.trim()]
+    : [];
 }
 
 export function listarCategorias(itens: BeneficioCatalogo[]) {

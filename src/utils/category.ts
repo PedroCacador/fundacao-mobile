@@ -18,8 +18,11 @@ const regras: { padrao: RegExp; icone: NomeIcone; tom: keyof typeof coresCategor
   { padrao: /transporte|mobilidade|combustivel/, icone: 'bus', tom: 'laranja' },
 ];
 
-export function estiloCategoria(categoria: string): EstiloCategoria {
-  const normalizada = categoria.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+export function estiloCategoria(categoria?: string | null): EstiloCategoria {
+  const normalizada =
+    typeof categoria === 'string'
+      ? categoria.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+      : '';
   const regra = regras.find((item) => item.padrao.test(normalizada));
   if (!regra) {
     return { icone: 'tag', ...coresCategoria.cinza };

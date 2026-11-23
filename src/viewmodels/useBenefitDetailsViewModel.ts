@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useCatalog } from '../context/CatalogContext';
 import { AbaDetalhe } from '../models/Catalog';
 import {
+  categoriasDoConveniado,
   calcularProximaRenovacao,
   descreverLimite,
   descreverRenovacao,
@@ -26,7 +27,9 @@ export function useBenefitDetailsViewModel(
     const { beneficio, conveniados } = item;
     const renovacao = calcularProximaRenovacao(beneficio);
     const dias = renovacao ? diasAte(renovacao) : null;
-    const categorias = Array.from(new Set(conveniados.map((c) => c.categoria.toLowerCase())));
+    const categorias = Array.from(
+      new Set(conveniados.flatMap(categoriasDoConveniado).map((categoria) => categoria.toLowerCase())),
+    );
 
     return {
       valor: descreverValor(beneficio),

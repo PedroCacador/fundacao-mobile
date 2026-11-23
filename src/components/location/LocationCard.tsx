@@ -5,6 +5,7 @@ import { LocalConveniado } from '../../models/Catalog';
 
 import { cores, espaco, fonte, familia, raio } from '../../theme';
 
+import { categoriasDoConveniado } from '../../utils/benefit';
 import { estiloCategoria } from '../../utils/category';
 
 import { Card } from '../common/Card';
@@ -18,7 +19,8 @@ interface LocationCardProps {
 export function LocationCard({ local, aoPressionar }: LocationCardProps) {
   const { conveniado, beneficios } = local;
 
-  const estilo = estiloCategoria(conveniado.categoria);
+  const categoria = categoriasDoConveniado(conveniado)[0] ?? 'Outros';
+  const estilo = estiloCategoria(categoria);
 
   return (
     <Card estilo={styles.card} aoPressionar={aoPressionar}>
@@ -37,7 +39,7 @@ export function LocationCard({ local, aoPressionar }: LocationCardProps) {
           <View style={styles.linha}>
             <Icone nome={estilo.icone} tamanho={15} cor={estilo.cor} />
 
-            <Text style={styles.categoria}>{conveniado.categoria}</Text>
+            <Text style={styles.categoria}>{categoria}</Text>
           </View>
         </View>
 

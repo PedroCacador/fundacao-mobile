@@ -26,8 +26,8 @@ export interface Conveniado {
   usuario_id: number;
   nome_fantasia: string;
   razao_social: string;
-  categoria: string;
-  categorias?: string[];
+  categoria?: string | null;
+  categorias?: (string | { id?: number; nome?: string } | null)[];
   cnpj: string;
   endereco: string;
   status: 'ATIVO' | 'INATIVO' | 'EM_ANALISE';
