@@ -10,7 +10,6 @@ import { Screen } from '../../components/common/Screen';
 import { RECUO_SECAO, SectionCard } from '../../components/common/SectionCard';
 import { SeeAllLink } from '../../components/common/SeeAllLink';
 import { EmptyState, Loading } from '../../components/common/StateMessage';
-import { useScrollToSection } from '../../hooks/useScrollToSection';
 import { AbaDetalhe } from '../../models/Catalog';
 import { RootScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte, raio } from '../../theme';
@@ -31,12 +30,6 @@ export default function BenefitDetailsView({
     route.params.beneficioId,
     route.params.aba,
   );
-  const { refRolagem, posicionar, rolarPara } = useScrollToSection<AbaDetalhe>(route.params.aba);
-
-  const selecionar = (id: AbaDetalhe) => {
-    setAba(id);
-    rolarPara(id);
-  };
 
   const solicitarUso = () => {
     if (!item) return;
@@ -66,8 +59,98 @@ export default function BenefitDetailsView({
     );
   }
 
+  let conteudoAba: React.ReactNode;
+  switch (aba) {
+    case 'ONDE_USAR':
+      conteudoAba = (
+        <SectionCard recuado icone="map-pin" titulo="Onde pode utilizar">
+          <Text style={styles.texto}>{detalhes.ondeUsar}</Text>
+          <View style={styles.aviso}>
+            <Icone nome="info" tamanho={18} cor={cores.primaria} />
+            <Text style={styles.avisoTexto}>
+              Realize a validação no terminal do estabelecimento para efetuar a utilização.
+            </Text>
+          </View>
+        </SectionCard>
+      );
+      break;
+    case 'REGRAS':
+      conteudoAba = (
+        <SectionCard recuado icone="file-text" titulo="Regras de utilização">
+          {detalhes.regras.map((regra) => (
+            <View key={regra} style={styles.regra}>
+              <Icone nome="check" tamanho={16} cor={cores.primaria} espessura={2.2} />
+              <Text style={styles.texto}>{regra}</Text>
+            </View>
+          ))}
+        </SectionCard>
+      );
+      break;
+    case 'QUANTIDADE':
+      conteudoAba = (
+        <SectionCard recuado icone="coins" titulo="Quantidade e validade">
+          <View style={styles.quantidade}>
+            <View style={styles.quantidadeColuna}>
+              <Text style={styles.rotulo}>Usos permitidos</Text>
+              <Text style={styles.valor}>{detalhes.limite}</Text>
+              <Text style={styles.extra}>({detalhes.valor})</Text>
+            </View>
+            {detalhes.renovacao ? (
+              <View style={styles.quantidadeDireita}>
+                <IconBox nome="calendar" tamanho={28} redondo />
+                <View style={styles.quantidadeColuna}>
+                  <Text style={styles.rotulo}>Próxima renovação</Text>
+                  <Text style={styles.valor}>{detalhes.renovacao}</Text>
+                  {detalhes.emQuantosDias ? (
+                    <Text style={styles.extra}>{detalhes.emQuantosDias}</Text>
+                  ) : null}
+                </View>
+              </View>
+            ) : null}
+          </View>
+        </SectionCard>
+      );
+      break;
+    case 'ESTABELECIMENTOS':
+      conteudoAba = (
+        <SectionCard
+          recuado
+          icone="store"
+          titulo="Estabelecimentos conveniados"
+          subtitulo="Confira os estabelecimentos onde você pode utilizar seu benefício."
+          acao={
+            <SeeAllLink
+              aoPressionar={() => navigation.navigate('Main', { screen: 'Locations' })}
+            />
+          }
+        >
+          {item.conveniados.length === 0 ? (
+            <Text style={styles.texto}>Nenhum estabelecimento ativo no momento.</Text>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.locaisRolagem}
+              contentContainerStyle={styles.locais}
+            >
+              {item.conveniados.map((conveniado) => (
+                <EstablishmentCard
+                  key={conveniado.id}
+                  conveniado={conveniado}
+                  aoPressionar={() =>
+                    navigation.navigate('LocationDetails', { conveniadoId: conveniado.id })
+                  }
+                />
+              ))}
+            </ScrollView>
+          )}
+        </SectionCard>
+      );
+      break;
+  }
+
   return (
-    <Screen refRolagem={refRolagem}>
+    <Screen>
       <BackHeader titulo="Detalhes do Benefício" />
 
       <BenefitHero
@@ -86,97 +169,8 @@ export default function BenefitDetailsView({
         estilo={styles.botaoSolicitar}
       />
 
-      <FilterTabs tabs={abas} selectedTab={aba} onSelectTab={selecionar} />
-
-      <SectionCard
-        recuado
-        icone="map-pin"
-        titulo="Onde pode utilizar"
-        onLayout={(evento) => posicionar('ONDE_USAR', evento.nativeEvent.layout.y)}
-      >
-        <Text style={styles.texto}>{detalhes.ondeUsar}</Text>
-        <View style={styles.aviso}>
-          <Icone nome="info" tamanho={18} cor={cores.primaria} />
-          <Text style={styles.avisoTexto}>
-            Realize a validação no terminal do estabelecimento para efetuar a utilização.
-          </Text>
-        </View>
-      </SectionCard>
-
-      <SectionCard
-        recuado
-        icone="file-text"
-        titulo="Regras de utilização"
-        onLayout={(evento) => posicionar('REGRAS', evento.nativeEvent.layout.y)}
-      >
-        {detalhes.regras.map((regra) => (
-          <View key={regra} style={styles.regra}>
-            <Icone nome="check" tamanho={16} cor={cores.primaria} espessura={2.2} />
-            <Text style={styles.texto}>{regra}</Text>
-          </View>
-        ))}
-      </SectionCard>
-
-      <SectionCard
-        recuado
-        icone="coins"
-        titulo="Quantidade e validade"
-        onLayout={(evento) => posicionar('QUANTIDADE', evento.nativeEvent.layout.y)}
-      >
-        <View style={styles.quantidade}>
-          <View style={styles.quantidadeColuna}>
-            <Text style={styles.rotulo}>Usos permitidos</Text>
-            <Text style={styles.valor}>{detalhes.limite}</Text>
-            <Text style={styles.extra}>({detalhes.valor})</Text>
-          </View>
-          {detalhes.renovacao ? (
-            <View style={styles.quantidadeDireita}>
-              <IconBox nome="calendar" tamanho={28} redondo />
-              <View style={styles.quantidadeColuna}>
-                <Text style={styles.rotulo}>Próxima renovação</Text>
-                <Text style={styles.valor}>{detalhes.renovacao}</Text>
-                {detalhes.emQuantosDias ? (
-                  <Text style={styles.extra}>{detalhes.emQuantosDias}</Text>
-                ) : null}
-              </View>
-            </View>
-          ) : null}
-        </View>
-      </SectionCard>
-
-      <SectionCard
-        recuado
-        icone="store"
-        titulo="Estabelecimentos conveniados"
-        subtitulo="Confira os estabelecimentos onde você pode utilizar seu benefício."
-        acao={
-          <SeeAllLink
-            aoPressionar={() => navigation.navigate('Main', { screen: 'Locations' })}
-          />
-        }
-        onLayout={(evento) => posicionar('ESTABELECIMENTOS', evento.nativeEvent.layout.y)}
-      >
-        {item.conveniados.length === 0 ? (
-          <Text style={styles.texto}>Nenhum estabelecimento ativo no momento.</Text>
-        ) : (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.locaisRolagem}
-            contentContainerStyle={styles.locais}
-          >
-            {item.conveniados.map((conveniado) => (
-              <EstablishmentCard
-                key={conveniado.id}
-                conveniado={conveniado}
-                aoPressionar={() =>
-                  navigation.navigate('LocationDetails', { conveniadoId: conveniado.id })
-                }
-              />
-            ))}
-          </ScrollView>
-        )}
-      </SectionCard>
+      <FilterTabs tabs={abas} selectedTab={aba} onSelectTab={setAba} />
+      {conteudoAba}
     </Screen>
   );
 }
