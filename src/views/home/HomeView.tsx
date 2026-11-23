@@ -13,11 +13,13 @@ import { cores, coresCategoria, espaco, familia, fonte, raio, sombra } from '../
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 import { Card } from '../../components/common/Card';
 import { lerDataHoraApi } from '../../utils/qrcode';
+import { formatarHora } from '../../utils/format';
 import { IconBox, Icone } from '../../components/common/Icon';
 
 export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
   const {
     nome,
+    catalogo,
     resumo,
     carregando,
     atualizando,
@@ -86,22 +88,23 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
             const dataExpiracao = item.data_expiracao ?? item.expira_em;
             const expiraEm = dataExpiracao ? lerDataHoraApi(dataExpiracao) : null;
             const restantesMs = expiraEm === null ? null : expiraEm - agora;
+            const locais =
+              catalogo.find((entrada) => entrada.beneficio.id === item.beneficio_id)?.conveniados ??
+              [];
             const textoExpiracao =
               restantesMs === null
                 ? 'Aguardando validação'
                 : restantesMs <= 0
                   ? 'QR Code expirado'
-                  : `Expira em ${Math.ceil(restantesMs / 60000)} min`;
+                  : `Expira em: ${formatarHora(dataExpiracao ?? '')}`;
             const parametros =
               item.origem === 'CAMPANHA'
                 ? {
                     itemCampanhaId: item.item_campanha_id ?? undefined,
-                    conveniadoId: item.conveniado_id,
                     utilizacaoId: item.id,
                   }
                 : {
                     beneficioId: item.beneficio_id ?? undefined,
-                    conveniadoId: item.conveniado_id,
                     utilizacaoId: item.id,
                   };
 
@@ -126,11 +129,21 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
                       <Text style={styles.pendenteTitulo}>{item.beneficio_nome}</Text>
                     </View>
                   </View>
-                  <View style={styles.pendenteLocalLinha}>
-                    <Icone nome="map-pin" tamanho={15} cor={cores.textoSecundario} />
-                    <Text style={styles.pendenteLocal} numberOfLines={1}>
-                      {item.conveniado_nome_fantasia}
-                    </Text>
+                  <View style={styles.pendenteLocais}>
+                    <View style={styles.pendenteLocalCabecalho}>
+                      <Icone nome="map-pin" tamanho={15} cor={cores.textoSecundario} />
+                      <Text style={styles.pendenteLocalRotulo}>Locais disponíveis</Text>
+                    </View>
+                    {locais.length > 0 ? (
+                      locais.map((local) => (
+                        <View key={local.id} style={styles.pendenteLocal}>
+                          <Text style={styles.pendenteLocalNome}>{local.nome_fantasia}</Text>
+                          <Text style={styles.pendenteEndereco}>{local.endereco}</Text>
+                        </View>
+                      ))
+                    ) : (
+                      <Text style={styles.pendenteEndereco}>Endereço indisponível</Text>
+                    )}
                   </View>
                   <View style={styles.pendenteRodape}>
                     <View
@@ -251,17 +264,34 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     color: cores.texto,
   },
-  pendenteLocalLinha: {
+  pendenteLocais: {
+    gap: espaco.xs,
+    paddingLeft: 2,
+  },
+  pendenteLocalCabecalho: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: espaco.sm,
-    paddingLeft: 2,
+  },
+  pendenteLocalRotulo: {
+    fontFamily: familia.semi,
+    fontSize: fonte.sm,
+    color: cores.textoSecundario,
   },
   pendenteLocal: {
+    marginLeft: espaco.lg,
+    marginTop: espaco.xs,
+    gap: 2,
+  },
+  pendenteLocalNome: {
+    fontFamily: familia.medio,
+    fontSize: fonte.sm,
+    color: cores.texto,
+  },
+  pendenteEndereco: {
     fontFamily: familia.regular,
-    fontSize: fonte.md,
+    fontSize: fonte.sm,
     color: cores.textoSecundario,
-    flex: 1,
   },
   pendenteRodape: {
     flexDirection: 'row',

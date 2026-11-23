@@ -81,6 +81,7 @@ export function useHomeViewModel() {
 
   return {
     nome: usuario.nome,
+    catalogo: itens,
     cargo: usuario.colaborador?.cargo ?? 'Colaborador(a) da FCV',
     resumo,
     carregando,

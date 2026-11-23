@@ -8,7 +8,9 @@ export function lerData(texto: string) {
 }
 
 export function formatarHora(texto: string) {
-  return texto.slice(11, 16);
+  const data = new Date(texto.includes('T') ? texto : texto.replace(' ', 'T'));
+  if (Number.isNaN(data.getTime())) return texto.slice(11, 16);
+  return data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
 export function dataParaApi(data: Date) {

@@ -2,7 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { fonte } = require('./helpers/runtime.cjs');
 const { obterUrlsNavegacao } = fonte('utils/map.ts');
-const { formatarCnpj } = fonte('utils/format.ts');
+const { formatarCnpj, formatarHora } = fonte('utils/format.ts');
 
 test('obterUrlsNavegacao gera URLs válidas para Google Maps, Maps nativo e Waze', () => {
   const endereco = 'Av. Cristiano Ferreira Varella, 555 - Muriaé, MG';
@@ -23,6 +23,11 @@ test('formatarCnpj aplica a máscara correta quando o CNPJ possui 14 dígitos', 
   assert.equal(formatarCnpj('12.345.678/0001-95'), '12.345.678/0001-95');
   assert.equal(formatarCnpj('123'), '123');
   assert.equal(formatarCnpj(''), '');
+});
+
+test('formatarHora aceita data e hora do banco e formato ISO', () => {
+  assert.equal(formatarHora('2026-11-23 16:45:00'), '16:45');
+  assert.equal(formatarHora('2026-11-23T16:45:00'), '16:45');
 });
 
 test('agrupamento e filtragem de locais suporta categorias N:N e busca por texto', () => {

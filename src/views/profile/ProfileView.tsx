@@ -36,6 +36,16 @@ export default function ProfileView() {
       <TopBar voltar={ehColaborador} notificacoes={ehColaborador} />
       <UserGreeting nome={nome} cargo={cargo} matricula={matricula} tamanhoFoto={92} />
 
+      {ehColaborador ? (
+        <Button
+          titulo="Histórico de resgates"
+          icone="history"
+          variante="secundaria"
+          estilo={styles.botaoHistorico}
+          aoPressionar={() => navigation.navigate('History')}
+        />
+      ) : null}
+
       <SecaoCampos
         icone="user"
         titulo={tituloPerfil}
@@ -56,15 +66,6 @@ export default function ProfileView() {
         valoresADireita
       />
 
-      {ehColaborador ? (
-        <Button
-          titulo="Histórico de resgates"
-          icone="history"
-          variante="secundaria"
-          estilo={styles.botaoHistorico}
-          aoPressionar={() => navigation.navigate('History')}
-        />
-      ) : null}
       <Button
         titulo="Sair da conta"
         icone="log-out"

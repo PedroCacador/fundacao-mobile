@@ -27,7 +27,7 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 const abas: Record<keyof TabParamList, { icone: NomeIcone; titulo: string }> = {
   Home: { icone: 'house', titulo: 'Início' },
-  Wallet: { icone: 'wallet', titulo: 'Benefícios' },
+  Wallet: { icone: 'gift', titulo: 'Benefícios' },
   Locations: { icone: 'map-pin', titulo: 'Locais' },
   Profile: { icone: 'user', titulo: 'Perfil' },
 };

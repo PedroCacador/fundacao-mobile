@@ -146,7 +146,7 @@ export function useNotificationsViewModel() {
     }
 
     for (const utilizacao of utilizacoes?.lista ?? []) {
-      const momento = utilizacao.data_confirmacao ?? utilizacao.data_solicitacao;
+      const momento = utilizacao.data_validacao ?? utilizacao.data_confirmacao ?? utilizacao.data_solicitacao;
       const texto = textoUtilizacao[utilizacao.status];
       lista.push({
         id: `utilizacao-${utilizacao.id}`,

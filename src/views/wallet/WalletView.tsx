@@ -37,9 +37,9 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
       <TopBar voltar perfil />
       <Header
-        icone="wallet"
-        titulo="Carteira de Benefícios"
-        subtitulo="Confira todos os seus benefícios e acompanhe a validade de cada um."
+        icone="gift"
+        titulo="Benefícios"
+        subtitulo="Confira os benefícios disponíveis e acompanhe suas utilizações."
       />
 
       <SearchBar
@@ -65,7 +65,7 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
         <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
       ) : lista.length === 0 ? (
         <EmptyState
-          icone="wallet"
+          icone="gift"
           titulo="Nenhum benefício encontrado"
           texto={
             filtroAtivo || buscaAtiva

@@ -190,6 +190,7 @@ test('o Histórico pede só os últimos 6 meses e percorre todas as páginas', a
   const esperado = dataParaApi(inicioDoPeriodo(new Date()));
   for (const url of consultas) {
     assert.equal(new URL(url).searchParams.get('de'), esperado);
+    assert.equal(new URL(url).searchParams.get('limite'), '100');
     assert.equal(new URL(url).searchParams.get('status'), null);
   }
   assert.equal(historico.lista.length, 3);
@@ -244,7 +245,9 @@ test('o Histórico aceita lista simples quando a API devolve array sem paginaç�
 test('o Histórico avisa quando a API devolve formato inválido', async () => {
   const anterior = globalThis.fetch;
   globalThis.fetch = async (url, opcoes) => {
-    if (url.includes('/eu/utilizacoes?pagina=')) return json({ invalido: true });
+    if (url.includes('/eu/utilizacoes?pagina=')) {
+      return json({ dados: [], paginacao: { pagina: 1, totalPaginas: 'inválido' } });
+    }
     return anterior(url, opcoes);
   };
   app = await montar({ Conteudo });

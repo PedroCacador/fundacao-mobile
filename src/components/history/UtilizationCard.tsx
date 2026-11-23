@@ -21,14 +21,20 @@ export function UtilizationCard({ utilizacao, aoPressionar }: UtilizationCardPro
     <Card
       estilo={styles.card}
       aoPressionar={aoPressionar}
-      rotuloAcessivel={`${utilizacao.beneficio_nome} em ${utilizacao.conveniado_nome_fantasia}`}
+      rotuloAcessivel={`${utilizacao.beneficio_nome}${
+        utilizacao.conveniado_nome_fantasia ? ` em ${utilizacao.conveniado_nome_fantasia}` : ''
+      }`}
     >
       <View style={styles.topo}>
         <IconBox nome={estilo.icone} cor={estilo.cor} fundo={estilo.fundo} tamanho={52} redondo />
         <View style={styles.info}>
           <Text style={styles.titulo}>{utilizacao.beneficio_nome}</Text>
-          <Text style={styles.conveniado}>{utilizacao.conveniado_nome_fantasia}</Text>
-          <Text style={styles.endereco}>{utilizacao.conveniado_endereco}</Text>
+          <Text style={styles.conveniado}>
+            {utilizacao.conveniado_nome_fantasia ?? 'Estabelecimento a confirmar'}
+          </Text>
+          {utilizacao.conveniado_endereco ? (
+            <Text style={styles.endereco}>{utilizacao.conveniado_endereco}</Text>
+          ) : null}
           <View style={styles.status}>
             <Chip texto={status.rotulo} icone={status.icone} cor={status.cor} fundo={status.fundo} />
           </View>

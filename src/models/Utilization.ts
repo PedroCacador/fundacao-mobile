@@ -15,16 +15,17 @@ export interface Utilizacao {
   data_expiracao?: string | null;
   expira_em?: string | null;
   codigo_validacao?: string | null;
-  data_confirmacao: string | null;
+  data_confirmacao?: string | null;
+  data_validacao?: string | null;
   observacoes: string | null;
   origem: 'BENEFICIO' | 'CAMPANHA';
   beneficio_id: number | null;
   item_campanha_id: number | null;
   beneficio_nome: string;
-  conveniado_id: number;
-  conveniado_nome_fantasia: string;
-  conveniado_categoria: string;
-  conveniado_endereco: string;
+  conveniado_id: number | null;
+  conveniado_nome_fantasia: string | null;
+  conveniado_categoria?: string | null;
+  conveniado_endereco: string | null;
   colaborador_nome: string;
   token_qrcode?: string | null;
 }

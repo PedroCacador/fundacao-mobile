@@ -118,15 +118,13 @@ export const utilizationService = {
   },
 };
 
-const LIMITE_PAGINA_HISTORICO = 20;
-const MAXIMO_PAGINAS_HISTORICO = 50;
+const LIMITE_PAGINA_HISTORICO = 100;
 
-// TODO(grupo-2): trocar por um unico GET do historico dos ultimos 6 meses com busca no servidor.
 export async function listarUtilizacoesDesde(de: string) {
   const todas: Utilizacao[] = [];
   let pagina = 1;
   let totalPaginas = 1;
-  while (pagina <= totalPaginas && pagina <= MAXIMO_PAGINAS_HISTORICO) {
+  while (pagina <= totalPaginas) {
     const consulta = montarConsulta({ pagina, limite: LIMITE_PAGINA_HISTORICO, de });
     const resposta = await requisitar<RespostaPaginada<Utilizacao> | Utilizacao[]>(
       `/eu/utilizacoes?${consulta}`,
@@ -134,7 +132,14 @@ export async function listarUtilizacoesDesde(de: string) {
     if (Array.isArray(resposta)) {
       return resposta;
     }
-    if (!Array.isArray(resposta?.dados) || !resposta.paginacao) {
+    if (
+      !Array.isArray(resposta?.dados) ||
+      !resposta.paginacao ||
+      !Number.isInteger(resposta.paginacao.pagina) ||
+      resposta.paginacao.pagina !== pagina ||
+      !Number.isInteger(resposta.paginacao.totalPaginas) ||
+      resposta.paginacao.totalPaginas < 0
+    ) {
       throw new ApiError('O servidor retornou um histórico em formato inválido.', 502);
     }
     todas.push(...resposta.dados);

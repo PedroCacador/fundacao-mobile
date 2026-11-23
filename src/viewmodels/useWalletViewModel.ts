@@ -35,7 +35,7 @@ function ultimasPorBeneficio(lista: Utilizacao[]) {
   const beneficios = new Map<number, string>();
   for (const utilizacao of lista) {
     if (utilizacao.status !== 'APROVADA' || utilizacao.beneficio_id === null) continue;
-    const data = utilizacao.data_confirmacao ?? utilizacao.data_solicitacao;
+    const data = utilizacao.data_validacao ?? utilizacao.data_confirmacao ?? utilizacao.data_solicitacao;
     const anterior = beneficios.get(utilizacao.beneficio_id);
     if (!anterior || data > anterior) beneficios.set(utilizacao.beneficio_id, data);
   }
