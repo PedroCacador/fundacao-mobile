@@ -51,7 +51,7 @@ test('listarHistoricoConveniado monta os filtros de data corretamente', async ()
   assert.deepEqual(resultado, dados);
 });
 
-test('buscarPorTokenOuCodigo resolve tanto por ID numérico quanto por texto', async () => {
+test('buscarPorTokenOuCodigo consulta o endpoint de validação com o código informado', async () => {
   const item = {
     id: 12,
     status: 'PENDENTE',
@@ -59,38 +59,56 @@ test('buscarPorTokenOuCodigo resolve tanto por ID numérico quanto por texto', a
     colaborador_nome: 'Carlos Souza',
     beneficio_nome: 'Almoço',
     token_qrcode: 'token-uuid-1234',
+    codigo_validacao: 'FCV012',
   };
 
   globalThis.fetch = async (url) => {
-    if (url.includes('/eu/utilizacoes/12')) {
-      return json(item);
-    }
-    return json([item]);
+    assert.equal(url, 'http://api.test/api/v1/validacao/FCV012');
+    return json(item);
   };
 
-  // Busca por ID numérico
-  const porId = await utilizationService.buscarPorTokenOuCodigo('12');
-  assert.equal(porId.id, 12);
-
-  // Busca por Token UUID
-  const porToken = await utilizationService.buscarPorTokenOuCodigo('token-uuid-1234');
-  assert.equal(porToken.id, 12);
+  const resgate = await utilizationService.buscarPorTokenOuCodigo('FCV012');
+  assert.equal(resgate.id, 12);
+  assert.equal(resgate.codigo_validacao, 'FCV012');
 });
 
-test('decidirUtilizacao envia o status correto e canal APP_CONVENIADO', async () => {
+test('decidirUtilizacao usa a rota e o corpo de aprovação da API', async () => {
   let metodoChamado = '';
   let corpoEnviado = null;
+  let urlChamado = '';
 
   globalThis.fetch = async (url, opcoes) => {
+    urlChamado = url;
     metodoChamado = opcoes.method;
     corpoEnviado = JSON.parse(opcoes.body);
     return json({ id: 10, status: 'APROVADA', canal_validacao: 'APP_CONVENIADO' });
   };
 
-  await utilizationService.decidirUtilizacao(10, 'APROVADA', 'Aprovado pelo balcão');
+  await utilizationService.decidirUtilizacao('FCV010', 'APROVADA');
 
-  assert.equal(metodoChamado, 'PUT');
-  assert.equal(corpoEnviado.status, 'APROVADA');
-  assert.equal(corpoEnviado.canal_validacao, 'APP_CONVENIADO');
-  assert.equal(corpoEnviado.observacoes, 'Aprovado pelo balcão');
+  assert.equal(urlChamado, 'http://api.test/api/v1/validacao/FCV010/aprovar');
+  assert.equal(metodoChamado, 'POST');
+  assert.deepEqual(corpoEnviado, { canal_validacao: 'APP_CONVENIADO' });
+});
+
+test('decidirUtilizacao envia o motivo no campo esperado pela rota de reprovação', async () => {
+  let metodoChamado = '';
+  let corpoEnviado = null;
+  let urlChamado = '';
+
+  globalThis.fetch = async (url, opcoes) => {
+    urlChamado = url;
+    metodoChamado = opcoes.method;
+    corpoEnviado = JSON.parse(opcoes.body);
+    return json({ id: 10, status: 'REPROVADA', canal_validacao: 'APP_CONVENIADO' });
+  };
+
+  await utilizationService.decidirUtilizacao('FCV010', 'REPROVADA', 'Motivo da reprovação');
+
+  assert.equal(urlChamado, 'http://api.test/api/v1/validacao/FCV010/reprovar');
+  assert.equal(metodoChamado, 'POST');
+  assert.deepEqual(corpoEnviado, {
+    canal_validacao: 'APP_CONVENIADO',
+    motivo: 'Motivo da reprovação',
+  });
 });

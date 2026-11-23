@@ -13,6 +13,7 @@ export interface Utilizacao {
   canal_validacao: 'APP_CONVENIADO' | 'TERMINAL_IOT' | null;
   data_solicitacao: string;
   data_expiracao?: string | null;
+  segundos_restantes?: number;
   expira_em?: string | null;
   codigo_validacao?: string | null;
   data_confirmacao?: string | null;
@@ -33,7 +34,6 @@ export interface Utilizacao {
 export type DecisaoStatus = 'APROVADA' | 'REPROVADA';
 
 export interface DecisaoUtilizacaoPayload {
-  status: DecisaoStatus;
-  canal_validacao: 'APP_CONVENIADO';
-  observacoes?: string | null;
+  canal_validacao: 'APP_CONVENIADO' | 'TERMINAL_IOT';
+  motivo?: string;
 }

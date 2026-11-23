@@ -222,7 +222,7 @@ export default function PartnerScannerView() {
 
             <TextField
               icone="ticket"
-              placeholder="Ex: 1, 10"
+              placeholder="Ex: FCV006"
               value={codigo}
               onChangeText={setCodigo}
               onSubmitEditing={() => buscarResgate()}

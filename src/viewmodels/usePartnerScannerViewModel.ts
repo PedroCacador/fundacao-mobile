@@ -102,7 +102,11 @@ export function usePartnerScannerViewModel() {
     setErro(null);
 
     try {
-      await utilizationService.decidirUtilizacao(resgate.id, acao);
+      const codigoResgate = resgate.codigo_validacao ?? resgate.token_qrcode;
+      if (!codigoResgate) {
+        throw new Error('A API não retornou o código deste resgate.');
+      }
+      await utilizationService.decidirUtilizacao(codigoResgate, acao);
       setSucesso(
         acao === 'APROVADA'
           ? `Resgate #${resgate.id} aprovado com sucesso!`

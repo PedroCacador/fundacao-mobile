@@ -57,64 +57,33 @@ export const utilizationService = {
     return requisitar<Utilizacao[]>(url);
   },
 
-  buscarPorId(id: number) {
-    return requisitar<Utilizacao>(`/eu/utilizacoes/${id}`).catch(() => {
-      return requisitar<Utilizacao[]>('/eu/utilizacoes').then((lista) => {
-        const encontrada = lista.find((item) => item.id === id);
-        if (!encontrada) {
-          throw new Error(`Utilização #${id} não encontrada.`);
-        }
-        return encontrada;
-      });
-    });
-  },
-
   async buscarPorTokenOuCodigo(codigo: string): Promise<Utilizacao> {
     const limpo = codigo.trim();
     if (!limpo) {
       throw new Error('Informe o código do QR Code para validar.');
     }
 
-    const idNumerico = Number(limpo);
-    if (Number.isInteger(idNumerico) && idNumerico > 0) {
-      return this.buscarPorId(idNumerico);
-    }
-
-    try {
-      const parsed = JSON.parse(limpo);
-      if (parsed?.id && Number.isInteger(Number(parsed.id))) {
-        return this.buscarPorId(Number(parsed.id));
-      }
-    } catch {
-      // Valor não é JSON, segue fluxo de comparação textual
-    }
-
-    const lista = await requisitar<Utilizacao[]>('/eu/utilizacoes');
-    const encontrada = lista.find(
-      (item) => item.token_qrcode === limpo || String(item.id) === limpo,
-    );
-    if (!encontrada) {
-      throw new Error('Resgate não encontrado ou já processado.');
-    }
-    return encontrada;
+    return requisitar<Utilizacao>(`/validacao/${encodeURIComponent(limpo)}`);
   },
 
-  decidirUtilizacao(id: number, acao: DecisaoStatus, observacoes?: string) {
-    const corpo: DecisaoUtilizacaoPayload = {
-      status: acao,
-      canal_validacao: 'APP_CONVENIADO',
-      observacoes: observacoes ?? `Decisão tomada via aplicativo do conveniado (${acao}).`,
-    };
+  decidirUtilizacao(codigo: string, acao: DecisaoStatus, motivo?: string) {
+    const limpo = codigo.trim();
+    if (!limpo) {
+      throw new Error('Informe o código do resgate para registrar a decisão.');
+    }
 
-    return requisitar<Utilizacao>(`/eu/utilizacoes/${id}`, {
-      metodo: 'PUT',
-      corpo,
-    }).catch(() => {
-      return requisitar<Utilizacao>(`/utilizacoes/${id}`, {
-        metodo: 'PUT',
+    const decisao = acao === 'APROVADA' ? 'aprovar' : 'reprovar';
+    const corpo: DecisaoUtilizacaoPayload = {
+      canal_validacao: 'APP_CONVENIADO',
+      ...(motivo ? { motivo } : {}),
+    };
+    return requisitar<Utilizacao>(
+      `/validacao/${encodeURIComponent(limpo)}/${decisao}`,
+      {
+        metodo: 'POST',
         corpo,
-      });
-    });
+      },
+    );
   },
 };
 

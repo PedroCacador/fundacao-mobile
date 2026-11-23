@@ -4,7 +4,6 @@ import { useCatalog } from '../context/CatalogContext';
 import { Campanha } from '../models/Campaign';
 import { ItemCampanhaCatalogo } from '../models/Catalog';
 import { resumirCatalogo } from '../utils/benefit';
-import { podeResgatar } from '../utils/campaign';
 import { Utilizacao } from '../models/Utilization';
 import { utilizationService } from '../services/utilizationService';
 import { useCampaignCatalog } from './useCampaignCatalog';
@@ -92,7 +91,6 @@ export function useHomeViewModel() {
     carregandoCampanhas: campanhas.carregando,
     erroCampanhas: campanhas.erro,
     tentarCampanhas: campanhas.tentarDeNovo,
-    podeResgatar,
     pendentes,
     carregandoPendentes,
     erroPendentes,

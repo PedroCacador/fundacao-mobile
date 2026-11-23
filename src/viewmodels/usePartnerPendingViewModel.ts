@@ -67,7 +67,11 @@ export function usePartnerPendingViewModel() {
     setErro(null);
 
     try {
-      await utilizationService.decidirUtilizacao(item.id, acao);
+      const codigoResgate = item.codigo_validacao ?? item.token_qrcode;
+      if (!codigoResgate) {
+        throw new Error('A API não retornou o código deste resgate.');
+      }
+      await utilizationService.decidirUtilizacao(codigoResgate, acao);
       setSucesso(
         acao === 'APROVADA'
           ? `Solicitação #${item.id} (${item.colaborador_nome}) aprovada com sucesso!`

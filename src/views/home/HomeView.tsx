@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { CampaignCard } from '../../components/campaign/CampaignCard';
-import { Button } from '../../components/common/Button';
 import { Screen } from '../../components/common/Screen';
 import { SectionHeader } from '../../components/common/SectionHeader';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
@@ -12,8 +11,7 @@ import { TabScreenProps } from '../../navigation/types';
 import { cores, coresCategoria, espaco, familia, fonte, raio, sombra } from '../../theme';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
 import { Card } from '../../components/common/Card';
-import { lerDataHoraApi } from '../../utils/qrcode';
-import { formatarHora } from '../../utils/format';
+import { formatarContador } from '../../utils/qrcode';
 import { IconBox, Icone } from '../../components/common/Icon';
 
 export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
@@ -28,14 +26,11 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
     carregandoCampanhas,
     erroCampanhas,
     tentarCampanhas,
-    podeResgatar,
     pendentes,
     carregandoPendentes,
     erroPendentes,
     tentarPendentes,
   } = useHomeViewModel();
-
-  const [agora] = React.useState(() => Date.now());
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
@@ -85,18 +80,16 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           />
         ) : (
           pendentes.map((item) => {
-            const dataExpiracao = item.data_expiracao ?? item.expira_em;
-            const expiraEm = dataExpiracao ? lerDataHoraApi(dataExpiracao) : null;
-            const restantesMs = expiraEm === null ? null : expiraEm - agora;
+            const restantes = item.segundos_restantes ?? null;
             const locais =
               catalogo.find((entrada) => entrada.beneficio.id === item.beneficio_id)?.conveniados ??
               [];
             const textoExpiracao =
-              restantesMs === null
+              restantes === null
                 ? 'Aguardando validação'
-                : restantesMs <= 0
+                : restantes <= 0
                   ? 'QR Code expirado'
-                  : `Expira em: ${formatarHora(dataExpiracao ?? '')}`;
+                  : `Expira em: ${formatarContador(restantes)}`;
             const parametros =
               item.origem === 'CAMPANHA'
                 ? {
@@ -149,18 +142,18 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
                     <View
                       style={[
                         styles.pendenteEstado,
-                        restantesMs !== null && restantesMs <= 0 && styles.pendenteEstadoExpirado,
+                        restantes !== null && restantes <= 0 && styles.pendenteEstadoExpirado,
                       ]}
                     >
                       <Icone
-                        nome={restantesMs !== null && restantesMs <= 0 ? 'circle-alert' : 'clock'}
+                        nome={restantes !== null && restantes <= 0 ? 'circle-alert' : 'clock'}
                         tamanho={14}
-                        cor={restantesMs !== null && restantesMs <= 0 ? cores.erro : cores.alerta}
+                        cor={restantes !== null && restantes <= 0 ? cores.erro : cores.alerta}
                       />
                       <Text
                         style={[
                           styles.pendentePrazo,
-                          restantesMs !== null && restantesMs <= 0 && styles.pendentePrazoExpirado,
+                          restantes !== null && restantes <= 0 && styles.pendentePrazoExpirado,
                         ]}
                       >
                         {textoExpiracao}
@@ -196,18 +189,6 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
               key={campanha.id}
               campanha={campanha}
               itens={itens}
-              acaoDoItem={(dados) =>
-                podeResgatar(dados) ? (
-                  <Button
-                    titulo="Resgatar"
-                    variante="secundaria"
-                    icone="scan-qr-code"
-                    aoPressionar={() =>
-                      navigation.navigate('GerarQrCode', { itemCampanhaId: dados.item.id })
-                    }
-                  />
-                ) : null
-              }
             />
           ))
         )}
