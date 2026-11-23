@@ -5,12 +5,10 @@ import { useUsuario } from '../context/AuthContext';
 import type { EmissaoQr, OpcaoQr, ParametrosQr } from '../models/QrCode';
 import { ApiError } from '../services/api';
 import { qrCodeService } from '../services/qrCodeService';
-import { utilizationService } from '../services/utilizationService';
 import {
     calcularPrazo,
     lerDataHoraApi,
     montarOpcoesQr,
-    pedidoDoQr,
     segundosRestantes,
     situacaoDoQr,
 } from '../utils/qrcode';
@@ -54,6 +52,7 @@ export function useQrCodeViewModel(parametros?: ParametrosQr) {
     const [agora, setAgora] = useState(() => Date.now());
     const montado = useRef(false);
     const emissaoEmAndamento = useRef(false);
+    const solicitacaoAutomatica = useRef(false);
     const consultaEmAndamento = useRef(false);
     const consultaIndisponivel = useRef(false);
     const pedidoDaNavegacao = chaveDosParametros(parametros);
@@ -68,6 +67,7 @@ export function useQrCodeViewModel(parametros?: ParametrosQr) {
             setConveniadoId(parametros?.conveniadoId ?? null);
             setQr(null);
             setErroEmissao(null);
+            solicitacaoAutomatica.current = false;
         }
     }
     const carregarOpcoes = useCallback(async () => {
@@ -96,27 +96,22 @@ export function useQrCodeViewModel(parametros?: ParametrosQr) {
     }, [carregarOpcoes]);
     useEffect(() => {
         if (!parametros?.utilizacaoId) return;
-        void utilizationService.buscarPorId(parametros.utilizacaoId).then((utilizacao) => {
-            if (!montado.current || !utilizacao.token_qrcode) return;
-            const emissao = {
-                id: utilizacao.id,
-                token_qrcode: utilizacao.token_qrcode,
-                status: utilizacao.status,
-                data_solicitacao: utilizacao.data_solicitacao,
-                expira_em: utilizacao.expira_em,
-            };
+        void qrCodeService.consultar(parametros.utilizacaoId).then((resgate) => {
+            if (!montado.current || !resgate.token_qrcode) return;
+            const emissao: EmissaoQr = resgate;
             const recebidoEm = Date.now();
-            const prazo = utilizacao.expira_em
-                ? lerDataHoraApi(utilizacao.expira_em)
+            const dataExpiracao = resgate.data_expiracao ?? resgate.expira_em;
+            const prazo = dataExpiracao
+                ? lerDataHoraApi(dataExpiracao)
                 : calcularPrazo(emissao, recebidoEm);
             setChave(
-                utilizacao.origem === 'CAMPANHA' && utilizacao.item_campanha_id
-                    ? `CAMPANHA-${utilizacao.item_campanha_id}`
-                    : utilizacao.beneficio_id
-                      ? `BENEFICIO-${utilizacao.beneficio_id}`
+                resgate.origem === 'CAMPANHA' && resgate.item_campanha_id
+                    ? `CAMPANHA-${resgate.item_campanha_id}`
+                    : resgate.beneficio_id
+                      ? `BENEFICIO-${resgate.beneficio_id}`
                       : null,
             );
-            setConveniadoId(utilizacao.conveniado_id);
+            setConveniadoId(resgate.conveniado_id ?? null);
             setQr({ emissao, prazo });
             setAgora(recebidoEm);
         }).catch((falha) => {
@@ -134,22 +129,21 @@ export function useQrCodeViewModel(parametros?: ParametrosQr) {
         setQr(null);
         setErroEmissao(null);
     }, []);
-    const escolherLocal = useCallback((id: number) => {
-        setConveniadoId(id);
-        setQr(null);
-        setErroEmissao(null);
-    }, []);
     const trocar = useCallback(() => {
         setQr(null);
         setErroEmissao(null);
     }, []);
     const emitir = useCallback(async () => {
-        if (!opcao || !local || emissaoEmAndamento.current) return;
+        if (!opcao || emissaoEmAndamento.current) return;
+        if (opcao.origem === 'CAMPANHA') {
+            setErroEmissao('Este benefício de campanha ainda não pode ser solicitado por QR Code.');
+            return;
+        }
         emissaoEmAndamento.current = true;
         setEmitindo(true);
         setErroEmissao(null);
         try {
-            const emissao = await qrCodeService.emitir(pedidoDoQr(opcao, local));
+            const emissao = await qrCodeService.emitir(opcao.id);
             const recebidoEm = Date.now();
             if (montado.current) {
                 consultaIndisponivel.current = false;
@@ -162,7 +156,19 @@ export function useQrCodeViewModel(parametros?: ParametrosQr) {
             emissaoEmAndamento.current = false;
             if (montado.current) setEmitindo(false);
         }
-    }, [opcao, local]);
+    }, [opcao]);
+    useEffect(() => {
+        if (
+            !parametros?.solicitarAposConfirmacao ||
+            !opcao ||
+            qr ||
+            solicitacaoAutomatica.current
+        ) {
+            return;
+        }
+        solicitacaoAutomatica.current = true;
+        void emitir();
+    }, [parametros?.solicitarAposConfirmacao, opcao, local, qr, emitir]);
     const idEmissao = qr?.emissao.id ?? null;
     const temPrazo = qr !== null && qr.prazo !== null;
     const restantes = segundosRestantes(qr?.prazo ?? null, agora);
@@ -214,13 +220,13 @@ export function useQrCodeViewModel(parametros?: ParametrosQr) {
         opcao,
         local,
         escolherOpcao,
-        escolherLocal,
         emissao: qr?.emissao ?? null,
         situacao,
         restantes,
         emitindo,
         erroEmissao,
         emitir,
+        consultarStatus,
         trocar,
     };
 }

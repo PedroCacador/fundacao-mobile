@@ -1,6 +1,6 @@
 import { Beneficio, Conveniado, Oferta } from '../models/Benefit';
 import { Campanha, ItemCampanha, OfertaCampanha } from '../models/Campaign';
-import { EmissaoQr, PedidoQr } from '../models/QrCode';
+import { EmissaoQr, ResgateQr } from '../models/QrCode';
 import { DadosOpcoesQr } from '../utils/qrcode';
 import { requisitar } from './api';
 export const qrCodeService = {
@@ -17,10 +17,13 @@ export const qrCodeService = {
         );
         return { beneficios, ofertas, conveniados, campanhas, itens, ofertasCampanha };
     },
-    emitir(pedido: PedidoQr) {
-        return requisitar<EmissaoQr>('/eu/utilizacoes', { metodo: 'POST', corpo: pedido });
+    emitir(beneficioId: number) {
+        return requisitar<EmissaoQr>('/resgates', {
+            metodo: 'POST',
+            corpo: { beneficio_id: beneficioId },
+        });
     },
     consultar(id: number) {
-        return requisitar<EmissaoQr>(`/eu/utilizacoes/${id}`);
+        return requisitar<ResgateQr>(`/resgates/${id}`);
     },
 };

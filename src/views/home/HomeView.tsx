@@ -69,6 +69,9 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
 
       <View style={styles.secao}>
         <SectionHeader titulo="Benefícios aguardando validação" />
+        <Text style={styles.subtituloPendentes}>
+          Apresente seu QR Code no estabelecimento para concluir o resgate.
+        </Text>
         {carregandoPendentes ? (
           <Loading texto="Carregando solicitações..." />
         ) : erroPendentes ? (
@@ -80,7 +83,8 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
           />
         ) : (
           pendentes.map((item) => {
-            const expiraEm = item.expira_em ? lerDataHoraApi(item.expira_em) : null;
+            const dataExpiracao = item.data_expiracao ?? item.expira_em;
+            const expiraEm = dataExpiracao ? lerDataHoraApi(dataExpiracao) : null;
             const restantesMs = expiraEm === null ? null : expiraEm - agora;
             const textoExpiracao =
               restantesMs === null
@@ -108,52 +112,51 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
                 aoPressionar={() => navigation.navigate('GerarQrCode', parametros)}
                 rotuloAcessivel={`Abrir QR Code de ${item.beneficio_nome}`}
               >
-                <View style={styles.pendenteTopo}>
-                  <IconBox
-                    nome="scan-qr-code"
-                    tamanho={48}
-                    cor={cores.primaria}
-                    fundo={cores.primariaClara}
-                    redondo
-                  />
-                  <View style={styles.pendenteInfo}>
-                    <Text style={styles.pendenteTitulo}>{item.beneficio_nome}</Text>
-                    <Text style={styles.pendenteLocal}>{item.conveniado_nome_fantasia}</Text>
+                <View style={styles.pendenteConteudo}>
+                  <View style={styles.pendenteTopo}>
+                    <IconBox
+                      nome="scan-qr-code"
+                      tamanho={48}
+                      cor={cores.primaria}
+                      fundo={cores.primariaClara}
+                      redondo
+                    />
+                    <View style={styles.pendenteInfo}>
+                      <Text style={styles.pendenteRotulo}>RESGATE PENDENTE</Text>
+                      <Text style={styles.pendenteTitulo}>{item.beneficio_nome}</Text>
+                    </View>
                   </View>
-                  <View style={styles.pendenteAcao}>
+                  <View style={styles.pendenteLocalLinha}>
+                    <Icone nome="map-pin" tamanho={15} cor={cores.textoSecundario} />
+                    <Text style={styles.pendenteLocal} numberOfLines={1}>
+                      {item.conveniado_nome_fantasia}
+                    </Text>
+                  </View>
+                  <View style={styles.pendenteRodape}>
                     <View
                       style={[
                         styles.pendenteEstado,
-                        restantesMs !== null && restantesMs <= 0
-                          ? styles.pendenteEstadoExpirado
-                          : null,
+                        restantesMs !== null && restantesMs <= 0 && styles.pendenteEstadoExpirado,
                       ]}
                     >
                       <Icone
-                        nome={
-                          restantesMs !== null && restantesMs <= 0
-                            ? 'circle-alert'
-                            : 'clock'
-                        }
+                        nome={restantesMs !== null && restantesMs <= 0 ? 'circle-alert' : 'clock'}
                         tamanho={14}
-                        cor={
-                          restantesMs !== null && restantesMs <= 0
-                            ? cores.erro
-                            : cores.alerta
-                        }
+                        cor={restantesMs !== null && restantesMs <= 0 ? cores.erro : cores.alerta}
                       />
                       <Text
                         style={[
                           styles.pendentePrazo,
-                          restantesMs !== null && restantesMs <= 0
-                            ? styles.pendentePrazoExpirado
-                            : null,
+                          restantesMs !== null && restantesMs <= 0 && styles.pendentePrazoExpirado,
                         ]}
                       >
                         {textoExpiracao}
                       </Text>
                     </View>
-                    <Icone nome="chevron-right" tamanho={18} cor={cores.textoSecundario} />
+                    <View style={styles.pendenteAbrir}>
+                      <Text style={styles.pendenteAbrirTexto}>Abrir QR Code</Text>
+                      <Icone nome="chevron-right" tamanho={17} cor={cores.primaria} />
+                    </View>
                   </View>
                 </View>
               </Card>
@@ -207,10 +210,25 @@ const styles = StyleSheet.create({
   },
   pendente: {
     marginBottom: espaco.md,
-    padding: espaco.md,
+    padding: 0,
     borderColor: cores.bordaAzul,
     borderRadius: raio.lg,
     ...sombra.card,
+  },
+  subtituloPendentes: {
+    marginTop: -espaco.sm,
+    marginBottom: espaco.md,
+    fontFamily: familia.regular,
+    fontSize: fonte.sm,
+    lineHeight: 18,
+    color: cores.textoSecundario,
+  },
+  pendenteConteudo: {
+    gap: espaco.md,
+    padding: espaco.lg,
+    borderLeftWidth: 4,
+    borderLeftColor: cores.primaria,
+    borderRadius: raio.lg,
   },
   pendenteTopo: {
     flexDirection: 'row',
@@ -219,33 +237,59 @@ const styles = StyleSheet.create({
   },
   pendenteInfo: {
     flex: 1,
+    gap: 3,
+  },
+  pendenteRotulo: {
+    fontFamily: familia.semi,
+    fontSize: fonte.xxs,
+    letterSpacing: 0.8,
+    color: cores.primariaMedia,
   },
   pendenteTitulo: {
-    fontFamily: familia.semi,
-    fontSize: fonte.base,
-    lineHeight: 18,
+    fontFamily: familia.titulo,
+    fontSize: fonte.lg,
+    lineHeight: 21,
     color: cores.texto,
   },
+  pendenteLocalLinha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: espaco.sm,
+    paddingLeft: 2,
+  },
   pendenteLocal: {
-    marginTop: 2,
     fontFamily: familia.regular,
     fontSize: fonte.md,
-    lineHeight: 16,
     color: cores.textoSecundario,
+    flex: 1,
   },
-  pendenteAcao: {
-    alignItems: 'flex-end',
+  pendenteRodape: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     gap: espaco.sm,
+    paddingTop: espaco.md,
+    borderTopWidth: 1,
+    borderTopColor: cores.borda,
   },
   pendenteEstado: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: espaco.xs,
-    maxWidth: 118,
     paddingHorizontal: espaco.sm,
     paddingVertical: espaco.xs,
     borderRadius: raio.pilula,
     backgroundColor: cores.alertaFundo,
+  },
+  pendenteAbrir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  pendenteAbrirTexto: {
+    fontFamily: familia.semi,
+    fontSize: fonte.sm,
+    color: cores.primaria,
   },
   pendenteEstadoExpirado: {
     backgroundColor: cores.erroFundo,

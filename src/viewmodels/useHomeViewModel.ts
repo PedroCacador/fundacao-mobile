@@ -26,7 +26,7 @@ export function useHomeViewModel() {
     setCarregandoPendentes(true);
     setErroPendentes(null);
     try {
-      setPendentes(await utilizationService.listarPendentes());
+      setPendentes(await utilizationService.listarAguardando());
     } catch (falha) {
       setErroPendentes(
         falha instanceof Error ? falha.message : 'Não foi possível carregar os benefícios pendentes.',
@@ -39,7 +39,7 @@ export function useHomeViewModel() {
   useEffect(() => {
     let ativo = true;
     utilizationService
-      .listarPendentes()
+      .listarAguardando()
       .then((resultado) => {
         if (ativo) {
           setPendentes(resultado);

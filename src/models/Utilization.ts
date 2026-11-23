@@ -12,7 +12,9 @@ export interface Utilizacao {
   valor_aplicado: number;
   canal_validacao: 'APP_CONVENIADO' | 'TERMINAL_IOT' | null;
   data_solicitacao: string;
+  data_expiracao?: string | null;
   expira_em?: string | null;
+  codigo_validacao?: string | null;
   data_confirmacao: string | null;
   observacoes: string | null;
   origem: 'BENEFICIO' | 'CAMPANHA';

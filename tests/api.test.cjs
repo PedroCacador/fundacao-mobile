@@ -3,6 +3,8 @@ const assert = require('node:assert/strict');
 const { fonte, adiar, json } = require('./helpers/runtime.cjs');
 const { requisitar, definirToken, definirAoExpirarSessao, ApiError } = fonte('services/api.ts');
 const { authService } = fonte('services/authService.ts');
+const { qrCodeService } = fonte('services/qrCodeService.ts');
+const { utilizationService } = fonte('services/utilizationService.ts');
 const fetchOriginal = globalThis.fetch;
 
 beforeEach(() => {
@@ -22,6 +24,43 @@ test('envia o Bearer centralizado nas consultas autenticadas', async () => {
     return json([1]);
   };
   assert.deepEqual(await requisitar('/beneficios'), [1]);
+});
+
+test('solicitar uso cria o resgate pela API e recebe o QR Code', async () => {
+  definirToken('sessao-A');
+  const emissao = {
+    id: 25,
+    token_qrcode: 'qr-token',
+    codigo_validacao: 'FCV25A',
+    status: 'PENDENTE',
+    data_solicitacao: '2026-11-23 13:00:00',
+    data_expiracao: '2026-11-23 13:05:00',
+  };
+  globalThis.fetch = async (url, opcoes) => {
+    assert.equal(url, 'http://api.test/api/v1/resgates');
+    assert.equal(opcoes.method, 'POST');
+    assert.equal(opcoes.headers.Authorization, 'Bearer sessao-A');
+    assert.deepEqual(JSON.parse(opcoes.body), { beneficio_id: 12 });
+    return json(emissao);
+  };
+
+  assert.deepEqual(await qrCodeService.emitir(12), emissao);
+});
+
+test('recupera o QR Code pelo endpoint do resgate e lista pendências pela rota do colaborador', async () => {
+  const chamadas = [];
+  globalThis.fetch = async (url, opcoes) => {
+    chamadas.push([url, opcoes.method]);
+    return json([]);
+  };
+
+  await qrCodeService.consultar(25);
+  await utilizationService.listarAguardando();
+
+  assert.deepEqual(chamadas, [
+    ['http://api.test/api/v1/resgates/25', 'GET'],
+    ['http://api.test/api/v1/eu/aguardando', 'GET'],
+  ]);
 });
 
 test('login e recuperação não enviam um token de outra conta', async () => {

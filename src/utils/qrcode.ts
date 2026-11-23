@@ -72,8 +72,9 @@ export function lerDataHoraApi(texto: string) {
     return new Date(texto.includes('T') ? texto : texto.replace(' ', 'T')).getTime();
 }
 export function calcularPrazo(emissao: EmissaoQr, recebidoEm: number): number | null {
-    if (!emissao.expira_em) return null;
-    const duracao = lerDataHoraApi(emissao.expira_em) - lerDataHoraApi(emissao.data_solicitacao);
+    const expiracao = emissao.data_expiracao ?? emissao.expira_em;
+    if (!expiracao) return null;
+    const duracao = lerDataHoraApi(expiracao) - lerDataHoraApi(emissao.data_solicitacao);
     return Number.isFinite(duracao) ? recebidoEm + Math.max(0, duracao) : null;
 }
 export function segundosRestantes(prazo: number | null, agora: number): number | null {

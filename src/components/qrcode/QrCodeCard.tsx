@@ -75,13 +75,22 @@ function aparencia(situacao: SituacaoQr, restantes: number | null): Aparencia {
 interface QrCodeCardProps {
   id?: number;
   token: string;
+  codigoValidacao?: string | null;
   titulo: string;
-  local: string;
+  local?: string;
   situacao: SituacaoQr;
   restantes: number | null;
 }
 
-export function QrCodeCard({ id, token, titulo, local, situacao, restantes }: QrCodeCardProps) {
+export function QrCodeCard({
+  id,
+  token,
+  codigoValidacao,
+  titulo,
+  local,
+  situacao,
+  restantes,
+}: QrCodeCardProps) {
   const visual = aparencia(situacao, restantes);
   const apagado = situacao !== 'VALIDO';
 
@@ -116,12 +125,12 @@ export function QrCodeCard({ id, token, titulo, local, situacao, restantes }: Qr
         <Chip texto={visual.texto} icone={visual.icone} cor={visual.cor} fundo={visual.fundo} />
       </View>
 
-      {id ? (
+      {codigoValidacao ? (
         <View style={styles.blocoCodigoManual}>
-          <Text style={styles.rotuloCodigoManual}>PIN DE VALIDAÇÃO</Text>
-          <Text style={styles.valorCodigoManual}>#{id}</Text>
+          <Text style={styles.rotuloCodigoManual}>CÓDIGO PARA DIGITAÇÃO</Text>
+          <Text style={styles.valorCodigoManual}>{codigoValidacao}</Text>
           <Text style={styles.ajudaCodigoManual}>
-            Caso problema com qr code, informe este número ao atendente
+            Caso a leitura falhe, informe este código ao atendente
           </Text>
         </View>
       ) : null}
@@ -130,9 +139,11 @@ export function QrCodeCard({ id, token, titulo, local, situacao, restantes }: Qr
         <Text style={styles.resumoTitulo} numberOfLines={1}>
           {titulo}
         </Text>
-        <Text style={styles.resumoLocal} numberOfLines={1}>
-          {local}
-        </Text>
+        {local ? (
+          <Text style={styles.resumoLocal} numberOfLines={1}>
+            {local}
+          </Text>
+        ) : null}
       </View>
     </Card>
   );

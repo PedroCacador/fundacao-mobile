@@ -18,9 +18,17 @@ export type PedidoQr =
 export interface EmissaoQr {
     id: number;
     token_qrcode: string;
+    codigo_validacao?: string | null;
     status: StatusUtilizacao;
     data_solicitacao: string;
+    data_expiracao?: string | null;
     expira_em?: string | null;
+}
+export interface ResgateQr extends EmissaoQr {
+    beneficio_id?: number | null;
+    item_campanha_id?: number | null;
+    origem?: OrigemQr;
+    conveniado_id?: number | null;
 }
 export type SituacaoQr = 'VALIDO' | 'EXPIRADO' | Exclude<StatusUtilizacao, 'PENDENTE'>;
 export interface ParametrosQr {
@@ -28,4 +36,5 @@ export interface ParametrosQr {
     itemCampanhaId?: number;
     conveniadoId?: number;
     utilizacaoId?: number;
+    solicitarAposConfirmacao?: boolean;
 }

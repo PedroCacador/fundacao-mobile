@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { PageHeader } from '../../components/common/PageHeader';
@@ -9,12 +9,13 @@ import { UserGreeting } from '../../components/common/UserGreeting';
 import { ChoiceChip } from '../../components/qrcode/ChoiceChip';
 import { QrCodeCard } from '../../components/qrcode/QrCodeCard';
 import { QrTips } from '../../components/qrcode/QrTips';
+import { EstablishmentCard } from '../../components/benefit/EstablishmentCard';
 import { RootScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte } from '../../theme';
 
 import { useQrCodeViewModel } from '../../viewmodels/useQrCodeViewModel';
 type QrCodeViewProps = RootScreenProps<'GerarQrCode'>;
-export default function QrCodeView({ route }: QrCodeViewProps) {
+export default function QrCodeView({ navigation, route }: QrCodeViewProps) {
     const {
 
         nome,
@@ -26,27 +27,47 @@ export default function QrCodeView({ route }: QrCodeViewProps) {
         opcao,
         local,
         escolherOpcao,
-        escolherLocal,
         emissao,
         situacao,
         restantes,
         emitindo,
         erroEmissao,
         emitir,
+        consultarStatus,
         trocar,
     } = useQrCodeViewModel(route.params);
+    const opcoesExibidas =
+        route.params?.solicitarAposConfirmacao && route.params.beneficioId !== undefined
+            ? opcoes.filter((item) => item.chave === `BENEFICIO-${route.params?.beneficioId}`)
+            : opcoes;
     const decidido = situacao === 'APROVADA' || situacao === 'REPROVADA' || situacao === 'ESTORNADA';
+    const confirmarEmissao = () => {
+        if (route.params?.solicitarAposConfirmacao) {
+            void emitir();
+            return;
+        }
+        if (!opcao) return;
+        Alert.alert(
+            'Confirmar uso do benefício',
+            `Deseja solicitar "${opcao.nome}"? O QR Code será gerado após a confirmação.`,
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Confirmar', onPress: () => void emitir() },
+            ],
+        );
+    };
     return (
         <Screen>
             <PageHeader titulo="QR Code" subtitulo="Apresente no estabelecimento" />
             <UserGreeting nome={nome} cargo={cargo} tamanhoFoto={64} />
-            {emissao && situacao && opcao && local ? (
+            {emissao && situacao ? (
                 <>
                     <QrCodeCard
                         id={emissao.id}
                         token={emissao.token_qrcode}
-                        titulo={opcao.nome}
-                        local={local.conveniado.nome_fantasia}
+                        codigoValidacao={emissao.codigo_validacao}
+                        titulo={opcao?.nome ?? 'Benefício solicitado'}
+                        local={local?.conveniado.nome_fantasia}
                         situacao={situacao}
                         restantes={restantes}
                     />
@@ -57,9 +78,9 @@ export default function QrCodeView({ route }: QrCodeViewProps) {
                             <Button titulo="Gerar outro QR Code" icone="scan-qr-code" aoPressionar={trocar} />
                         ) : (
                             <Button
-                                titulo="Recarregar QR Code"
+                                titulo="Atualizar status"
                                 icone="refresh-cw"
-                                aoPressionar={emitir}
+                                aoPressionar={() => void consultarStatus()}
                                 carregando={emitindo}
                             />
                         )}
@@ -72,18 +93,26 @@ export default function QrCodeView({ route }: QrCodeViewProps) {
                 <Loading texto="Carregando seus benefícios..." />
             ) : erroOpcoes ? (
                 <ErrorMessage mensagem={erroOpcoes} aoTentarDeNovo={recarregarOpcoes} />
-            ) : opcoes.length === 0 ? (
+            ) : opcoesExibidas.length === 0 ? (
                 <EmptyState
                     icone="ticket"
-                    titulo="Nenhum benefício para usar agora"
-                    texto="Quando houver benefícios ativos em estabelecimentos, eles aparecem aqui."
+                    titulo={
+                        route.params?.solicitarAposConfirmacao
+                            ? 'Benefício indisponível'
+                            : 'Nenhum benefício para usar agora'
+                    }
+                    texto={
+                        route.params?.solicitarAposConfirmacao
+                            ? 'Este benefício não está mais disponível para solicitação.'
+                            : 'Quando houver benefícios ativos em estabelecimentos, eles aparecem aqui.'
+                    }
                 />
             ) : (
                 <>
                     <Card estilo={styles.passo}>
                         <Text style={styles.passoTitulo}>1. Escolha o benefício</Text>
                         <View style={styles.opcoes}>
-                            {opcoes.map((item) => (
+                            {opcoesExibidas.map((item) => (
                                 <ChoiceChip
                                     key={item.chave}
                                     titulo={item.nome}
@@ -96,15 +125,17 @@ export default function QrCodeView({ route }: QrCodeViewProps) {
                     </Card>
                     {opcao ? (
                         <Card estilo={styles.passo}>
-                            <Text style={styles.passoTitulo}>2. Escolha o estabelecimento</Text>
-                            <View style={styles.opcoes}>
+                            <Text style={styles.passoTitulo}>2. Locais onde pode ser usado</Text>
+                            <View style={styles.locais}>
                                 {opcao.locais.map((item) => (
-                                    <ChoiceChip
+                                    <EstablishmentCard
                                         key={item.ofertaId}
-                                        titulo={item.conveniado.nome_fantasia}
-                                        detalhe={item.conveniado.categoria ?? 'Outros'}
-                                        escolhido={item.conveniado.id === local?.conveniado.id}
-                                        aoPressionar={() => escolherLocal(item.conveniado.id)}
+                                        conveniado={item.conveniado}
+                                        aoPressionar={() =>
+                                            navigation.navigate('LocationDetails', {
+                                                conveniadoId: item.conveniado.id,
+                                            })
+                                        }
                                     />
                                 ))}
                             </View>
@@ -113,11 +144,11 @@ export default function QrCodeView({ route }: QrCodeViewProps) {
                     {erroEmissao ? <ErrorMessage mensagem={erroEmissao} /> : null}
                     <View style={styles.acoes}>
                         <Button
-                            titulo="Gerar QR Code"
+                            titulo="Solicitar uso e gerar QR Code"
                             icone="scan-qr-code"
-                            aoPressionar={emitir}
+                            aoPressionar={confirmarEmissao}
                             carregando={emitindo}
-                            desabilitado={!local}
+                            desabilitado={!opcao}
                         />
                     </View>
                 </>
@@ -138,6 +169,9 @@ const styles = StyleSheet.create({
     opcoes: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        gap: espaco.sm,
+    },
+    locais: {
         gap: espaco.sm,
     },
     acoes: {

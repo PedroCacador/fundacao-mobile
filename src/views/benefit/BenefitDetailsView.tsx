@@ -1,8 +1,9 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BenefitHero } from '../../components/benefit/BenefitHero';
 import { EstablishmentCard } from '../../components/benefit/EstablishmentCard';
 import { BackHeader } from '../../components/common/BackHeader';
+import { Button } from '../../components/common/Button';
 import { FilterTabs, TabOption } from '../../components/common/FilterTabs';
 import { Icone, IconBox } from '../../components/common/Icon';
 import { Screen } from '../../components/common/Screen';
@@ -37,6 +38,25 @@ export default function BenefitDetailsView({
     rolarPara(id);
   };
 
+  const solicitarUso = () => {
+    if (!item) return;
+    Alert.alert(
+      'Confirmar uso do benefício',
+      `Deseja solicitar o uso de "${item.beneficio.nome}" e gerar o QR Code para apresentar no estabelecimento?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Confirmar',
+          onPress: () =>
+            navigation.push('GerarQrCode', {
+              beneficioId: item.beneficio.id,
+              solicitarAposConfirmacao: true,
+            }),
+        },
+      ],
+    );
+  };
+
   if (carregando || !item || !detalhes) {
     return (
       <Screen>
@@ -56,6 +76,14 @@ export default function BenefitDetailsView({
         emQuantosDias={detalhes.emQuantosDias}
         limite={detalhes.limite}
         valor={detalhes.valor}
+      />
+
+      <Button
+        titulo="Solicitar uso do benefício"
+        icone="scan-qr-code"
+        aoPressionar={solicitarUso}
+        desabilitado={!item.disponivel || item.conveniados.length === 0}
+        estilo={styles.botaoSolicitar}
       />
 
       <FilterTabs tabs={abas} selectedTab={aba} onSelectTab={selecionar} />
@@ -154,6 +182,9 @@ export default function BenefitDetailsView({
 }
 
 const styles = StyleSheet.create({
+  botaoSolicitar: {
+    marginBottom: espaco.md,
+  },
   texto: {
     flex: 1,
     fontFamily: familia.regular,

@@ -47,6 +47,10 @@ export const utilizationService = {
     return requisitar<Utilizacao[]>('/eu/utilizacoes?status=PENDENTE');
   },
 
+  listarAguardando() {
+    return requisitar<Utilizacao[]>('/eu/aguardando');
+  },
+
   listarHistoricoConveniado(filtros?: { de?: string; ate?: string }) {
     const consulta = filtros ? montarConsulta(filtros) : '';
     const url = consulta ? `/eu/utilizacoes?${consulta}` : '/eu/utilizacoes';
