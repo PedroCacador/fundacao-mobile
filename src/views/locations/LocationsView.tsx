@@ -34,7 +34,7 @@ export default function LocationsView({ navigation }: TabScreenProps<'Locations'
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
-      <TopBar voltar={false} perfil />
+      <TopBar voltar={false} />
 
       <Header
         icone="map-pin"
@@ -59,16 +59,6 @@ export default function LocationsView({ navigation }: TabScreenProps<'Locations'
         <Loading texto="Carregando estabelecimentos conveniados..." />
       ) : erro ? (
         <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
-      ) : lista.length === 0 ? (
-        <EmptyState
-          icone="store"
-          titulo="Nenhum estabelecimento encontrado"
-          texto={
-            filtroAtivo || busca.trim().length > 0
-              ? 'Tente buscar por outro termo ou limpar os filtros de categoria.'
-              : 'Não há estabelecimentos conveniados com benefícios ativos no momento.'
-          }
-        />
       ) : (
         <View style={styles.secaoLista}>
           <Text style={styles.contagem}>
@@ -76,17 +66,29 @@ export default function LocationsView({ navigation }: TabScreenProps<'Locations'
             {plural(lista.length, 'estabelecimento encontrado', 'estabelecimentos encontrados')}
           </Text>
 
-          {lista.map((local) => (
-            <LocationCard
-              key={local.conveniado.id}
-              local={local}
-              aoPressionar={() =>
-                navigation.navigate('LocationDetails', {
-                  conveniadoId: local.conveniado.id,
-                })
+          {lista.length === 0 ? (
+            <EmptyState
+              icone="map-pin"
+              titulo="Nenhum estabelecimento encontrado"
+              texto={
+                filtroAtivo || busca.trim().length > 0
+                  ? 'Tente buscar por outro termo ou limpar os filtros de categoria.'
+                  : 'Não há estabelecimentos conveniados com benefícios ativos no momento.'
               }
             />
-          ))}
+          ) : (
+            lista.map((local) => (
+              <LocationCard
+                key={local.conveniado.id}
+                local={local}
+                aoPressionar={() =>
+                  navigation.navigate('LocationDetails', {
+                    conveniadoId: local.conveniado.id,
+                  })
+                }
+              />
+            ))
+          )}
         </View>
       )}
 
