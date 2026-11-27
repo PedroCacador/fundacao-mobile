@@ -6,7 +6,7 @@ import { Chip } from '../common/Chip';
 import { IconBox, NomeIcone } from '../common/Icon';
 import type { SituacaoQr } from '../../models/QrCode';
 import { cores, espaco, familia, fonte, raio } from '../../theme';
-import { formatarContador } from '../../utils/qrcode';
+import { formatarTempoExpiracao } from '../../utils/qrcode';
 
 const TAMANHO_QR = 180;
 
@@ -22,7 +22,9 @@ function aparencia(situacao: SituacaoQr, restantes: number | null): Aparencia {
     case 'VALIDO':
       return {
         texto:
-          restantes === null ? 'Aguardando leitura' : `Expira em ${formatarContador(restantes)}`,
+          restantes === null
+            ? 'Aguardando leitura'
+            : `Expira em ${formatarTempoExpiracao(restantes)}`,
         icone: 'clock',
         cor: cores.primaria,
         fundo: cores.primariaClara,
@@ -77,7 +79,6 @@ interface QrCodeCardProps {
   token: string;
   codigoValidacao?: string | null;
   titulo: string;
-  local?: string;
   situacao: SituacaoQr;
   restantes: number | null;
 }
@@ -87,7 +88,6 @@ export function QrCodeCard({
   token,
   codigoValidacao,
   titulo,
-  local,
   situacao,
   restantes,
 }: QrCodeCardProps) {
@@ -125,25 +125,18 @@ export function QrCodeCard({
         <Chip texto={visual.texto} icone={visual.icone} cor={visual.cor} fundo={visual.fundo} />
       </View>
 
-      {codigoValidacao ? (
-        <View style={styles.blocoCodigoManual}>
-          <Text style={styles.rotuloCodigoManual}>CÓDIGO PARA DIGITAÇÃO</Text>
-          <Text style={styles.valorCodigoManual}>{codigoValidacao}</Text>
-          <Text style={styles.ajudaCodigoManual}>
-            Caso a leitura falhe, informe este código ao atendente
-          </Text>
-        </View>
-      ) : null}
+      <View style={styles.blocoCodigoManual}>
+        <Text style={styles.rotuloCodigoManual}>CÓDIGO PARA DIGITAÇÃO</Text>
+        <Text style={styles.valorCodigoManual}>{codigoValidacao ?? 'Não disponível'}</Text>
+        <Text style={styles.ajudaCodigoManual}>
+          Caso a leitura falhe, informe este código ao atendente
+        </Text>
+      </View>
 
       <View style={styles.resumo}>
         <Text style={styles.resumoTitulo} numberOfLines={1}>
           {titulo}
         </Text>
-        {local ? (
-          <Text style={styles.resumoLocal} numberOfLines={1}>
-            {local}
-          </Text>
-        ) : null}
       </View>
     </Card>
   );
@@ -243,7 +236,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   valorCodigoManual: {
-    fontFamily: familia.titulo,
+    fontFamily: familia.tituloNegrito,
     fontSize: fonte.grande,
     color: cores.primaria,
     letterSpacing: 1,
@@ -262,13 +255,7 @@ const styles = StyleSheet.create({
   },
   resumoTitulo: {
     fontFamily: familia.semi,
-    fontSize: fonte.base,
+    fontSize: fonte.lg,
     color: cores.texto,
-  },
-  resumoLocal: {
-    marginTop: 2,
-    fontFamily: familia.regular,
-    fontSize: fonte.md,
-    color: cores.textoSecundario,
   },
 });

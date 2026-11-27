@@ -1,19 +1,22 @@
 import React from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, AlertButton, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { BackHeader } from '../../components/common/BackHeader';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Chip } from '../../components/common/Chip';
 import { IconBox, Icone } from '../../components/common/Icon';
 import { Screen } from '../../components/common/Screen';
-import { SectionCard } from '../../components/common/SectionCard';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { RootScreenProps } from '../../navigation/types';
 import { cores, espaco, familia, fonte, raio } from '../../theme';
 import { categoriasDoConveniado } from '../../utils/benefit';
 import { estiloCategoria } from '../../utils/category';
-import { formatarCnpj, formatarMoeda } from '../../utils/format';
-import { abrirNavegador, TipoNavegador } from '../../utils/map';
+import {
+  abrirMapaPadrao,
+  abrirNavegador,
+  obterNavegadoresDisponiveis,
+  TipoNavegador,
+} from '../../utils/map';
 import { useLocationDetailsViewModel } from '../../viewmodels/useLocationDetailsViewModel';
 
 export default function LocationDetailsView({
@@ -24,18 +27,46 @@ export default function LocationDetailsView({
   const { conveniado, beneficiosAtivos, categorias, carregando, erro, recarregar } =
     useLocationDetailsViewModel(conveniadoId);
 
-  const handleNavegacao = async (tipo: TipoNavegador) => {
+  const abrirMapa = async (tipo?: TipoNavegador) => {
     if (!conveniado?.endereco) {
       Alert.alert('Endereço indisponível', 'Este estabelecimento não possui endereço cadastrado.');
       return;
     }
-    const sucesso = await abrirNavegador(tipo, conveniado.endereco);
+    const sucesso =
+      Platform.OS === 'android'
+        ? await abrirMapaPadrao(conveniado.endereco)
+        : tipo
+          ? await abrirNavegador(tipo, conveniado.endereco)
+          : false;
     if (!sucesso) {
       Alert.alert(
         'Não foi possível abrir o mapa',
-        'Verifique se você possui o aplicativo de mapas instalado no aparelho.',
+        'Verifique se você possui um aplicativo de mapas instalado no aparelho.',
       );
     }
+  };
+
+  const solicitarRota = async () => {
+    if (Platform.OS === 'ios') {
+      const disponiveis = await obterNavegadoresDisponiveis();
+      if (disponiveis.length === 0) {
+        Alert.alert('Mapas indisponíveis', 'Não há um aplicativo de mapas disponível no aparelho.');
+        return;
+      }
+      const nomes: Record<TipoNavegador, string> = {
+        apple: 'Apple Maps',
+        google: 'Google Maps',
+        waze: 'Waze',
+      };
+      const botoes: AlertButton[] = disponiveis.map((tipo) => ({
+        text: nomes[tipo],
+        onPress: () => void abrirMapa(tipo),
+      }));
+      botoes.push({ text: 'Cancelar', style: 'cancel' });
+      Alert.alert('Como chegar', 'Escolha o aplicativo de mapas', [...botoes]);
+      return;
+    }
+    void abrirMapa();
   };
 
   if (carregando) {
@@ -71,16 +102,14 @@ export default function LocationDetailsView({
     <Screen>
       <BackHeader titulo="Detalhes do Local" />
 
-      {/* CARTÃO PRINCIPAL DE IDENTIFICAÇÃO DO CONVENIADO */}
       <Card estilo={styles.cardPrincipal}>
         <View style={styles.topoPrincipal}>
           <IconBox
             nome={estiloPrincipal.icone}
             cor={estiloPrincipal.cor}
             fundo={estiloPrincipal.fundo}
-            tamanho={64}
+            tamanho={62}
           />
-
           <View style={styles.identificacaoTextos}>
             <Text style={styles.nomeFantasia}>{conveniado.nome_fantasia}</Text>
             {conveniado.razao_social && conveniado.razao_social !== conveniado.nome_fantasia ? (
@@ -95,7 +124,6 @@ export default function LocationDetailsView({
 
         <View style={styles.divisoria} />
 
-        {/* DETALHES DE CADASTRO E ENDEREÇO */}
         <View style={styles.linhasInfo}>
           <View style={styles.linhaInfo}>
             <Icone nome="map-pin" tamanho={18} cor={cores.primaria} />
@@ -104,16 +132,6 @@ export default function LocationDetailsView({
               <Text style={styles.valorInfo}>{conveniado.endereco}</Text>
             </View>
           </View>
-
-          {conveniado.cnpj ? (
-            <View style={styles.linhaInfo}>
-              <Icone nome="id-card" tamanho={18} cor={cores.primaria} />
-              <View style={styles.textosLinha}>
-                <Text style={styles.rotuloInfo}>CNPJ</Text>
-                <Text style={styles.valorInfo}>{formatarCnpj(conveniado.cnpj)}</Text>
-              </View>
-            </View>
-          ) : null}
 
           {conveniado.telefone ? (
             <View style={styles.linhaInfo}>
@@ -125,70 +143,42 @@ export default function LocationDetailsView({
             </View>
           ) : null}
         </View>
+
+        {categorias.length > 0 ? (
+          <View style={styles.chipsContainer}>
+            {categorias.map((categoria) => {
+              const estilo = estiloCategoria(categoria);
+              return (
+                <Chip
+                  key={categoria}
+                  texto={categoria}
+                  icone={estilo.icone}
+                  cor={estilo.cor}
+                  fundo={estilo.fundo}
+                />
+              );
+            })}
+          </View>
+        ) : null}
       </Card>
 
-      {/* CATEGORIAS VINCULADAS */}
-      <SectionCard
-        recuado
-        icone="tag"
-        titulo="Categorias vinculadas"
-        subtitulo="Áreas de atuação e categorias deste parceiro conveniado:"
-      >
-        <View style={styles.chipsContainer}>
-          {categorias.map((cat) => {
-            const estilo = estiloCategoria(cat);
-            return (
-              <Chip
-                key={cat}
-                texto={cat}
-                icone={estilo.icone}
-                cor={estilo.cor}
-                fundo={estilo.fundo}
-              />
-            );
-          })}
-        </View>
-      </SectionCard>
-
-      {/* NAVEGAÇÃO EXTERNA (MAPAS) */}
-      <SectionCard
-        recuado
-        icone="map"
+      <Button
         titulo="Como chegar"
-        subtitulo="Abra sua rota diretamente no seu aplicativo de navegação favorito:"
-      >
-        <View style={styles.botoesNavegacao}>
-          <Button
-            titulo="Google Maps"
-            variante="secundaria"
-            icone="map-pin"
-            aoPressionar={() => handleNavegacao('google')}
-            estilo={styles.botaoMapa}
-          />
-          <Button
-            titulo="Maps (Nativo)"
-            variante="secundaria"
-            icone="map"
-            aoPressionar={() => handleNavegacao('apple')}
-            estilo={styles.botaoMapa}
-          />
-          <Button
-            titulo="Waze"
-            variante="secundaria"
-            icone="navigation"
-            aoPressionar={() => handleNavegacao('waze')}
-            estilo={styles.botaoMapa}
-          />
-        </View>
-      </SectionCard>
+        icone="navigation"
+        aoPressionar={solicitarRota}
+        estilo={styles.botaoMapa}
+      />
 
-      {/* BENEFÍCIOS ATIVOS DISPONÍVEIS NESTE LOCAL */}
-      <SectionCard
-        recuado
-        icone="gift"
-        titulo="Benefícios disponíveis"
-        subtitulo="Benefícios ativos que você pode usufruir neste estabelecimento:"
-      >
+      <Card estilo={styles.cardBeneficios}>
+        <View style={styles.cabecalhoBeneficios}>
+          <IconBox nome="gift" tamanho={48} cor={cores.primaria} fundo="#E7EEF9" redondo />
+          <View style={styles.textosBeneficios}>
+            <Text style={styles.tituloBeneficios}>Benefícios disponíveis</Text>
+            <Text style={styles.subtituloBeneficios}>
+              Benefícios ativos que você pode usufruir neste estabelecimento:
+            </Text>
+          </View>
+        </View>
         {beneficiosAtivos.length === 0 ? (
           <EmptyState
             icone="gift"
@@ -200,45 +190,35 @@ export default function LocationDetailsView({
             {beneficiosAtivos.map((beneficio) => (
               <Pressable
                 key={beneficio.id}
-                onPress={() =>
-                  navigation.navigate('BenefitDetails', {
-                    beneficioId: beneficio.id,
-                  })
-                }
+                onPress={() => navigation.navigate('BenefitDetails', { beneficioId: beneficio.id })}
                 style={({ pressed }) => [styles.cardBeneficio, pressed && styles.cardPressionado]}
+                accessibilityRole="button"
+                accessibilityLabel={`Detalhes de ${beneficio.nome}`}
               >
-                <View style={styles.beneficioEsquerda}>
-                  <IconBox nome="gift" tamanho={44} cor={cores.primaria} fundo={cores.primariaClara} />
-                  <View style={styles.beneficioTextos}>
-                    <Text style={styles.beneficioNome}>{beneficio.nome}</Text>
-                    {beneficio.descricao ? (
-                      <Text style={styles.beneficioDescricao} numberOfLines={2}>
-                        {beneficio.descricao}
-                      </Text>
-                    ) : null}
-                    <Text style={styles.beneficioValor}>
-                      {beneficio.tipo_beneficio === 'PERCENTUAL'
-                        ? `${beneficio.valor}% de desconto`
-                        : formatarMoeda(beneficio.valor)}
+                <View style={styles.beneficioTextos}>
+                  <Text style={styles.beneficioNome}>{beneficio.nome}</Text>
+                  {beneficio.descricao ? (
+                    <Text style={styles.beneficioDescricao} numberOfLines={2}>
+                      {beneficio.descricao}
                     </Text>
-                  </View>
+                  ) : null}
                 </View>
-
-                <Icone nome="chevron-right" tamanho={20} cor={cores.textoFraco} />
+                <Icone nome="chevron-right" tamanho={20} cor={cores.textoSecundario} />
               </Pressable>
             ))}
           </View>
         )}
-      </SectionCard>
+      </Card>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   cardPrincipal: {
-    padding: espaco.xl,
+    padding: espaco.lg,
     gap: espaco.md,
-    marginBottom: espaco.md,
+    marginBottom: espaco.lg,
+    borderRadius: 14,
   },
   topoPrincipal: {
     flexDirection: 'row',
@@ -251,7 +231,7 @@ const styles = StyleSheet.create({
   },
   nomeFantasia: {
     fontFamily: familia.titulo,
-    fontSize: fonte.lg,
+    fontSize: fonte.xl,
     color: cores.texto,
   },
   razaoSocial: {
@@ -266,8 +246,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   pontoVerde: {
-    width: 8,
-    height: 8,
+    width: 7,
+    height: 7,
     borderRadius: 4,
     backgroundColor: cores.sucesso,
   },
@@ -278,7 +258,7 @@ const styles = StyleSheet.create({
   },
   divisoria: {
     height: 1,
-    backgroundColor: cores.borda,
+    backgroundColor: '#E7ECF3',
   },
   linhasInfo: {
     gap: espaco.sm,
@@ -305,12 +285,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: espaco.sm,
-  },
-  botoesNavegacao: {
-    gap: espaco.sm,
+    marginTop: espaco.xs,
   },
   botaoMapa: {
-    width: '100%',
+    minHeight: 54,
+    marginBottom: espaco.xxl,
+    ...{
+      shadowColor: cores.primaria,
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.25,
+      shadowRadius: 7,
+      elevation: 3,
+    },
+  },
+  cardBeneficios: {
+    padding: espaco.lg,
+    gap: espaco.lg,
+    borderRadius: 14,
+  },
+  cabecalhoBeneficios: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: espaco.md,
+  },
+  textosBeneficios: {
+    flex: 1,
+    gap: 3,
+  },
+  tituloBeneficios: {
+    fontFamily: familia.titulo,
+    fontSize: fonte.xl,
+    color: cores.texto,
+  },
+  subtituloBeneficios: {
+    fontFamily: familia.regular,
+    fontSize: fonte.sm,
+    lineHeight: 18,
+    color: cores.textoSecundario,
   },
   listaBeneficios: {
     gap: espaco.sm,
@@ -319,6 +330,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: espaco.md,
     padding: espaco.md,
     borderRadius: raio.md,
     borderWidth: 1,
@@ -328,31 +340,19 @@ const styles = StyleSheet.create({
   cardPressionado: {
     opacity: 0.8,
   },
-  beneficioEsquerda: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: espaco.md,
-    flex: 1,
-  },
   beneficioTextos: {
     flex: 1,
     gap: 2,
   },
   beneficioNome: {
-    fontFamily: familia.semi,
+    fontFamily: familia.titulo,
     fontSize: fonte.base,
     color: cores.texto,
   },
   beneficioDescricao: {
     fontFamily: familia.regular,
-    fontSize: fonte.xs,
+    fontSize: fonte.sm,
     color: cores.textoSecundario,
-    lineHeight: 16,
-  },
-  beneficioValor: {
-    fontFamily: familia.semi,
-    fontSize: fonte.xs,
-    color: cores.primaria,
-    marginTop: 2,
+    lineHeight: 17,
   },
 });

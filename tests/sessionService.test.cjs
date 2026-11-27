@@ -81,3 +81,10 @@ test('não aceita login sem token ou resposta de usuário inválida', async () =
   globalThis.fetch = async () => json(null);
   await assert.rejects(sessionService.restaurar('teste'), { status: 502 });
 });
+
+test('rejeita e não persiste senha devolvida pela API', async () => {
+  const dados = usuario();
+  dados.senha = '$2b$12$hash';
+  globalThis.fetch = async () => json(dados);
+  await assert.rejects(sessionService.restaurar('teste'), { status: 502 });
+});

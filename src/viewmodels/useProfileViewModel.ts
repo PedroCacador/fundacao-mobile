@@ -66,7 +66,6 @@ export function useProfileViewModel() {
               valor: formatarTelefone(colaborador.telefone),
             }
           : null,
-        { icone: 'lock', rotulo: 'Senha', valor: '••••••••' },
         {
           icone: 'calendar-check',
           rotulo: 'Conta criada em',

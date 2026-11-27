@@ -29,11 +29,16 @@ export function descreverRenovacao(beneficio: Beneficio) {
   if (beneficio.tipo_janela === 'CALENDARIO_FIXO' && beneficio.unidade_ciclo) {
     return `Renova a cada ${NOME_CICLO[beneficio.unidade_ciclo]}`;
   }
+  const intervalo = beneficio.intervalo_valor ?? 0;
   const referencia =
     beneficio.referencia_contagem === 'DATA_ADMISSAO_COLABORADOR'
       ? 'a partir da sua data de admissão'
       : 'a partir do último uso';
-  return `Conta ${beneficio.intervalo_valor} ${beneficio.intervalo_unidade === 'MES' ? 'meses' : 'dias'} ${referencia}`;
+  const unidade =
+    beneficio.intervalo_unidade === 'MES'
+      ? plural(intervalo, 'mês', 'meses')
+      : plural(intervalo, 'dia', 'dias');
+  return `Conta ${intervalo} ${unidade} ${referencia}`;
 }
 
 export function calcularProximaRenovacao(beneficio: Beneficio, hoje = new Date()): Date | null {
@@ -113,6 +118,8 @@ export function filtrarBeneficios(
       categoria === null ||
       item.conveniados.some((conveniado) => categoriasDoConveniado(conveniado).includes(categoria));
     if (!naCategoria) return false;
-    return !alvo || contemTexto(item.beneficio.nome, alvo) || contemTexto(item.beneficio.descricao, alvo);
+    return (
+      !alvo || contemTexto(item.beneficio.nome, alvo) || contemTexto(item.beneficio.descricao, alvo)
+    );
   });
 }

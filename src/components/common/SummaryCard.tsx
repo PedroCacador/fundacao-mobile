@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { cores, espaco, familia, fonte, raio } from '../../theme';
-import { Icone, IconBox, NomeIcone } from './Icon';
+import { cores, espaco, familia, fonte } from '../../theme';
+import { IconBox, NomeIcone } from './Icon';
 
 export interface ItemResumo {
   icone: NomeIcone;
@@ -9,93 +9,56 @@ export interface ItemResumo {
   rotulo: string;
   cor?: string;
   fundo?: string;
-  largo?: boolean;
 }
 
-interface SummaryCardProps {
-  titulo?: string;
-  itens: ItemResumo[];
-  slogan?: 'texto' | 'caixa' | 'nenhum';
-}
-
-export function SummaryCard({ titulo, itens, slogan = 'texto' }: SummaryCardProps) {
+export function SummaryCard({ itens }: { itens: ItemResumo[] }) {
   return (
     <View style={styles.card}>
-      {titulo ? <Text style={styles.titulo}>{titulo}</Text> : null}
-      <View style={styles.linha}>
-        {itens.map((item, indice) => (
-          <View
-            key={item.rotulo}
-            style={[styles.item, item.largo && styles.itemLargo, indice > 0 && styles.divisor]}
-          >
-            <IconBox
-              nome={item.icone}
-              cor={item.cor ?? cores.primaria}
-              fundo={item.fundo ?? cores.primariaClara}
-              tamanho={44}
-              redondo
-            />
-            <Text style={styles.valor} numberOfLines={1}>
-              {item.valor}
-            </Text>
-            <Text style={styles.rotulo}>{item.rotulo}</Text>
-          </View>
-        ))}
-        {slogan !== 'nenhum' ? (
-          <View style={[styles.slogan, slogan === 'caixa' ? styles.sloganCaixa : styles.divisor]}>
-            {slogan === 'caixa' ? (
-              <View style={styles.sloganIcone}>
-                <Icone nome="heart" tamanho={14} cor={cores.primaria} />
-              </View>
-            ) : null}
-            <Text style={styles.sloganTexto}>Mais benefícios, mais para você.</Text>
-            <View style={styles.sloganTraco} />
-          </View>
-        ) : null}
-      </View>
+      {itens.map((item, indice) => (
+        <View key={item.rotulo} style={[styles.item, indice > 0 && styles.divisor]}>
+          <IconBox
+            nome={item.icone}
+            cor={item.cor ?? cores.primaria}
+            fundo={item.fundo ?? cores.primariaClara}
+            tamanho={42}
+            redondo
+          />
+          <Text style={styles.valor} numberOfLines={1}>
+            {item.valor}
+          </Text>
+          <Text style={styles.rotulo}>{item.rotulo}</Text>
+        </View>
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: cores.azulSuave,
-    borderRadius: raio.lg,
+    flexDirection: 'row',
+    backgroundColor: '#EFF4FB',
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: cores.bordaAzul,
-    paddingTop: espaco.lg,
-    paddingBottom: espaco.lg,
-    paddingHorizontal: espaco.sm,
+    paddingVertical: espaco.md,
+    paddingHorizontal: espaco.xs,
     marginBottom: espaco.lg,
     overflow: 'hidden',
-  },
-  titulo: {
-    fontFamily: familia.semi,
-    fontSize: fonte.lg,
-    color: cores.texto,
-    marginBottom: espaco.md,
-    marginLeft: espaco.xs,
-  },
-  linha: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
   },
   item: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
     paddingHorizontal: 2,
   },
-  itemLargo: {
-    flex: 1.35,
-  },
   divisor: {
     borderLeftWidth: 1,
-    borderLeftColor: cores.bordaAzul,
+    borderLeftColor: '#D9E2F1',
   },
   valor: {
     fontFamily: familia.negrito,
-    fontSize: fonte.lg,
+    fontSize: fonte.sm,
     color: cores.texto,
     marginTop: espaco.xs,
   },
@@ -105,38 +68,5 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     color: cores.textoSecundario,
     textAlign: 'center',
-  },
-  slogan: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingLeft: espaco.md,
-    gap: espaco.sm,
-  },
-  sloganCaixa: {
-    backgroundColor: cores.primariaClara,
-    borderRadius: raio.md,
-    marginLeft: espaco.sm,
-    paddingVertical: espaco.sm,
-    paddingRight: espaco.xs,
-  },
-  sloganIcone: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: cores.branco,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sloganTexto: {
-    fontFamily: familia.medio,
-    fontSize: fonte.sm,
-    lineHeight: 16,
-    color: cores.primariaSuave,
-  },
-  sloganTraco: {
-    width: 28,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: cores.primariaTraco,
   },
 });

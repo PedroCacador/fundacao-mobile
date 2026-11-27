@@ -21,20 +21,11 @@ const abasFiltro: TabOption<FiltroStatusHistorico>[] = [
   { id: 'TODOS', label: 'Todos' },
   { id: 'APROVADA', label: 'Aprovados', icone: 'check' },
   { id: 'REPROVADA', label: 'Reprovados', icone: 'x' },
-  { id: 'PENDENTE', label: 'Pendentes', icone: 'clock' },
 ];
 
 export default function PartnerHistoryView() {
-  const {
-    historico,
-    carregando,
-    atualizando,
-    erro,
-    filtro,
-    setFiltro,
-    resumo,
-    recarregar,
-  } = usePartnerHistoryViewModel();
+  const { historico, carregando, atualizando, erro, filtro, setFiltro, resumo, recarregar } =
+    usePartnerHistoryViewModel();
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
@@ -56,17 +47,16 @@ export default function PartnerHistoryView() {
             fundo: cores.sucessoFundo,
           },
           {
-            icone: 'coins',
-            valor: formatarMoeda(resumo.valorTotal),
-            rotulo: 'Total aprovado',
-            largo: true,
-          },
-          {
             icone: 'x',
             valor: resumo.reprovadas,
             rotulo: 'Reprovados',
             cor: cores.erro,
             fundo: cores.erroFundo,
+          },
+          {
+            icone: 'coins',
+            valor: formatarMoeda(resumo.valorTotal),
+            rotulo: 'Total aprovado',
           },
         ]}
       />
@@ -97,11 +87,13 @@ export default function PartnerHistoryView() {
       ) : (
         <View style={styles.lista}>
           <Text style={styles.contadorTexto}>
-            {historico.length} {historico.length === 1 ? 'registro encontrado' : 'registros encontrados'}
+            {historico.length}{' '}
+            {historico.length === 1 ? 'registro encontrado' : 'registros encontrados'}
           </Text>
 
           {historico.map((item) => {
-            const visual = aparenciaStatusUtilizacao[item.status] ?? aparenciaStatusUtilizacao.APROVADA;
+            const visual =
+              aparenciaStatusUtilizacao[item.status] ?? aparenciaStatusUtilizacao.APROVADA;
             return (
               <Card key={item.id} estilo={styles.cardItem}>
                 <View style={styles.cardTopo}>
@@ -140,9 +132,7 @@ export default function PartnerHistoryView() {
                   <Icone nome="coins" tamanho={18} cor={cores.primaria} />
                   <View style={styles.infoTextos}>
                     <Text style={styles.rotulo}>Valor</Text>
-                    <Text style={styles.valorDestaque}>
-                      {formatarMoeda(item.valor_aplicado)}
-                    </Text>
+                    <Text style={styles.valorDestaque}>{formatarMoeda(item.valor_aplicado)}</Text>
                   </View>
                 </View>
 

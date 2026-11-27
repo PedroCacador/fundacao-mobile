@@ -14,7 +14,6 @@ export type NomeIcone =
   | 'circle-check'
   | 'circle-x'
   | 'clock'
-
   | 'coins'
   | 'construction'
   | 'credit-card'
@@ -35,6 +34,7 @@ export type NomeIcone =
   | 'info'
   | 'key-round'
   | 'lock'
+  | 'lightbulb'
   | 'log-out'
   | 'mail'
   | 'map'
@@ -50,7 +50,6 @@ export type NomeIcone =
   | 'settings'
   | 'shield-check'
   | 'store'
-
   | 'tag'
   | 'ticket'
   | 'user'

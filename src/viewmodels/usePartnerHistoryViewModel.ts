@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
-import { StatusUtilizacao, Utilizacao } from '../models/Utilization';
+import { Utilizacao } from '../models/Utilization';
 import { utilizationService } from '../services/utilizationService';
 
-export type FiltroStatusHistorico = 'TODOS' | StatusUtilizacao;
+export type FiltroStatusHistorico = 'TODOS' | 'APROVADA' | 'REPROVADA';
 
 export function usePartnerHistoryViewModel() {
   const { usuario } = useAuth();
@@ -16,32 +16,35 @@ export function usePartnerHistoryViewModel() {
   const [erro, setErro] = useState<string | null>(null);
   const [filtro, setFiltro] = useState<FiltroStatusHistorico>('TODOS');
 
-  const carregarHistorico = useCallback(async (isRefresh = false) => {
-    if (isRefresh) {
-      setAtualizando(true);
-    } else {
-      setCarregando(true);
-    }
-    setErro(null);
+  const carregarHistorico = useCallback(
+    async (isRefresh = false) => {
+      if (isRefresh) {
+        setAtualizando(true);
+      } else {
+        setCarregando(true);
+      }
+      setErro(null);
 
-    try {
-      const lista = await utilizationService.listarHistoricoConveniado();
-      // Garante exibição somente dos resgates vinculados a este conveniado específico
-      const listaVinculada = conveniadoId
-        ? lista.filter((item) => item.conveniado_id === conveniadoId)
-        : lista;
-      setHistorico(listaVinculada);
-    } catch (err: unknown) {
-      const mensagem =
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível carregar o histórico de atendimentos.';
-      setErro(mensagem);
-    } finally {
-      setCarregando(false);
-      setAtualizando(false);
-    }
-  }, [conveniadoId]);
+      try {
+        if (!conveniadoId) {
+          throw new Error('Não foi possível identificar o conveniado desta sessão.');
+        }
+        const lista = await utilizationService.listarHistoricoConveniado();
+        const listaVinculada = lista.filter((item) => item.conveniado_id === conveniadoId);
+        setHistorico(listaVinculada);
+      } catch (err: unknown) {
+        const mensagem =
+          err instanceof Error
+            ? err.message
+            : 'Não foi possível carregar o histórico de atendimentos.';
+        setErro(mensagem);
+      } finally {
+        setCarregando(false);
+        setAtualizando(false);
+      }
+    },
+    [conveniadoId],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -54,7 +57,10 @@ export function usePartnerHistoryViewModel() {
     const reprovadas = historico.filter((item) => item.status === 'REPROVADA');
     const pendentes = historico.filter((item) => item.status === 'PENDENTE');
     const expiradas = historico.filter((item) => item.status === 'EXPIRADA');
-    const valorTotal = aprovadas.reduce((total, item) => total + (Number(item.valor_aplicado) || 0), 0);
+    const valorTotal = aprovadas.reduce(
+      (total, item) => total + (Number(item.valor_aplicado) || 0),
+      0,
+    );
 
     return {
       total: historico.length,

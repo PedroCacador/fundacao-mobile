@@ -7,11 +7,10 @@ import { Logo } from './Logo';
 
 interface TopBarProps {
   voltar?: boolean;
-  perfil?: boolean;
   notificacoes?: boolean;
 }
 
-export function TopBar({ voltar = false, perfil = false, notificacoes = true }: TopBarProps) {
+export function TopBar({ voltar = false, notificacoes = true }: TopBarProps) {
   const navigation = useNavigation();
 
   return (
@@ -41,17 +40,6 @@ export function TopBar({ voltar = false, perfil = false, notificacoes = true }: 
             <Icone nome="bell" tamanho={24} cor={cores.texto} />
           </Pressable>
         ) : null}
-        {perfil ? (
-          <Pressable
-            onPress={() => navigation.navigate('Main', { screen: 'Profile' })}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel="Perfil"
-            style={({ pressed }) => [styles.perfil, pressed && styles.pressionado]}
-          >
-            <Icone nome="user" tamanho={22} cor={cores.texto} />
-          </Pressable>
-        ) : null}
       </View>
     </View>
   );
@@ -76,18 +64,10 @@ const styles = StyleSheet.create({
     gap: espaco.md,
   },
   sino: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  perfil: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: cores.primariaClara,
   },
   pressionado: {
     opacity: 0.7,

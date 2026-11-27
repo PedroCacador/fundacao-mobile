@@ -2,6 +2,25 @@ import { Linking, Platform } from 'react-native';
 
 export type TipoNavegador = 'google' | 'apple' | 'waze';
 
+const esquemaNavegador: Record<TipoNavegador, string> = {
+  google: 'comgooglemaps://',
+  apple: 'maps:',
+  waze: 'waze://',
+};
+
+export async function obterNavegadoresDisponiveis(): Promise<TipoNavegador[]> {
+  const verificacoes = await Promise.all(
+    (Object.entries(esquemaNavegador) as [TipoNavegador, string][]).map(async ([tipo, esquema]) => {
+      try {
+        return (await Linking.canOpenURL(esquema)) ? tipo : null;
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return verificacoes.filter((tipo): tipo is TipoNavegador => tipo !== null);
+}
+
 export interface UrlsNavegacao {
   google: string;
   apple: string;
@@ -35,6 +54,16 @@ export async function abrirNavegador(tipo: TipoNavegador, endereco: string): Pro
     // Fallback universal para Google Maps na web se aplicativo específico não responder
     const urlFallback = urls.google;
     await Linking.openURL(urlFallback);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function abrirMapaPadrao(endereco: string): Promise<boolean> {
+  const url = `geo:0,0?q=${encodeURIComponent(endereco.trim())}`;
+  try {
+    await Linking.openURL(url);
     return true;
   } catch {
     return false;

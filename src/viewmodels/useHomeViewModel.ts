@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { useUsuario } from '../context/AuthContext';
 import { useCatalog } from '../context/CatalogContext';
 import { Campanha } from '../models/Campaign';
@@ -21,42 +22,29 @@ export function useHomeViewModel() {
   const [carregandoPendentes, setCarregandoPendentes] = useState(true);
   const [erroPendentes, setErroPendentes] = useState<string | null>(null);
 
-  const carregarPendentes = useCallback(async () => {
-    setCarregandoPendentes(true);
+  const carregarPendentes = useCallback(async (silencioso = false) => {
+    if (!silencioso) setCarregandoPendentes(true);
     setErroPendentes(null);
     try {
       setPendentes(await utilizationService.listarAguardando());
     } catch (falha) {
       setErroPendentes(
-        falha instanceof Error ? falha.message : 'Não foi possível carregar os benefícios pendentes.',
+        falha instanceof Error
+          ? falha.message
+          : 'Não foi possível carregar os benefícios pendentes.',
       );
     } finally {
-      setCarregandoPendentes(false);
+      if (!silencioso) setCarregandoPendentes(false);
     }
   }, []);
 
-  useEffect(() => {
-    let ativo = true;
-    utilizationService
-      .listarAguardando()
-      .then((resultado) => {
-        if (ativo) {
-          setPendentes(resultado);
-          setCarregandoPendentes(false);
-        }
-      })
-      .catch((falha) => {
-        if (ativo) {
-          setErroPendentes(
-            falha instanceof Error ? falha.message : 'Não foi possível carregar os benefícios pendentes.',
-          );
-          setCarregandoPendentes(false);
-        }
-      });
-    return () => {
-      ativo = false;
-    };
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      void carregarPendentes();
+      const atualizador = setInterval(() => void carregarPendentes(true), 5000);
+      return () => clearInterval(atualizador);
+    }, [carregarPendentes]),
+  );
 
   const resumo = useMemo(() => resumirCatalogo(itens), [itens]);
 
