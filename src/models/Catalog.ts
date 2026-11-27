@@ -23,8 +23,6 @@ export interface ResumoCatalogo {
   proximaRenovacao: Date | null;
 }
 
-export type AbaDetalhe = 'ONDE_USAR' | 'REGRAS' | 'QUANTIDADE' | 'ESTABELECIMENTOS';
-
 export interface LocalConveniado {
   conveniado: Conveniado;
   beneficios: Beneficio[];

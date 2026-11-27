@@ -1,151 +1,191 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { BeneficioCatalogo } from '../../models/Catalog';
-import { cores, espaco, familia, fonte } from '../../theme';
-import { calcularProximaRenovacao, descreverLimite } from '../../utils/benefit';
-import { estiloCategoria } from '../../utils/category';
-import { formatarData } from '../../utils/format';
+import { cores, espaco, familia, fonte, sombra } from '../../theme';
+import { UsoBeneficio } from '../../utils/usage';
+import { diasAte, formatarData, plural } from '../../utils/format';
+import { formatarTempoExpiracao } from '../../utils/qrcode';
 import { Card } from '../common/Card';
-import { Chip } from '../common/Chip';
 import { Icone, IconBox } from '../common/Icon';
 import { StatusBadge } from '../common/StatusBadge';
+import { UsageDots } from './UsageDots';
 
 interface BenefitCardProps {
   item: BeneficioCatalogo;
+  uso: UsoBeneficio | null;
   aoPressionar: () => void;
-  aoVerRegras?: () => void;
-  resumido?: boolean;
-  ultimaUtilizacao?: string | null;
 }
 
-export function BenefitCard({
-  item,
-  aoPressionar,
-  aoVerRegras,
-  resumido = false,
-  ultimaUtilizacao,
-}: BenefitCardProps) {
-  const { beneficio, categoria, disponivel } = item;
-  const estilo = estiloCategoria(categoria);
-  const renovacao = calcularProximaRenovacao(beneficio);
+export function BenefitCard({ item, uso, aoPressionar }: BenefitCardProps) {
+  const { beneficio } = item;
+  const status = !uso
+    ? item.disponivel
+      ? 'DISPONIVEL'
+      : 'INDISPONIVEL'
+    : uso.pendentes > 0
+      ? 'PENDENTE'
+      : uso.disponiveis > 0
+        ? 'DISPONIVEL'
+        : 'INDISPONIVEL';
+
+  let textoData = '';
+  let iconeData: 'calendar' | 'clock' = 'calendar';
+  if (!uso) {
+    textoData = 'Usos indisponíveis';
+  } else if (status === 'PENDENTE') {
+    iconeData = 'clock';
+    textoData =
+      uso.segundosRestantes === null
+        ? 'Aguardando validação'
+        : `Expira em ${formatarTempoExpiracao(uso.segundosRestantes)}`;
+  } else if (uso.proximaData) {
+    const dias = diasAte(uso.proximaData);
+    textoData =
+      beneficio.tipo_janela === 'JANELA_MOVEL'
+        ? `Próximo uso liberado em ${formatarData(uso.proximaData)} (em ${dias} ${plural(dias, 'dia', 'dias')})`
+        : `Renova em ${formatarData(uso.proximaData)}`;
+  }
 
   return (
     <Card aoPressionar={aoPressionar} estilo={styles.card} rotuloAcessivel={beneficio.nome}>
-      <IconBox
-        nome={estilo.icone}
-        cor={estilo.cor}
-        fundo={estilo.fundo}
-        tamanho={resumido ? 54 : 46}
-      />
-      <View style={styles.info}>
-        <Text style={styles.titulo} numberOfLines={resumido ? 1 : 2}>
-          {beneficio.nome}
-        </Text>
-        {beneficio.descricao ? (
-          <Text style={styles.descricao} numberOfLines={2}>
-            {beneficio.descricao}
+      <View style={styles.topo}>
+        <IconBox nome="tag" tamanho={44} cor={cores.textoSecundario} fundo="#EDF0F5" />
+        <View style={styles.info}>
+          <Text style={styles.titulo} numberOfLines={2}>
+            {beneficio.nome}
           </Text>
-        ) : null}
-        {resumido ? (
-          <View style={styles.chip}>
-            <Chip texto={descreverLimite(beneficio)} />
-          </View>
-        ) : aoVerRegras ? (
-          <Pressable
-            onPress={aoVerRegras}
-            hitSlop={6}
-            accessibilityRole="link"
-            style={styles.regras}
-          >
-            <Icone nome="info" tamanho={14} cor={cores.primaria} />
-            <Text style={styles.regrasTexto}>Regras de utilização</Text>
-          </Pressable>
-        ) : null}
-      </View>
-      {resumido ? null : (
-        <View style={styles.lateral}>
-          <StatusBadge status={disponivel ? 'DISPONIVEL' : 'INDISPONIVEL'} />
-          <Text style={styles.limite}>{descreverLimite(beneficio)}</Text>
-          {renovacao ? (
-            <View style={styles.renovacao}>
-              <Icone nome="calendar" tamanho={14} cor={cores.textoSecundario} />
-              <Text style={styles.renovacaoTexto}>
-                {`Renovação em\n${formatarData(renovacao)}`}
-              </Text>
-            </View>
-          ) : null}
-          {ultimaUtilizacao ? (
-            <View style={styles.renovacao}>
-              <Icone nome="circle-check" tamanho={14} cor={cores.primaria} />
-              <Text style={styles.renovacaoTexto}>{`Último uso em\n${ultimaUtilizacao}`}</Text>
-            </View>
+          {beneficio.descricao ? (
+            <Text style={styles.descricao} numberOfLines={2}>
+              {beneficio.descricao}
+            </Text>
           ) : null}
         </View>
-      )}
-      <Icone nome="chevron-right" tamanho={20} cor={cores.textoSecundario} />
+        <Icone nome="chevron-right" tamanho={20} cor={cores.textoSecundario} />
+      </View>
+
+      <View style={styles.divisoria} />
+
+      <View style={styles.uso}>
+        <View style={styles.indicador}>
+          {uso ? (
+            <UsageDots
+              disponiveis={uso.disponiveis}
+              pendentes={uso.pendentes}
+              usados={uso.usados}
+              tamanho={16}
+              rotuloAcessivel={`${uso.disponiveis} disponíveis, ${uso.pendentes} em andamento`}
+            />
+          ) : null}
+          {uso ? (
+            <Text style={styles.contagem}>
+              <Text style={uso.disponiveis > 0 ? styles.disponiveis : styles.indisponiveis}>
+                {uso.disponiveis} {plural(uso.disponiveis, 'disponível', 'disponíveis')}
+              </Text>
+              {uso.pendentes > 0 ? (
+                <>
+                  {' · '}
+                  <Text style={styles.pendentes}>
+                    {uso.pendentes} {plural(uso.pendentes, 'em andamento', 'em andamento')}
+                  </Text>
+                </>
+              ) : null}
+            </Text>
+          ) : null}
+        </View>
+        <StatusBadge status={status} ponto />
+      </View>
+
+      {textoData ? (
+        <View style={[styles.data, status === 'PENDENTE' && styles.dataPendente]}>
+          <Icone
+            nome={iconeData}
+            tamanho={14}
+            cor={status === 'PENDENTE' ? cores.alerta : cores.textoSecundario}
+          />
+          <Text style={[styles.textoData, status === 'PENDENTE' && styles.textoPendente]}>
+            {textoData}
+          </Text>
+        </View>
+      ) : null}
     </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
+    gap: espaco.md,
+    marginBottom: espaco.md,
+    padding: espaco.lg,
+    borderRadius: 14,
+    ...sombra.card,
+  },
+  topo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: espaco.md,
-    paddingVertical: espaco.md + 2,
-    paddingHorizontal: espaco.md,
+    gap: espaco.md,
   },
   info: {
     flex: 1,
-    gap: 3,
+    gap: 2,
   },
   titulo: {
-    fontFamily: familia.semi,
+    fontFamily: familia.titulo,
     fontSize: fonte.lg,
+    lineHeight: 20,
     color: cores.texto,
   },
   descricao: {
     fontFamily: familia.regular,
     fontSize: fonte.sm,
+    lineHeight: 17,
     color: cores.textoSecundario,
-    lineHeight: 16,
   },
-  chip: {
-    marginTop: espaco.xs,
+  divisoria: {
+    height: 1,
+    backgroundColor: '#E7ECF3',
   },
-  regras: {
+  uso: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginTop: espaco.sm,
+    justifyContent: 'space-between',
+    gap: espaco.sm,
   },
-  regrasTexto: {
-    fontFamily: familia.medio,
-    fontSize: fonte.xs,
+  indicador: {
+    flex: 1,
+    gap: espaco.sm,
+  },
+  contagem: {
+    fontFamily: familia.regular,
+    fontSize: fonte.sm,
+    color: '#475569',
+  },
+  disponiveis: {
+    fontFamily: familia.semi,
     color: cores.primaria,
   },
-  lateral: {
-    width: 100,
-    gap: 5,
-    paddingLeft: 10,
-    borderLeftWidth: 1,
-    borderLeftColor: cores.borda,
-  },
-  limite: {
+  indisponiveis: {
     fontFamily: familia.semi,
-    fontSize: fonte.sm,
-    color: cores.texto,
+    color: '#5B6B8A',
   },
-  renovacao: {
+  pendentes: {
+    fontFamily: familia.semi,
+    color: cores.alerta,
+  },
+  data: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 5,
+    alignItems: 'center',
+    gap: espaco.sm,
   },
-  renovacaoTexto: {
+  dataPendente: {
+    marginTop: -espaco.xs,
+  },
+  textoData: {
     fontFamily: familia.regular,
-    fontSize: fonte.xxs,
-    lineHeight: 13,
+    fontSize: fonte.sm,
     color: cores.textoSecundario,
+  },
+  textoPendente: {
+    fontFamily: familia.semi,
+    color: cores.alerta,
   },
 });

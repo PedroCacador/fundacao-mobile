@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { BenefitCard } from '../../components/benefit/BenefitCard';
 import { CategoryFilterModal } from '../../components/common/CategoryFilterModal';
 import { Header } from '../../components/common/Header';
@@ -8,12 +8,15 @@ import { SearchBar } from '../../components/common/SearchBar';
 import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { TopBar } from '../../components/common/TopBar';
 import { TabScreenProps } from '../../navigation/types';
-import { espaco } from '../../theme';
+import { cores, espaco, familia, fonte } from '../../theme';
+import { plural } from '../../utils/format';
 import { useWalletViewModel } from '../../viewmodels/useWalletViewModel';
 
 export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
   const {
     lista,
+    totalEncontrados,
+    carregandoUsos,
     busca,
     setBusca,
     buscaAtiva,
@@ -35,7 +38,7 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
 
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
-      <TopBar voltar perfil />
+      <TopBar voltar />
       <Header
         icone="gift"
         titulo="Benefícios"
@@ -53,13 +56,18 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
         }}
       />
 
+      <Text style={styles.contagem}>
+        {totalEncontrados}{' '}
+        {plural(totalEncontrados, 'benefício encontrado', 'benefícios encontrados')}
+      </Text>
+
       {erroUtilizacoes ? (
         <View style={styles.aviso}>
           <ErrorMessage mensagem={erroUtilizacoes} aoTentarDeNovo={tentarUtilizacoes} />
         </View>
       ) : null}
 
-      {carregando ? (
+      {carregando || (carregandoUsos && !erroUtilizacoes) ? (
         <Loading texto="Carregando benefícios..." />
       ) : erro ? (
         <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
@@ -78,16 +86,10 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
           <BenefitCard
             key={entrada.chave}
             item={entrada.catalogo}
-            ultimaUtilizacao={entrada.ultimaUtilizacao}
+            uso={entrada.uso}
             aoPressionar={() =>
               navigation.navigate('BenefitDetails', {
                 beneficioId: entrada.catalogo.beneficio.id,
-              })
-            }
-            aoVerRegras={() =>
-              navigation.navigate('BenefitDetails', {
-                beneficioId: entrada.catalogo.beneficio.id,
-                aba: 'REGRAS',
               })
             }
           />
@@ -107,6 +109,13 @@ export default function WalletView({ navigation }: TabScreenProps<'Wallet'>) {
 }
 
 const styles = StyleSheet.create({
+  contagem: {
+    marginTop: espaco.md,
+    marginBottom: espaco.md,
+    fontSize: fonte.sm,
+    fontFamily: familia.semi,
+    color: cores.textoSecundario,
+  },
   aviso: {
     marginBottom: espaco.md,
   },

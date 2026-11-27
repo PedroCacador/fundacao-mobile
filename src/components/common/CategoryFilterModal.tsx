@@ -64,10 +64,7 @@ function ModalContent({
 
       <ScrollView style={styles.listaRolagem} contentContainerStyle={styles.listaContainer}>
         <Pressable
-          style={[
-            styles.opcaoItem,
-            selecionada === TODAS_CATEGORIAS && styles.opcaoItemAtivo,
-          ]}
+          style={[styles.opcaoItem, selecionada === TODAS_CATEGORIAS && styles.opcaoItemAtivo]}
           onPress={() => setSelecionada(TODAS_CATEGORIAS)}
         >
           <View style={styles.opcaoEsquerda}>
@@ -107,15 +104,8 @@ function ModalContent({
               onPress={() => setSelecionada(cat)}
             >
               <View style={styles.opcaoEsquerda}>
-                <IconBox
-                  nome={estilo.icone}
-                  tamanho={36}
-                  cor={estilo.cor}
-                  fundo={estilo.fundo}
-                />
-                <Text style={[styles.opcaoTexto, ativo && styles.opcaoTextoAtivo]}>
-                  {cat}
-                </Text>
+                <IconBox nome={estilo.icone} tamanho={36} cor={estilo.cor} fundo={estilo.fundo} />
+                <Text style={[styles.opcaoTexto, ativo && styles.opcaoTextoAtivo]}>{cat}</Text>
               </View>
 
               <View style={[styles.circuloSelecao, ativo && styles.circuloSelecaoAtivo]}>
@@ -127,25 +117,18 @@ function ModalContent({
       </ScrollView>
 
       <View style={styles.rodape}>
-        <Button
-          titulo="Filtrar"
-          variante="primaria"
-          icone="filter"
-          aoPressionar={handleFiltrar}
-        />
+        <Button titulo="Filtrar" variante="primaria" aoPressionar={handleFiltrar} />
 
         <View style={styles.botoesSecundarios}>
           <Button
             titulo="Limpar"
             variante="secundaria"
-            icone="refresh-cw"
             aoPressionar={handleLimpar}
             estilo={styles.botaoMeio}
           />
           <Button
             titulo="Voltar"
             variante="secundaria"
-            icone="chevron-left"
             aoPressionar={handleVoltar}
             estilo={styles.botaoMeio}
           />
