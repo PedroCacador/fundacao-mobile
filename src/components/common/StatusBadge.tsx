@@ -6,8 +6,8 @@ export type StatusVisual = 'DISPONIVEL' | 'INDISPONIVEL' | 'PENDENTE' | 'UTILIZA
 
 const aparencia: Record<StatusVisual, { rotulo: string; cor: string; fundo: string }> = {
   DISPONIVEL: { rotulo: 'Disponível', cor: cores.sucesso, fundo: cores.sucessoFundo },
-  INDISPONIVEL: { rotulo: 'Indisponível', cor: cores.textoSecundario, fundo: cores.borda },
-  PENDENTE: { rotulo: 'Pendente', cor: cores.alerta, fundo: cores.alertaFundo },
+  INDISPONIVEL: { rotulo: 'Esgotado', cor: cores.textoSecundario, fundo: cores.borda },
+  PENDENTE: { rotulo: 'Resgate pendente', cor: cores.alerta, fundo: cores.alertaFundo },
   UTILIZADO: { rotulo: 'Utilizado', cor: cores.primaria, fundo: cores.primariaClara },
   EXPIRADO: { rotulo: 'Expirado', cor: cores.textoSecundario, fundo: cores.borda },
 };
