@@ -1,18 +1,17 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { CampaignCard } from '../../components/campaign/CampaignCard';
+import { Card } from '../../components/common/Card';
+import { IconBox, Icone } from '../../components/common/Icon';
 import { Screen } from '../../components/common/Screen';
 import { SectionHeader } from '../../components/common/SectionHeader';
-import { EmptyState, ErrorMessage, Loading } from '../../components/common/StateMessage';
-import { SummaryCard } from '../../components/common/SummaryCard';
+import { ErrorMessage, Loading } from '../../components/common/StateMessage';
 import { TopBar } from '../../components/common/TopBar';
-import { UserGreeting } from '../../components/common/UserGreeting';
 import { TabScreenProps } from '../../navigation/types';
-import { cores, coresCategoria, espaco, familia, fonte, raio, sombra } from '../../theme';
+import { cores, espaco, familia, fonte, raio, sombra } from '../../theme';
+import { formatarTempoExpiracao } from '../../utils/qrcode';
 import { useHomeViewModel } from '../../viewmodels/useHomeViewModel';
-import { Card } from '../../components/common/Card';
-import { formatarContador } from '../../utils/qrcode';
-import { IconBox, Icone } from '../../components/common/Icon';
 
 export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
   const {
@@ -20,6 +19,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
     catalogo,
     resumo,
     carregando,
+    erro,
     atualizando,
     recarregar,
     campanhasVigentes,
@@ -32,81 +32,84 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
     tentarPendentes,
   } = useHomeViewModel();
 
+  const primeiroNome = nome.trim().split(/\s+/)[0] || nome;
+
   return (
     <Screen atualizando={atualizando} aoAtualizar={recarregar}>
-      <TopBar perfil />
+      <TopBar />
 
-      <UserGreeting
-        nome={nome}
-        cargo=""
-        tamanhoFoto={0}
-        compacto
-      />
+      <Text style={styles.saudacao} accessibilityRole="header">
+        Olá, {primeiroNome}
+      </Text>
 
-      <SummaryCard
-        titulo="Resumo dos seus benefícios"
-        slogan="nenhum"
-        itens={[
-          {
-            icone: 'gift',
-            valor: carregando ? '-' : resumo.disponiveis,
-            rotulo: 'Quantidade de benefícios disponíveis',
-            cor: cores.primaria,
-            fundo: cores.primariaClara,
-          },
-          {
-            icone: 'store',
-            valor: carregando ? '-' : resumo.locais,
-            rotulo: 'Quantidade de conveniados',
-            cor: coresCategoria.verde.cor,
-            fundo: coresCategoria.verde.fundo,
-          },
-        ]}
-      />
+      <Pressable
+        onPress={() => navigation.navigate('Wallet')}
+        accessibilityRole="button"
+        accessibilityLabel="Ver benefícios"
+        style={({ pressed }) => [styles.banner, pressed && styles.pressionado]}
+      >
+        <Svg style={StyleSheet.absoluteFill} preserveAspectRatio="none">
+          <Defs>
+            <LinearGradient id="fcvBanner" x1="0" y1="0" x2="1" y2="1">
+              <Stop offset="0" stopColor="#17306A" />
+              <Stop offset="1" stopColor="#1F4A9E" />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#fcvBanner)" />
+        </Svg>
+        <View style={styles.circuloTopo} />
+        <View style={styles.circuloBase} />
+        <View style={styles.bannerPresente}>
+          <Icone nome="gift" tamanho={80} cor="rgba(255,255,255,0.22)" />
+        </View>
+        <View style={styles.bannerConteudo}>
+          <Text style={styles.bannerRotulo}>PARA VOCÊ</Text>
+          <Text style={styles.bannerTitulo}>Seus benefícios estão esperando por você</Text>
+          <Text style={styles.bannerTexto}>
+            {carregando
+              ? 'Carregando benefícios disponíveis...'
+              : `${resumo.disponiveis} ${resumo.disponiveis === 1 ? 'benefício disponível' : 'benefícios disponíveis'} em ${resumo.locais} ${resumo.locais === 1 ? 'estabelecimento conveniado' : 'estabelecimentos conveniados'}.`}
+          </Text>
+          <View style={styles.bannerBotao}>
+            <Text style={styles.bannerBotaoTexto}>Ver benefícios</Text>
+            <Icone nome="chevron-right" tamanho={18} cor={cores.primaria} />
+          </View>
+        </View>
+      </Pressable>
 
-      <View style={styles.secao}>
-        <SectionHeader titulo="Benefícios aguardando validação" />
-        <Text style={styles.subtituloPendentes}>
-          Apresente seu QR Code no estabelecimento para concluir o resgate.
-        </Text>
-        {carregandoPendentes ? (
-          <Loading texto="Carregando solicitações..." />
-        ) : erroPendentes ? (
+      {erro ? (
+        <View style={styles.erroCatalogo}>
+          <ErrorMessage mensagem={erro} aoTentarDeNovo={recarregar} />
+        </View>
+      ) : null}
+
+      {!carregandoPendentes && erroPendentes && pendentes.length === 0 ? (
+        <View style={styles.secao}>
           <ErrorMessage mensagem={erroPendentes} aoTentarDeNovo={tentarPendentes} />
-        ) : pendentes.length === 0 ? (
-          <EmptyState
-            icone="scan-qr-code"
-            titulo="Nenhum benefício aguardando validação"
-          />
-        ) : (
-          pendentes.map((item) => {
+        </View>
+      ) : null}
+      {!carregandoPendentes && pendentes.length > 0 ? (
+        <>
+          {erroPendentes ? (
+            <View style={styles.secao}>
+              <ErrorMessage mensagem={erroPendentes} aoTentarDeNovo={tentarPendentes} />
+            </View>
+          ) : null}
+          {pendentes.map((item, indice) => {
             const restantes = item.segundos_restantes ?? null;
             const locais =
               catalogo.find((entrada) => entrada.beneficio.id === item.beneficio_id)?.conveniados ??
               [];
-            const textoExpiracao =
-              restantes === null
-                ? 'Aguardando validação'
-                : restantes <= 0
-                  ? 'QR Code expirado'
-                  : `Expira em: ${formatarContador(restantes)}`;
             const parametros =
               item.origem === 'CAMPANHA'
-                ? {
-                    itemCampanhaId: item.item_campanha_id ?? undefined,
-                    utilizacaoId: item.id,
-                  }
-                : {
-                    beneficioId: item.beneficio_id ?? undefined,
-                    utilizacaoId: item.id,
-                  };
-
+                ? { itemCampanhaId: item.item_campanha_id ?? undefined, utilizacaoId: item.id }
+                : { beneficioId: item.beneficio_id ?? undefined, utilizacaoId: item.id };
             return (
               <Card
                 key={item.id}
-                estilo={styles.pendente}
+                estilo={[styles.pendente, indice > 0 && styles.pendenteComAnterior]}
                 aoPressionar={() => navigation.navigate('GerarQrCode', parametros)}
-                rotuloAcessivel={`Abrir QR Code de ${item.beneficio_nome}`}
+                rotuloAcessivel={`Exibir QR Code de ${item.beneficio_nome}`}
               >
                 <View style={styles.pendenteConteudo}>
                   <View style={styles.pendenteTopo}>
@@ -114,7 +117,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
                       nome="scan-qr-code"
                       tamanho={48}
                       cor={cores.primaria}
-                      fundo={cores.primariaClara}
+                      fundo="#E7EEF9"
                       redondo
                     />
                     <View style={styles.pendenteInfo}>
@@ -124,7 +127,7 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
                   </View>
                   <View style={styles.pendenteLocais}>
                     <View style={styles.pendenteLocalCabecalho}>
-                      <Icone nome="map-pin" tamanho={15} cor={cores.textoSecundario} />
+                      <Icone nome="map-pin" tamanho={14} cor={cores.textoSecundario} />
                       <Text style={styles.pendenteLocalRotulo}>Locais disponíveis</Text>
                     </View>
                     {locais.length > 0 ? (
@@ -139,36 +142,37 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
                     )}
                   </View>
                   <View style={styles.pendenteRodape}>
-                    <View
-                      style={[
-                        styles.pendenteEstado,
-                        restantes !== null && restantes <= 0 && styles.pendenteEstadoExpirado,
-                      ]}
-                    >
-                      <Icone
-                        nome={restantes !== null && restantes <= 0 ? 'circle-alert' : 'clock'}
-                        tamanho={14}
-                        cor={restantes !== null && restantes <= 0 ? cores.erro : cores.alerta}
-                      />
-                      <Text
-                        style={[
-                          styles.pendentePrazo,
-                          restantes !== null && restantes <= 0 && styles.pendentePrazoExpirado,
-                        ]}
-                      >
-                        {textoExpiracao}
+                    <View style={styles.pendenteEstado}>
+                      <Icone nome="clock" tamanho={15} cor={cores.alerta} />
+                      <Text style={styles.pendentePrazo}>
+                        {restantes === null
+                          ? 'Aguardando validação'
+                          : `Expira em ${formatarTempoExpiracao(restantes)}`}
                       </Text>
                     </View>
                     <View style={styles.pendenteAbrir}>
-                      <Text style={styles.pendenteAbrirTexto}>Abrir QR Code</Text>
+                      <Text style={styles.pendenteAbrirTexto}>Exibir QR Code</Text>
                       <Icone nome="chevron-right" tamanho={17} cor={cores.primaria} />
                     </View>
                   </View>
                 </View>
               </Card>
             );
-          })
-        )}
+          })}
+        </>
+      ) : null}
+
+      <View style={styles.secao}>
+        <SectionHeader titulo="Você sabia?" />
+        <Card estilo={styles.dica}>
+          <IconBox nome="lightbulb" tamanho={40} cor={cores.alerta} fundo={cores.alertaFundo} />
+          <View style={styles.dicaTexto}>
+            <Text style={styles.dicaTitulo}>Use no estabelecimento</Text>
+            <Text style={styles.dicaDescricao}>
+              Solicite o benefício no app e apresente o QR Code ao atendente. Você tem até 3 horas.
+            </Text>
+          </View>
+        </Card>
       </View>
 
       <View style={styles.secao}>
@@ -178,18 +182,18 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
         ) : erroCampanhas ? (
           <ErrorMessage mensagem={erroCampanhas} aoTentarDeNovo={tentarCampanhas} />
         ) : campanhasVigentes.length === 0 ? (
-          <EmptyState
-            icone="megaphone"
-            titulo="Nenhuma campanha ou evento vigente no momento"
-            texto="Quando a FCV abrir uma campanha, ela aparece aqui com os itens disponíveis."
-          />
+          <View style={styles.campanhaVazia}>
+            <IconBox nome="bell" tamanho={40} cor={cores.primaria} fundo={cores.branco} redondo />
+            <View style={styles.dicaTexto}>
+              <Text style={styles.campanhaTitulo}>Em breve por aqui</Text>
+              <Text style={styles.dicaDescricao}>
+                Ative as notificações para saber das novidades da FCV.
+              </Text>
+            </View>
+          </View>
         ) : (
           campanhasVigentes.map(({ campanha, itens }) => (
-            <CampaignCard
-              key={campanha.id}
-              campanha={campanha}
-              itens={itens}
-            />
+            <CampaignCard key={campanha.id} campanha={campanha} itens={itens} />
           ))
         )}
       </View>
@@ -198,31 +202,110 @@ export default function HomeView({ navigation }: TabScreenProps<'Home'>) {
 }
 
 const styles = StyleSheet.create({
+  saudacao: {
+    marginTop: espaco.xs,
+    marginBottom: espaco.lg,
+    fontFamily: familia.titulo,
+    fontSize: fonte.xxl,
+    lineHeight: 28,
+    color: cores.texto,
+  },
+  banner: {
+    minHeight: 220,
+    overflow: 'hidden',
+    borderRadius: 19,
+    padding: espaco.xl,
+    marginBottom: 0,
+    ...sombra.destaque,
+  },
+  bannerConteudo: {
+    alignItems: 'flex-start',
+    gap: espaco.sm,
+  },
+  bannerRotulo: {
+    fontFamily: familia.semi,
+    fontSize: fonte.xs,
+    letterSpacing: 1.2,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  bannerTitulo: {
+    maxWidth: 280,
+    fontFamily: familia.titulo,
+    fontSize: fonte.xxl,
+    lineHeight: 26,
+    color: cores.branco,
+  },
+  bannerTexto: {
+    maxWidth: 300,
+    fontFamily: familia.regular,
+    fontSize: fonte.base,
+    lineHeight: 20,
+    color: 'rgba(255,255,255,0.88)',
+  },
+  bannerBotao: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: espaco.sm,
+    marginTop: espaco.xs,
+    paddingVertical: 9,
+    paddingHorizontal: espaco.lg,
+    borderRadius: raio.pilula,
+    backgroundColor: cores.branco,
+  },
+  bannerBotaoTexto: {
+    fontFamily: familia.tituloNegrito,
+    fontSize: fonte.base,
+    color: cores.primaria,
+  },
+  circuloTopo: {
+    position: 'absolute',
+    width: 162,
+    height: 162,
+    top: -32,
+    right: -25,
+    borderRadius: 81,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  circuloBase: {
+    position: 'absolute',
+    width: 112,
+    height: 112,
+    bottom: -34,
+    right: 25,
+    borderRadius: 56,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+  },
+  bannerPresente: {
+    position: 'absolute',
+    top: 20,
+    right: 12,
+  },
+  pressionado: {
+    opacity: 0.9,
+  },
   secao: {
-    marginTop: espaco.lg,
+    marginTop: espaco.xxl,
     marginBottom: espaco.sm,
   },
+  erroCatalogo: {
+    marginTop: espaco.md,
+  },
   pendente: {
-    marginBottom: espaco.md,
+    marginTop: espaco.xxl,
     padding: 0,
-    borderColor: cores.bordaAzul,
-    borderRadius: raio.lg,
+    borderColor: cores.borda,
+    borderRadius: 14,
+    overflow: 'hidden',
     ...sombra.card,
   },
-  subtituloPendentes: {
-    marginTop: -espaco.sm,
-    marginBottom: espaco.md,
-    fontFamily: familia.regular,
-    fontSize: fonte.sm,
-    lineHeight: 18,
-    color: cores.textoSecundario,
+  pendenteComAnterior: {
+    marginTop: espaco.md,
   },
   pendenteConteudo: {
     gap: espaco.md,
     padding: espaco.lg,
     borderLeftWidth: 4,
     borderLeftColor: cores.primaria,
-    borderRadius: raio.lg,
   },
   pendenteTopo: {
     flexDirection: 'row',
@@ -235,19 +318,17 @@ const styles = StyleSheet.create({
   },
   pendenteRotulo: {
     fontFamily: familia.semi,
-    fontSize: fonte.xxs,
-    letterSpacing: 0.8,
+    fontSize: fonte.xs,
+    letterSpacing: 1,
     color: cores.primariaMedia,
   },
   pendenteTitulo: {
     fontFamily: familia.titulo,
-    fontSize: fonte.lg,
-    lineHeight: 21,
+    fontSize: fonte.base,
     color: cores.texto,
   },
   pendenteLocais: {
     gap: espaco.xs,
-    paddingLeft: 2,
   },
   pendenteLocalCabecalho: {
     flexDirection: 'row',
@@ -281,7 +362,7 @@ const styles = StyleSheet.create({
     gap: espaco.sm,
     paddingTop: espaco.md,
     borderTopWidth: 1,
-    borderTopColor: cores.borda,
+    borderTopColor: '#E7ECF3',
   },
   pendenteEstado: {
     flexDirection: 'row',
@@ -291,6 +372,11 @@ const styles = StyleSheet.create({
     paddingVertical: espaco.xs,
     borderRadius: raio.pilula,
     backgroundColor: cores.alertaFundo,
+  },
+  pendentePrazo: {
+    fontFamily: familia.semi,
+    fontSize: fonte.xs,
+    color: cores.alerta,
   },
   pendenteAbrir: {
     flexDirection: 'row',
@@ -302,16 +388,43 @@ const styles = StyleSheet.create({
     fontSize: fonte.sm,
     color: cores.primaria,
   },
-  pendenteEstadoExpirado: {
-    backgroundColor: cores.erroFundo,
+  dica: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: espaco.md,
+    padding: espaco.lg,
+    borderRadius: 15,
+    ...sombra.card,
   },
-  pendentePrazo: {
-    fontFamily: familia.medio,
-    fontSize: fonte.xs,
-    color: cores.alerta,
-    flexShrink: 1,
+  dicaTexto: {
+    flex: 1,
+    gap: espaco.xs,
   },
-  pendentePrazoExpirado: {
-    color: cores.erro,
+  dicaTitulo: {
+    fontFamily: familia.titulo,
+    fontSize: fonte.base,
+    color: cores.texto,
+  },
+  dicaDescricao: {
+    fontFamily: familia.regular,
+    fontSize: fonte.sm,
+    lineHeight: 18,
+    color: cores.textoSecundario,
+  },
+  campanhaVazia: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: espaco.md,
+    padding: espaco.lg,
+    borderRadius: 15,
+    backgroundColor: '#EEF3FB',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#AEBBD8',
+  },
+  campanhaTitulo: {
+    fontFamily: familia.semi,
+    fontSize: fonte.base,
+    color: cores.texto,
   },
 });
