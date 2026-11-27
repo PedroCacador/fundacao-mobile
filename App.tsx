@@ -10,6 +10,7 @@ import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { Poppins_400Regular } from '@expo-google-fonts/poppins/400Regular';
 import { Poppins_500Medium } from '@expo-google-fonts/poppins/500Medium';
 import { Poppins_600SemiBold } from '@expo-google-fonts/poppins/600SemiBold';
+import { Poppins_700Bold } from '@expo-google-fonts/poppins/700Bold';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/context/AuthContext';
 import { CatalogProvider } from './src/context/CatalogContext';
@@ -24,6 +25,7 @@ export default function App() {
     Poppins_400Regular,
     Poppins_500Medium,
     Poppins_600SemiBold,
+    Poppins_700Bold,
   });
 
   if (!fontesCarregadas) {

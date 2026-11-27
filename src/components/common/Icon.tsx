@@ -16,7 +16,6 @@ import {
   CircleCheck,
   CircleX,
   Clock,
-
   Coins,
   Construction,
   CreditCard,
@@ -36,6 +35,7 @@ import {
   IdCard,
   Info,
   KeyRound,
+  Lightbulb,
   Lock,
   LogOut,
   LucideIcon,
@@ -102,6 +102,7 @@ const icones: Record<NomeIcone, LucideIcon> = {
   info: Info,
   'key-round': KeyRound,
   lock: Lock,
+  lightbulb: Lightbulb,
   'log-out': LogOut,
   mail: Mail,
   map: Map,
@@ -118,7 +119,6 @@ const icones: Record<NomeIcone, LucideIcon> = {
   settings: Settings,
   'shield-check': ShieldCheck,
   store: Store,
-
 
   tag: Tag,
   ticket: Ticket,
@@ -180,4 +180,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  });
+});
